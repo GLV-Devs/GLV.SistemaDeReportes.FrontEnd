@@ -6,6 +6,9 @@ import Root from './routes/Root'
 import Login from './routes/Login'
 import ErrorPage from './routes/ErrorPage'
 import Main from './routes/MainPage'
+import Materials from './routes/Materials'
+import Projects from './routes/Projects'
+import Personal from './routes/Personal'
 
 const router = createBrowserRouter([
   {
@@ -20,16 +23,16 @@ const router = createBrowserRouter([
       {
         path: '/main',
         element: <Main />,
-        // children: [{
-        //   path: '/main/',
-        //   element: < />
-        // },{
-        //   path: '/main/',
-        //   element: < />
-        // },{
-        //   path: '/main/',
-        //   element: < />
-        // }]
+        children: [{
+          path: '/main/personas',
+          element: <Personal />
+        },{
+          path: '/main/proyectos',
+          element: <Projects />
+        },{
+          path: '/main/productos',
+          element: <Materials />
+        }]
       }
     ],
   }

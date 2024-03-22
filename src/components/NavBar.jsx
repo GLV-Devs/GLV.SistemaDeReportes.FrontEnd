@@ -1,15 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 
 const NavBar = () => {
+
+    const navigate = useNavigate()
+
     return(
         <div className="NavBar">
             <h3>Sistema de Control</h3>
-            <Button variant="contained">opcion 1</Button>
-            <Button variant="contained">opcion 2</Button>
-            <Button variant="contained">opcion 3</Button>
-            <Button variant="contained">opcion 4</Button>
-            <Button variant="contained">opcion 5</Button>
-            <Button variant="contained">opcion 6</Button>
+            <Button variant="contained" onClick={() => navigate('/main/personas')}>Personas</Button>
+            <Button variant="contained" onClick={() => navigate('/main/proyectos')}>Proyectos</Button>
+            <Button variant="contained" onClick={() => navigate('/main/productos')}>Productos</Button>
+            <h3>Bienvenido, Jesus Lozano</h3>
         </div>
     )
 }
