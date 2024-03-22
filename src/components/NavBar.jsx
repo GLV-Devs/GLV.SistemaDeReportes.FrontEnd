@@ -9,6 +9,7 @@ const NavBar = () => {
             <Button variant="contained">opcion 3</Button>
             <Button variant="contained">opcion 4</Button>
             <Button variant="contained">opcion 5</Button>
+            <Button variant="contained">opcion 6</Button>
         </div>
     )
 }
