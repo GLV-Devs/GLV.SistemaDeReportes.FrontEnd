@@ -1,13 +1,16 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 
 const Personal = () => {
+
+    const navigate = useNavigate()
+
     return(
         <div className="Personal">
             <div className="PersonalNavBar">
-                <Button variant="contained">Agregar persona</Button>
-                <Button variant="contained">editar persona</Button>
-                <Button variant="contained">lista de personas</Button>
+                <Button variant="contained" onClick={() => navigate('/main/personas/agregar')}>Agregar persona</Button>
+                <Button variant="contained" onClick={() => navigate('/main/personas/editar')}>editar persona</Button>
+                <Button variant="contained" onClick={() => navigate('/main/personas/lista')}>lista de personas</Button>
             </div>
             <Outlet />
         </div>

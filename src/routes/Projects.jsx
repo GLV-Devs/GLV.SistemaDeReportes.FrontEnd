@@ -1,13 +1,16 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 
 const Projects = () => {
+
+    const navigate = useNavigate()
+
     return(
         <div className="Projects">
             <div className="ProjectsNavBar">
-                <Button variant="contained">Agregar proyecto</Button>
-                <Button variant="contained">editar proyecto</Button>
-                <Button variant="contained">lista de proyectos</Button>
+                <Button variant="contained" onClick={() => navigate('/main/proyectos/agregar')}>Agregar proyecto</Button>
+                <Button variant="contained" onClick={() => navigate('/main/proyectos/editar')}>editar proyecto</Button>
+                <Button variant="contained" onClick={() => navigate('/main/proyectos/lista')}>lista de proyectos</Button>
             </div>
             <Outlet />
         </div>

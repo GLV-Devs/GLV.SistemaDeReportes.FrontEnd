@@ -16,12 +16,14 @@ const Login = () => {
     }
 
     return(
-        <form className="Login" onSubmit={handleSubmit}>
-            <h1>Iniciar Sesion</h1>
-            <TextField type="text" label='Username'/>
-            <TextField type="password" label='Contraseña'/>
-            <Button variant="contained" type="submit">Iniciar sesion</Button>
-        </form>
+        <div className="Login">
+            <form onSubmit={handleSubmit}>
+                <h1>Iniciar Sesion</h1>
+                <TextField type="text" label='Username'/>
+                <TextField type="password" label='Contraseña'/>
+                <Button variant="contained" type="submit">Iniciar sesion</Button>
+            </form>
+        </div>
     )
 }
 
