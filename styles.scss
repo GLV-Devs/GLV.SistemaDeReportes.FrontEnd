@@ -9,13 +9,13 @@
     align-items: center;
     height: 40px;
     padding: 10px 0px;
-    border-top: 2px solid rgba(255, 255, 255, 0.7);
+    border-top: 1px solid #023047;
 }
 
 body{
     margin: 0px;
     font-family: "Bai Jamjuree", sans-serif;
-    background-color: #c7f9cc;
+    // background-color: #c7f9cc;
 }
 
 .container{
@@ -37,9 +37,9 @@ body{
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background-color: #22577a;
-            border-radius: 35px;
-            box-shadow: 0px 0px 15px 15px rgba(0, 0, 0, 0.3);
+            // background-color: #22577a;
+            // border-radius: 35px;
+            // box-shadow: 0px 0px 15px 15px rgba(0, 0, 0, 0.3);
             H1{
                 font-size: 45px;
                 margin: 0px;
@@ -79,6 +79,14 @@ body{
 
             .PersonalNavBar{
                 @include subNavBar()
+            }
+
+            .AddPersonal{
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 15px;
             }
         }
     }
