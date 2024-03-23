@@ -1,15 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 
-@mixin subNavBar{
+@mixin pages{
     width: 100vw;
-    background-color: #38a3a5;
+    height: calc(100vh - 60px);
     display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+    flex-direction: column;
     align-items: center;
-    height: 40px;
-    padding: 10px 0px;
-    border-top: 1px solid #023047;
+    justify-content: start;
+    gap: 15px;
+}
+
+@mixin LI{
+    display: flex;
+    border: 1px solid black;
+    width: 40vw;
+    justify-content: space-between;
+    padding: 0px 20px;
+
+    .Buttons{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 }
 
 body{
@@ -67,48 +79,26 @@ body{
         }
 
         .Projects{
-            width: 100vw;
+            @include pages();
 
-            .ProjectsNavBar{
-                @include subNavBar()
+            .LI{
+                @include LI();
             }
         }
 
         .Materials{
+            @include pages();
 
-            .MaterialsNavBar{
-                @include subNavBar()
+            .LI{
+                @include LI();
             }
         }
 
         .Personal{
+            @include pages();
 
-            .PersonalNavBar{
-                @include subNavBar()
-            }
-
-            .AddPersonal{
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                gap: 15px;
-
-                .LI{
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    width: 50vw;
-                    justify-content: space-between;
-                    padding: 0px 30px;
-                    border: 1px solid #023047;
-
-                    .Buttons{
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    }
-                }
+            .LI{
+                @include LI();
             }
         }
     }

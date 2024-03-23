@@ -3,16 +3,37 @@ import { Button } from "@mui/material";
 
 const Projects = () => {
 
-    const navigate = useNavigate()
+    const infoPrueba = [{
+        name: 'Casa',
+        address: 'Av Bella vista',
+        idType: 'casa',
+        idNumber: '1',
+        phone: '0412',
+    },{
+        name: 'Edificio',
+        address: 'Av Universidad',
+        idType: 'edificio',
+        idNumber: '2',
+        phone: '0414',
+    }]
 
     return(
         <div className="Projects">
-            <div className="ProjectsNavBar">
-                <Button variant="contained" onClick={() => navigate('/main/proyectos/agregar')}>Agregar proyecto</Button>
-                <Button variant="contained" onClick={() => navigate('/main/proyectos/editar')}>editar proyecto</Button>
-                <Button variant="contained" onClick={() => navigate('/main/proyectos/lista')}>lista de proyectos</Button>
-            </div>
-            <Outlet />
+            <h1>Listado de Proyectos</h1>
+            <Button variant="contained">Agregar proyecto</Button>
+            { infoPrueba.map((project) => (
+                <div className='LI'>
+                    <div className='info'>
+                        <h3>{project.name}</h3>
+                        <h3>{project.idType}-{project.idNumber}</h3>
+                    </div>
+
+                    <div className="Buttons">
+                        <Button variant='contained'>editar</Button>
+                        <Button variant='contained'>ver info</Button>
+                    </div>
+                </div>
+            )) }
         </div>
     )
 }

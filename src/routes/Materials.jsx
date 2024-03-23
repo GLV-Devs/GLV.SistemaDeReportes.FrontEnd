@@ -3,16 +3,27 @@ import { Button } from "@mui/material";
 
 const Materials = () => {
 
-    const navigate = useNavigate()
+    const infoPrueba = [{
+        name: 'Cable inalambrico'
+    },{
+        name: 'Soldadura en polvo'
+    },{
+        name: 'Tuercas para tornillos'
+    }]
 
     return(
         <div className="Materials">
-            <div className="MaterialsNavBar">
-                <Button variant="contained" onClick={() => navigate('/main/productos/agregar')}>Agregar producto</Button>
-                <Button variant="contained" onClick={() => navigate('/main/productos/editar')}>editar producto</Button>
-                <Button variant="contained" onClick={() => navigate('/main/productos/lista')}>lista de productos</Button>
-            </div>
-            <Outlet />
+            <h1>Listado de materiales</h1>
+            <Button variant='contained'>Agregar material</Button>
+            {infoPrueba.map((item) => (
+                <div className="LI">
+                    <h3>{item.name}</h3>
+                    <div className="Buttons">
+                        <Button variant="contained">Editar</Button>
+                        <Button variant="contained">Ver info</Button>
+                    </div>
+                </div>
+            ))}
         </div>
     )
 }
