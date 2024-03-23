@@ -1,9 +1,13 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+import {ModalAdd, ModalEdit, ModalView} from '../components/ModalPersonal'
+import { Button, Modal } from "@mui/material";
+import { useState } from "react";
 
 const Personal = () => {
 
-    const navigate = useNavigate()
+    const [edit, setEdit] = useState(false)
+    const [add, setAdd] = useState(false)
+    const [view, setView] = useState(false)
+    const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
         name: 'Jesus Lozano',
@@ -19,6 +23,11 @@ const Personal = () => {
         phone: '0414',
     }]
 
+    function openViewModal(data){
+        setView(!view)
+        setSelected(data)
+    }
+
     return(
         <div className="Personal">
             <h1>Lista del personal</h1>
@@ -31,10 +40,14 @@ const Personal = () => {
                     </div>
                     <div className="Buttons">
                         <Button variant='contained'>Editar</Button>
-                        <Button variant="contained">Ver info</Button>
+                        <Button variant="contained" onClick={() => openViewModal(worker)}>Ver info</Button>
                     </div>
                 </div>
             ) )}
+
+            { edit && <ModalEdit /> }
+            { add &&  <ModalAdd />}
+            { view && <ModalView info={selected} close={openViewModal}/> }
         </div>
     )
 }

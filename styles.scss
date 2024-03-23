@@ -8,6 +8,7 @@
     align-items: center;
     justify-content: start;
     gap: 15px;
+    overflow-y: scroll;
 }
 
 @mixin LI{
@@ -27,7 +28,7 @@
 body{
     margin: 0px;
     font-family: "Bai Jamjuree", sans-serif;
-    // background-color: #c7f9cc;
+    overflow: hidden;
 }
 
 .container{
@@ -118,5 +119,29 @@ body{
     h1{
         font-size: 50px;
         margin: 0px;
+    }
+}
+
+.Modal{
+    width: 50%;
+    height: 80%;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid black;
+    position: absolute;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    overflow-y: scroll;
+    gap: 10px;
+    
+    h3{
+        margin: 0px;
+    }
+
+    h1{
+        font-size: 40px;
     }
 }
