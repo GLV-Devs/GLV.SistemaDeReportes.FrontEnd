@@ -5,19 +5,46 @@ export const ModalView = ({info, close}) => {
 
     const [addNote, setAddNote] = useState(false)
 
+    const infoPrueba = [{name: 'Reporte 1'},{name: 'Reporte 2'},{name: 'Reporte 3'}]
+
     return(
-        <div className='Modal'>
-            <h1>Informacion</h1>
-            <h3>Nombre: {info.name}</h3>
-            <h3>Identificacion: {info.idType}-{info.idNumber}</h3>
-            <h3>Direccion: {info.address}</h3>
-            <h3>Telefono: {info.phone}</h3>
-            <h3>Estado: {info.status}</h3>
+        <div className='ModalDual'>
+            <div className='content'>
+                <div className='left'>
+                    <h1>Informacion</h1>
+                    <h3>Nombre: {info.name}</h3>
+                    <h3>Identificacion: {info.idType}-{info.idNumber}</h3>
+                    <h3>Direccion: {info.address}</h3>
+                    <h3>Telefono: {info.phone}</h3>
+                    <h3>Estado: {info.status}</h3>
+                </div>
+                <div className="divider"></div>
+                <div className='right'>
+                    <h1>Reportes</h1>
+                    <div className="Select">
+                        <p>Seleccione un reporte</p>
+                        <Select size="small">
+                            
+                            {infoPrueba.map((report) => (
+                                <MenuItem key={report.name} value={report.name}>{report.name}</MenuItem>
+                            ))}
+
+                        </Select>
+                    </div>
+                    <h3>Proyecto</h3>
+                    <h3>Usuario</h3>
+                    <h3>Fecha</h3>
+                    <h3>Tipo de reporte</h3>
+                    <h3>Texto</h3>
+                </div>
+            </div>
+            
             <div className="Buttons">
-                <Button variant='contained' onClick={() => setAddNote(true)}>Agregar nota</Button>
+                <Button variant='contained' onClick={() => setAddNote(true)}>Agregar reporte</Button>
                 <Button variant="contained" color='error' onClick={close}>Cerrar</Button>
             </div>
-            { addNote && <AddNoteModal close={() => setAddNote(false)}/> }
+
+            { addNote && <AddNoteModal close={ () => setAddNote(false) }/> }
         </div>
     )
 }
@@ -167,19 +194,12 @@ export const AddNoteModal = ({close}) => {
                             </Select>
                         </div>
                     
-                        <TextField label='nota'/>
+                        <TextField multiline label='nota'/>
                         <input type='file'/>
                     </div>
                     <Button variant='contained' color='error' onClick={close}>Cancelar</Button>
                 </form>
             ) }
         </>
-    )
-}
-
-export const ListNoteModal = () => {
-    return(
-        <className>
-        </className>
     )
 }
