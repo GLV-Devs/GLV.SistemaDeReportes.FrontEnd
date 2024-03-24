@@ -1,4 +1,4 @@
-import { ModalAdd, ModalEdit, ModalView } from '../components/modalMaterials'
+import { ModalAdd, ModalEdit, ModalView } from '../components/ModalMaterials'
 import { Button } from "@mui/material";
 import { useState } from 'react';
 
@@ -10,11 +10,14 @@ const Materials = () => {
     const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
-        name: 'Cable inalambrico'
+        name: 'Cable inalambrico',
+        unit: 'Mts.'
     },{
-        name: 'Soldadura en polvo'
+        name: 'Soldadura en polvo',
+        unit: 'Grs.'
     },{
-        name: 'Tuercas para tornillos'
+        name: 'Tuercas para tornillos',
+        unit: 'Unids.'
     }]
 
     function openViewModal(data){
