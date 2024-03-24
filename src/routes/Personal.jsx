@@ -28,10 +28,18 @@ const Personal = () => {
         setSelected(data)
     }
 
+    function openAddModal(){
+        setAdd(!add)
+    }
+
+    function openEditModal(){
+        setEdit(!edit)
+    }
+
     return(
         <div className="Personal">
             <h1>Lista del personal</h1>
-            <Button variant='contained'>Agregar Personal</Button>
+            <Button variant='contained' onClick={openAddModal}>Agregar Personal</Button>
             {infoPrueba.map( (worker) => (
                 <div className="LI">
                     <div className="info">
@@ -39,14 +47,14 @@ const Personal = () => {
                         <h4>{worker.idType} {worker.idNumber}</h4>
                     </div>
                     <div className="Buttons">
-                        <Button variant='contained'>Editar</Button>
+                        <Button variant='contained' onClick={ () => openEditModal() }>Editar</Button>
                         <Button variant="contained" onClick={() => openViewModal(worker)}>Ver info</Button>
                     </div>
                 </div>
             ) )}
 
-            { edit && <ModalEdit /> }
-            { add &&  <ModalAdd />}
+            { edit && <ModalEdit  close={openEditModal}/> }
+            { add &&  <ModalAdd close={openAddModal}/>}
             { view && <ModalView info={selected} close={openViewModal}/> }
         </div>
     )

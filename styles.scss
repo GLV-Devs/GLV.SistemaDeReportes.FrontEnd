@@ -137,6 +137,11 @@ body{
     overflow-y: scroll;
     gap: 10px;
     
+    .Buttons{
+        display: flex;
+        gap: 10px;
+    }
+
     h3{
         margin: 0px;
     }
