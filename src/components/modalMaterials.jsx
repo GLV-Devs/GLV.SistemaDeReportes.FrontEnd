@@ -6,9 +6,9 @@ export const ModalView = ({info, close}) => {
         <div className='Modal'>
             <h1>Informacion</h1>
             <h3>Nombre: {info.name}</h3>
-            <h3>Identificacion: {info.idType}-{info.idNumber}</h3>
+            {/* <h3>Identificacion: {info.idType}-{info.idNumber}</h3>
             <h3>Direccion: {info.address}</h3>
-            <h3>Telefono: {info.phone}</h3>
+            <h3>Telefono: {info.phone}</h3> */}
             <Button variant="contained" color='error' onClick={close}>Cerrar</Button>
         </div>
     )
@@ -64,12 +64,12 @@ export const ModalAdd = ({close}) => {
         <>
             { success ? (
                 <div className="Modal">
-                    <h1>Proyecto registrado</h1>
+                    <h1>Material registrado</h1>
                     <Button variant='contained' color='error' onClick={close}>cerrar</Button>
                 </div>
             ):(
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Agregar Proyecto</h1>
+                    <h1>Agregar Material</h1>
                     <TextField label='Nombre'/>
                     <div>
                         <InputLabel id='idType'>Identificacion</InputLabel>

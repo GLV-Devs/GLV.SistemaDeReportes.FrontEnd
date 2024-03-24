@@ -1,7 +1,13 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { ModalAdd, ModalEdit, ModalView } from "../components/ModalProjects";
 import { Button } from "@mui/material";
+import { useState } from "react";
 
 const Projects = () => {
+
+    const [edit, setEdit] = useState(false)
+    const [add, setAdd] = useState(false)
+    const [view, setView] = useState(false)
+    const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
         name: 'Casa',
@@ -17,10 +23,23 @@ const Projects = () => {
         phone: '0414',
     }]
 
+    function openViewModal(data){
+        setView(!view)
+        setSelected(data)
+    }
+
+    function openAddModal(){
+        setAdd(!add)
+    }
+
+    function openEditModal(){
+        setEdit(!edit)
+    }
+
     return(
         <div className="Projects">
             <h1>Listado de Proyectos</h1>
-            <Button variant="contained">Agregar proyecto</Button>
+            <Button variant="contained" onClick={openAddModal}>Agregar proyecto</Button>
             { infoPrueba.map((project) => (
                 <div className='LI'>
                     <div className='info'>
@@ -29,11 +48,15 @@ const Projects = () => {
                     </div>
 
                     <div className="Buttons">
-                        <Button variant='contained'>editar</Button>
-                        <Button variant='contained'>ver info</Button>
+                        <Button variant='contained' onClick={ () => openEditModal() }>editar</Button>
+                        <Button variant='contained' onClick={ () => openViewModal(project) }>ver info</Button>
                     </div>
                 </div>
             )) }
+
+            { edit && <ModalEdit  close={openEditModal}/> }
+            { add &&  <ModalAdd close={openAddModal}/>}
+            { view && <ModalView info={selected} close={openViewModal}/> }
         </div>
     )
 }
