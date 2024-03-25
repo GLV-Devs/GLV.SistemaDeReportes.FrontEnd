@@ -4,12 +4,12 @@ import { useState } from "react"
 export const ModalView = ({info, close}) => {
     return(
         <div className='Modal'>
-            <h1>Informacion</h1>
-            <h3>Nombre: {info.name}</h3>
-            <h3>Identificacion: {info.idType}-{info.idNumber}</h3>
-            <h3>Direccion: {info.address}</h3>
-            <h3>Telefono: {info.phone}</h3>
-            <Button variant="contained" color='error' onClick={close}>Cerrar</Button>
+            <h1>Info</h1>
+            <h3>Name: {info.name}</h3>
+            <h3>Identification: {info.idType}-{info.idNumber}</h3>
+            <h3>Address: {info.address}</h3>
+            <h3>Phone: {info.phone}</h3>
+            <Button variant="contained" color='error' onClick={close}>close</Button>
         </div>
     )
 }
@@ -27,15 +27,15 @@ export const ModalEdit = ({close}) => {
         <>
             { success ? (
                 <div className="Modal">
-                    <h1>Cambios Guardados</h1>
-                    <Button variant='contained' color='error' onClick={close}>cerrar</Button>
+                    <h1>Changes saved</h1>
+                    <Button variant='contained' color='error' onClick={close}>close</Button>
                 </div>
             ):(
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Editar</h1>
+                    <h1>Edit staff</h1>
                     <div className='Buttons'>
-                        <Button variant='contained' type='submit'>guardar</Button>
-                        <Button variant='contained' color='error' onClick={close}>cerrar</Button>
+                        <Button variant='contained' type='submit'>save</Button>
+                        <Button variant='contained' color='error' onClick={close}>cancel</Button>
                     </div>
                 </form>
             ) }
@@ -56,7 +56,6 @@ export const ModalAdd = ({close}) => {
             address: e.target[6].value,
             phone: e.target[8].value,
         }
-        console.log(data)
         setSucces(true)
     }
 
@@ -64,15 +63,15 @@ export const ModalAdd = ({close}) => {
         <>
             { success ? (
                 <div className="Modal">
-                    <h1>Personal registrado</h1>
-                    <Button variant='contained' color='error' onClick={close}>cerrar</Button>
+                    <h1>staff added</h1>
+                    <Button variant='contained' color='error' onClick={close}>close</Button>
                 </div>
             ):(
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Agregar Personal</h1>
-                    <TextField label='Nombre'/>
+                    <h1>Add staff</h1>
+                    <TextField label='Name'/>
                     <div>
-                        <InputLabel id='idType'>Identificacion</InputLabel>
+                        <InputLabel id='idType'>Identification</InputLabel>
                         <Select label='Identificacion'>
                             <MenuItem value='V'>V</MenuItem>
                             <MenuItem value='J'>J</MenuItem>
@@ -80,11 +79,11 @@ export const ModalAdd = ({close}) => {
                         </Select>
                         <TextField />
                     </div>
-                    <TextField label='Direccion'/>
-                    <TextField label='Telefono'/>
+                    <TextField label='Address'/>
+                    <TextField label='Phone'/>
                     <div className='Buttons'>
-                        <Button variant='contained' type='submit'>guardar</Button>
-                        <Button variant='contained' color='error' onClick={close}>cerrar</Button>
+                        <Button variant='contained' type='submit'>save</Button>
+                        <Button variant='contained' color='error' onClick={close}>cancel</Button>
                     </div>
                 </form>
             ) }

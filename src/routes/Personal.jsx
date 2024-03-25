@@ -38,8 +38,8 @@ const Personal = () => {
 
     return(
         <div className="Personal">
-            <h1>Lista del personal</h1>
-            <Button variant='contained' onClick={openAddModal}>Agregar Personal</Button>
+            <h1>Staff list</h1>
+            <Button variant='contained' onClick={openAddModal}>Add Staff</Button>
             {infoPrueba.map( (worker) => (
                 <div className="LI">
                     <div className="info">
@@ -47,8 +47,8 @@ const Personal = () => {
                         <h4>{worker.idType} {worker.idNumber}</h4>
                     </div>
                     <div className="Buttons">
-                        <Button variant='contained' onClick={ () => openEditModal() }>Editar</Button>
-                        <Button variant="contained" onClick={() => openViewModal(worker)}>Ver info</Button>
+                        <Button variant='contained' onClick={ () => openEditModal() }>Edit</Button>
+                        <Button variant="contained" onClick={() => openViewModal(worker)}>See info</Button>
                     </div>
                 </div>
             ) )}

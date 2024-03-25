@@ -7,13 +7,13 @@ const NavBar = () => {
 
     return(
         <div className="NavBar">
-            <h3>Sistema de Control</h3>
-            <Button variant="contained" onClick={() => navigate('/main/personas')}>Personas</Button>
-            <Button variant="contained" onClick={() => navigate('/main/proyectos')}>Proyectos</Button>
-            <Button variant="contained" onClick={() => navigate('/main/productos')}>Productos</Button>
-            <div className="sesion">
-                <h3>Bienvenido, Jesus Lozano</h3>
-                <Button variant="contained" color='error'>Salir</Button>
+            <h4>Control Sistem - Jesus Lozano</h4>
+
+            <div className="Buttons">
+                <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/personas')}>Staff</Button>
+                <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/proyectos')}>projects</Button>
+                <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/productos')}>Materials</Button>
+                <Button size='small' variant="text" color='error'>Log out</Button>
             </div>
         </div>
     )

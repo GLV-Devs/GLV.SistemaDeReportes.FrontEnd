@@ -35,14 +35,14 @@ const Materials = () => {
 
     return(
         <div className="Materials">
-            <h1>Listado de materiales</h1>
-            <Button variant='contained' onClick={openAddModal}>Agregar material</Button>
+            <h1>Materials list</h1>
+            <Button variant='contained' onClick={openAddModal}>Add material</Button>
             {infoPrueba.map((item) => (
                 <div className="LI">
                     <h3>{item.name}</h3>
                     <div className="Buttons">
-                        <Button variant="contained" onClick={() => openEditModal()}>Editar</Button>
-                        <Button variant="contained" onClick={() => openViewModal(item)}>Ver info</Button>
+                        <Button variant="contained" onClick={() => openEditModal()}>Edit</Button>
+                        <Button variant="contained" onClick={() => openViewModal(item)}>see info</Button>
                     </div>
                 </div>
             ))}

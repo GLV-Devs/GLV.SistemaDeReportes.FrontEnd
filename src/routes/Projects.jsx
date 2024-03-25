@@ -10,18 +10,10 @@ const Projects = () => {
     const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
-        name: 'Casa',
-        address: 'Av Bella vista',
-        idType: 'casa',
-        idNumber: '1',
-        phone: '0412',
+        name: 'Telefono',
         status: 'Activado',
     },{
-        name: 'Edificio',
-        address: 'Av Universidad',
-        idType: 'edificio',
-        idNumber: '2',
-        phone: '0414',
+        name: 'Tablet',
         status: 'En Proceso',
     }]
 
@@ -40,18 +32,17 @@ const Projects = () => {
 
     return(
         <div className="Projects">
-            <h1>Listado de Proyectos</h1>
-            <Button variant="contained" onClick={openAddModal}>Agregar proyecto</Button>
+            <h1>Project List</h1>
+            <Button variant="contained" onClick={openAddModal}>Add Project</Button>
             { infoPrueba.map((project) => (
                 <div key={project.name} className='LI'>
                     <div className='info'>
                         <h3>{project.name}</h3>
-                        <h3>{project.idType}-{project.idNumber}</h3>
                     </div>
 
                     <div className="Buttons">
-                        <Button variant='contained' onClick={ () => openEditModal() }>editar</Button>
-                        <Button variant='contained' onClick={ () => openViewModal(project) }>ver info</Button>
+                        <Button variant='contained' onClick={ () => openEditModal() }>edit</Button>
+                        <Button variant='contained' onClick={ () => openViewModal(project) }>see info</Button>
                     </div>
                 </div>
             )) }

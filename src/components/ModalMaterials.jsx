@@ -62,7 +62,7 @@ export const ModalAdd = ({close}) => {
         <>
             { success ? (
                 <div className="Modal">
-                    <h1>Material registrado</h1>
+                    <h1>Material Added</h1>
                     <Button variant='contained' color='error' onClick={close}>cerrar</Button>
                 </div>
             ):(
@@ -81,8 +81,8 @@ export const ModalAdd = ({close}) => {
                     <TextField label='Direccion'/>
                     <TextField label='Telefono'/>
                     <div className='Buttons'>
-                        <Button variant='contained' type='submit'>guardar</Button>
-                        <Button variant='contained' color='error' onClick={close}>cerrar</Button>
+                        <Button variant='contained' type='submit'>save</Button>
+                        <Button variant='contained' color='error' onClick={close}>cancel</Button>
                     </div>
                 </form>
             ) }
