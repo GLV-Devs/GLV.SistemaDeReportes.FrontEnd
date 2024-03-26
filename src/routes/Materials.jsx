@@ -1,6 +1,7 @@
 import { ModalAdd, ModalEdit, ModalView } from '../components/ModalMaterials'
 import { Button } from "@mui/material";
 import { useState } from 'react';
+import { faker } from '@faker-js/faker'
 
 const Materials = () => {
 
@@ -10,13 +11,13 @@ const Materials = () => {
     const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
-        name: 'Cable inalambrico',
+        name: faker.commerce.productMaterial(),
         unit: 'Mts.'
     },{
-        name: 'Soldadura en polvo',
+        name: faker.commerce.productMaterial(),
         unit: 'Grs.'
     },{
-        name: 'Tuercas para tornillos',
+        name: faker.commerce.productMaterial(),
         unit: 'Unids.'
     }]
 

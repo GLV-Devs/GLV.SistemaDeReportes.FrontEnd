@@ -1,6 +1,7 @@
 import { ModalAdd, ModalEdit, ModalView } from "../components/ModalProjects";
 import { Button } from "@mui/material";
 import { useState } from "react";
+import { faker } from '@faker-js/faker'
 
 const Projects = () => {
 
@@ -10,10 +11,10 @@ const Projects = () => {
     const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
-        name: 'Telefono',
+        name: faker.commerce.product(),
         status: 'Activado',
     },{
-        name: 'Tablet',
+        name: faker.commerce.product(),
         status: 'En Proceso',
     }]
 

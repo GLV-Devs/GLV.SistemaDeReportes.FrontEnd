@@ -9,6 +9,7 @@ import Main from './routes/MainPage'
 import Materials from './routes/Materials'
 import Projects from './routes/Projects'
 import Personal from './routes/Personal'
+import LoggedUserProvider from './context/LoggedUserProvider'
 
 const router = createBrowserRouter([
   {
@@ -39,5 +40,8 @@ const router = createBrowserRouter([
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router}/>
+  <LoggedUserProvider>
+    <RouterProvider router={router}/>
+  </LoggedUserProvider>
+  
 )

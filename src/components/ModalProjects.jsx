@@ -2,26 +2,27 @@ import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, Accor
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react"
+import { faker } from '@faker-js/faker'
 
 export const ModalView = ({info, close}) => {
 
     const [addNote, setAddNote] = useState(false)
 
     const infoPrueba = [{
-        date: '2024/12/24',
+        date: faker.date.past().toLocaleDateString(),
         cat: 'Fallas',
-        user: 'Jesus',
-        line: 'nothing',
+        user: faker.person.fullName(),
+        line: faker.lorem.sentence(5),
     },{
-        date: '2002/02/24',
+        date: faker.date.past().toLocaleDateString(),
         cat: 'Birthday',
-        user: 'Jesus Again',
-        line: 'I said Nothing',
+        user: faker.person.fullName(),
+        line: faker.lorem.sentence(5),
     },{
-        date: '1',
+        date: faker.date.past().toLocaleDateString(),
         cat: '2',
-        user: '3',
-        line: '4',
+        user: faker.person.fullName(),
+        line: faker.lorem.sentence(5),
     }]
 
     return(
@@ -30,14 +31,14 @@ export const ModalView = ({info, close}) => {
                 <div className='left'>
                     <h1>Info</h1>
                     <h3>Name: {info.name}</h3>
-                    <h3>Estado: {info.status}</h3>
+                    <h3>Status: {info.status}</h3>
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Staff</AccordionSummary>
-                        <AccordionDetails>Diego, Jesus</AccordionDetails>
+                        <AccordionDetails>{faker.person.fullName()}, {faker.person.fullName()}</AccordionDetails>
                     </Accordion>
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Users with access</AccordionSummary>
-                        <AccordionDetails>Diego, Jesus</AccordionDetails>
+                        <AccordionDetails>{faker.person.fullName()}, {faker.person.fullName()}</AccordionDetails>
                     </Accordion>
                 </div>
                 <div className="divider"></div>
@@ -48,7 +49,7 @@ export const ModalView = ({info, close}) => {
                                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                         {report.date}  -  {report.cat}  -  {report.user}  -  {report.line}
                                     </AccordionSummary>
-                                    <AccordionDetails>Diego, Jesus</AccordionDetails>
+                                    <AccordionDetails>{report.user} {faker.lorem.sentence(15)}</AccordionDetails>
                                 </Accordion>
                             ))}
                 </div>

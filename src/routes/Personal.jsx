@@ -1,6 +1,7 @@
 import {ModalAdd, ModalEdit, ModalView} from '../components/ModalPersonal'
 import { Button, Modal } from "@mui/material";
 import { useState } from "react";
+import { faker } from '@faker-js/faker'
 
 const Personal = () => {
 
@@ -10,17 +11,17 @@ const Personal = () => {
     const [selected, setSelected] = useState('')
 
     const infoPrueba = [{
-        name: 'Jesus Lozano',
-        address: 'Av Uni',
+        name: faker.person.fullName(),
+        address: faker.location.secondaryAddress(),
         idType: "V",
-        idNumber: '28.288.269',
-        phone: '0412-7859759',
+        idNumber: faker.number.int({max: 99999999}),
+        phone: faker.phone.number(),
     },{
-        name: 'Diego Garcia',
-        address: 'Bella Vista',
+        name: faker.person.fullName(),
+        address: faker.location.secondaryAddress(),
         idType: "E",
-        idNumber: '0.000.001',
-        phone: '0414',
+        idNumber: faker.number.int({max: 99999999}),
+        phone: faker.phone.number(),
     }]
 
     function openViewModal(data){
