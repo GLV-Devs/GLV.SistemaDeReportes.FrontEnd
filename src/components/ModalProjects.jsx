@@ -1,7 +1,7 @@
 import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip } from "@mui/material"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { faker } from '@faker-js/faker'
 
 export const ModalView = ({info, close}) => {
@@ -25,6 +25,17 @@ export const ModalView = ({info, close}) => {
         line: faker.lorem.sentence(5),
     }]
 
+    const usedMaterials = [{
+        name: faker.commerce.product(),
+        qtty: faker.number.int({max: 10}),
+    },{
+        name: faker.commerce.product(),
+        qtty: faker.number.int({max: 10}),
+    },{
+        name: faker.commerce.product(),
+        qtty: faker.number.int({max: 10}),
+    }]
+
     return(
         <div className='ModalDual'>
             <div className='content'>
@@ -39,6 +50,10 @@ export const ModalView = ({info, close}) => {
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Users with access</AccordionSummary>
                         <AccordionDetails>{faker.person.fullName()}, {faker.person.fullName()}</AccordionDetails>
+                    </Accordion>
+                    <Accordion className="Accordion" variant="elevation">
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>Used Materials</AccordionSummary>
+                        <AccordionDetails>{usedMaterials.map((material) => (<div>{material.qtty} {material.name}</div>))}</AccordionDetails>
                     </Accordion>
                 </div>
                 <div className="divider"></div>
@@ -99,6 +114,8 @@ export const ModalAdd = ({close}) => {
     const [success, setSucces] = useState(false)
     const [idType, setIdType] = useState('')
     const [status, setStatus] = useState('')
+    const [staff, setStaff] = useState([])
+    const [staffSelected, setStaffSelected] = useState('')
 
     const handleIdType = (e) => {
         setIdType(e.target.value)
@@ -108,14 +125,31 @@ export const ModalAdd = ({close}) => {
         setStatus(e.target.value)
     }
 
+    const handleAddStaff = (e) => {
+        e.preventDefault()
+        setStaff([...staff, staffSelected])
+    }
+
     function handleSubmit(e){
         e.preventDefault()
         const data = {
             name: e.target[0].value,
             state: e.target[2].value,
+            personal: staff,
         }
         setSucces(true)
+        console.log(data)
     }
+
+    const infoPrueba = [{
+        name: faker.person.fullName()
+    },{
+        name: faker.person.fullName()
+    },{
+        name: faker.person.fullName()
+    },{
+        name: faker.person.fullName()
+    }]
 
     return(
         <>
@@ -141,6 +175,15 @@ export const ModalAdd = ({close}) => {
                             <MenuItem value='Activado'>Active</MenuItem>
                             <MenuItem value='Desactivado'>disabled</MenuItem>
                         </Select>
+                    </div>
+                    <h4>Starff: {staff.map((person) => <>{person}, </> )}</h4>
+                    <div className='staffSelect' >
+                        <Select className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)}>
+                            {infoPrueba.map((person) => <MenuItem value={person.name}>{person.name}</MenuItem> )}
+                        </Select>
+                        <Tooltip title='Add staff'>
+                            <Fab color='info' onClick={handleAddStaff}><AddIcon/></Fab>
+                        </Tooltip>
                     </div>
                     <div className='Buttons'>
                         <Button variant='contained' type='submit'>save</Button>

@@ -196,6 +196,16 @@ body{
         gap: 10px;
     }
 
+    .staffSelect{
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+
+        .select{
+            width: 130px;
+        }
+    }
+
     h3{
         margin: 0px;
     }
