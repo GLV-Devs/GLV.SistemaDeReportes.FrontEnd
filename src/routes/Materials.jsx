@@ -1,18 +1,56 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { ModalAdd, ModalEdit, ModalView } from '../components/ModalMaterials'
 import { Button } from "@mui/material";
+import { useState } from 'react';
+import { faker } from '@faker-js/faker'
 
 const Materials = () => {
 
-    const navigate = useNavigate()
+    const [edit, setEdit] = useState(false)
+    const [add, setAdd] = useState(false)
+    const [view, setView] = useState(false)
+    const [selected, setSelected] = useState('')
+
+    const infoPrueba = [{
+        name: faker.commerce.productMaterial(),
+        unit: 'Mts.'
+    },{
+        name: faker.commerce.productMaterial(),
+        unit: 'Grs.'
+    },{
+        name: faker.commerce.productMaterial(),
+        unit: 'Unids.'
+    }]
+
+    function openViewModal(data){
+        setView(!view)
+        setSelected(data)
+    }
+
+    function openAddModal(){
+        setAdd(!add)
+    }
+
+    function openEditModal(){
+        setEdit(!edit)
+    }
 
     return(
         <div className="Materials">
-            <div className="MaterialsNavBar">
-                <Button variant="contained" onClick={() => navigate('/main/productos/agregar')}>Agregar producto</Button>
-                <Button variant="contained" onClick={() => navigate('/main/productos/editar')}>editar producto</Button>
-                <Button variant="contained" onClick={() => navigate('/main/productos/lista')}>lista de productos</Button>
-            </div>
-            <Outlet />
+            <h1>Materials list</h1>
+            <Button variant='contained' onClick={openAddModal}>Add material</Button>
+            {infoPrueba.map((item) => (
+                <div className="LI">
+                    <h3>{item.name}</h3>
+                    <div className="Buttons">
+                        <Button variant="contained" onClick={() => openEditModal()}>Edit</Button>
+                        <Button variant="contained" onClick={() => openViewModal(item)}>see info</Button>
+                    </div>
+                </div>
+            ))}
+
+            { edit && <ModalEdit  close={openEditModal}/> }
+            { add &&  <ModalAdd close={openAddModal}/>}
+            { view && <ModalView info={selected} close={openViewModal}/> }
         </div>
     )
 }

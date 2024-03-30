@@ -11,17 +11,16 @@ const Login = () => {
             username: e.target[0].value,
             password: e.target[2].value,
         }
-        console.log(data)
         navigate('/main');
     }
 
     return(
         <div className="Login">
             <form onSubmit={handleSubmit}>
-                <h1>Iniciar Sesion</h1>
+                <h1>Login</h1>
                 <TextField type="text" label='Username'/>
-                <TextField type="password" label='Contraseña'/>
-                <Button variant="contained" type="submit">Iniciar sesion</Button>
+                <TextField type="password" label='Password'/>
+                <Button variant="contained" type="submit">Login</Button>
             </form>
         </div>
     )
