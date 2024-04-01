@@ -112,14 +112,11 @@ export const ModalEdit = ({close}) => {
 export const ModalAdd = ({close}) => {
 
     const [success, setSucces] = useState(false)
-    const [idType, setIdType] = useState('')
     const [status, setStatus] = useState('')
     const [staff, setStaff] = useState([])
     const [staffSelected, setStaffSelected] = useState('')
-
-    const handleIdType = (e) => {
-        setIdType(e.target.value)
-    }
+    const [material, setMaterial] = useState([])
+    const [materialSelected, setMaterialSelected] = useState('')
 
     const handleStatus = (e) => {
         setStatus(e.target.value)
@@ -127,7 +124,18 @@ export const ModalAdd = ({close}) => {
 
     const handleAddStaff = (e) => {
         e.preventDefault()
-        setStaff([...staff, staffSelected])
+        if(staffSelected != ''){
+            setStaff([...staff, staffSelected])
+            setStaffSelected('')
+        }
+    }
+
+    const handleAddMaterial = (e) => {
+        e.preventDefault()
+        if(materialSelected != ''){
+            setMaterial([...material, materialSelected])
+            setMaterialSelected('')
+        }
     }
 
     function handleSubmit(e){
@@ -142,13 +150,21 @@ export const ModalAdd = ({close}) => {
     }
 
     const infoPrueba = [{
-        name: faker.person.fullName()
+        name: 'jesus'
     },{
-        name: faker.person.fullName()
+        name: 'diego'
     },{
-        name: faker.person.fullName()
+        name: 'maria'
     },{
-        name: faker.person.fullName()
+        name: 'luis'
+    }]
+
+    const infoPrueba2 = [{
+        materialName: 'soldadura en polvo'
+    },{
+        materialName: 'cable inalambrico',
+    },{
+        materialName: 'tornillos para clavos',
     }]
 
     return(
@@ -177,12 +193,21 @@ export const ModalAdd = ({close}) => {
                         </Select>
                     </div>
                     <h4>Starff: {staff.map((person) => <>{person}, </> )}</h4>
+                    <h4>Materials: {material.map((material) => <>{material}, </>)}</h4>
                     <div className='staffSelect' >
                         <Select className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)}>
                             {infoPrueba.map((person) => <MenuItem value={person.name}>{person.name}</MenuItem> )}
                         </Select>
                         <Tooltip title='Add staff'>
                             <Fab color='info' onClick={handleAddStaff}><AddIcon/></Fab>
+                        </Tooltip>
+                    </div>
+                    <div className='materialSelect' >
+                        <Select className="select" id='MaterialSelector' onChange={(e) => setMaterialSelected(e.target.value)}>
+                            {infoPrueba2.map((material) => <MenuItem value={material.materialName}>{material.materialName}</MenuItem> )}
+                        </Select>
+                        <Tooltip title='Add material'>
+                            <Fab color='info' onClick={handleAddMaterial}><AddIcon/></Fab>
                         </Tooltip>
                     </div>
                     <div className='Buttons'>
@@ -244,7 +269,7 @@ export const AddNoteModal = ({close}) => {
                         </div>
                     
                         <TextField multiline label='Notes'/>
-                        <input type='file'/>
+                        <input type='file' multiple/>
                     </div>
                     <Button variant='contained' color='error' onClick={close}>Cancel</Button>
                 </form>

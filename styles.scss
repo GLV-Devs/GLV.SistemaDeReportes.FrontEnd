@@ -202,7 +202,17 @@ body{
         gap: 15px;
 
         .select{
-            width: 130px;
+            width: 200px;
+        }
+    }
+
+    .materialSelect{
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+
+        .select{
+            width: 200px;
         }
     }
 
@@ -212,6 +222,11 @@ body{
 
     h1{
         font-size: 40px;
+    }
+
+    h4{
+        margin: 5px 10px;
+        text-align: center;
     }
 }
 

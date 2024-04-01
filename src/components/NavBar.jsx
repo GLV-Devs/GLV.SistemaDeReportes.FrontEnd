@@ -7,7 +7,7 @@ const NavBar = () => {
 
     return(
         <div className="NavBar">
-            <h4>Control Sistem - Jesus Lozano</h4>
+            <h4>Control System - Jesus Lozano</h4>
 
             <div className="Buttons">
                 <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/personas')}>Staff</Button>
