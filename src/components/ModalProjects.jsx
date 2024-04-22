@@ -141,7 +141,7 @@ export const ModalAdd = ({close}) => {
     function handleSubmit(e){
         e.preventDefault()
         const data = {
-            name: e.target[0].value,
+            Name: e.target[0].value,
             state: e.target[2].value,
             personal: staff,
         }

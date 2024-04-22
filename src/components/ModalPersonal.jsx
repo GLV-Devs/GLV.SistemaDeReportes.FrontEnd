@@ -1,7 +1,14 @@
 import { Button, TextField, Select, MenuItem, InputLabel } from "@mui/material"
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useState } from "react"
+import axios from "axios";
 
 export const ModalView = ({info, close}) => {
+
+    axios.get(`https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/person/${info.id}`)
+
     return(
         <div className='Modal'>
             <h1>Info</h1>
@@ -20,7 +27,21 @@ export const ModalEdit = ({close}) => {
 
     function handleSubmit(e){
         e.preventDefault()
-        setSucces(true)
+        const data = {
+            Names: e.target[0].value,
+            LastNames: e.target[2].value,
+            DateOfBirth: Date(e.target[4].value),
+            IdentificationTypeId: e.target[7].value,
+            IdentificationNumber: Number(e.target[9].value),
+            DriverLicensePhotoId: e.target[11].value,
+            PassportPhotoId: e.target[12].value,
+            PhoneNumber: e.target[13].value,
+            ManagedProjects: e.target[15].value,
+        }
+        axios.put(`https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/person/${info.id}`, data)
+        .then(
+            setSucces(true)
+        )
     }
 
     return(
@@ -33,6 +54,37 @@ export const ModalEdit = ({close}) => {
             ):(
                 <form className="Modal" onSubmit={handleSubmit}>
                     <h1>Edit staff</h1>
+                    <TextField label='Names'/>
+                    <TextField label='LastNames'/>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker/>
+                    </LocalizationProvider>
+                    <div>
+                        <InputLabel id='idType'>Identification</InputLabel>
+                        <Select label='Identificacion'>
+                            <MenuItem value='V'>V</MenuItem>
+                            <MenuItem value='J'>J</MenuItem>
+                            <MenuItem value='E'>E</MenuItem>
+                        </Select>
+                        <TextField type="text"/>
+                    </div>
+                    <div>
+                        <p>Driver licence photo:</p>
+                        <input type="file" />
+                    </div>
+                    <div>
+                        <p>Passport photo:</p>
+                        <input type="file" />
+                    </div>
+                    <TextField label='Phone'/>
+                    <div>
+                        <InputLabel id='ManagedProjects'>managed Projects</InputLabel>
+                        <Select label='ManagedProjects' className="Select">
+                            <MenuItem value='V'>V</MenuItem>
+                            <MenuItem value='J'>J</MenuItem>
+                            <MenuItem value='E'>E</MenuItem>
+                        </Select>
+                    </div>
                     <div className='Buttons'>
                         <Button variant='contained' type='submit'>save</Button>
                         <Button variant='contained' color='error' onClick={close}>cancel</Button>
@@ -50,13 +102,19 @@ export const ModalAdd = ({close}) => {
     function handleSubmit(e){
         e.preventDefault()
         const data = {
-            name: e.target[0].value,
-            idType: e.target[2].value,
-            idNumber: e.target[4].value,
-            address: e.target[6].value,
-            phone: e.target[8].value,
+            Names: e.target[0].value,
+            LastNames: e.target[2].value,
+            DateOfBirth: Date(e.target[4].value),
+            IdentificationTypeId: e.target[7].value,
+            IdentificationNumber: Number(e.target[9].value),
+            DriverLicensePhotoId: e.target[11].value,
+            PassportPhotoId: e.target[12].value,
+            PhoneNumber: e.target[13].value,
         }
-        setSucces(true)
+        axios.post('https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/identity', data)
+        .then(
+            setSucces(true)
+        )
     }
 
     return(
@@ -69,7 +127,11 @@ export const ModalAdd = ({close}) => {
             ):(
                 <form className="Modal" onSubmit={handleSubmit}>
                     <h1>Add staff</h1>
-                    <TextField label='Name'/>
+                    <TextField label='Names' type="text"/>
+                    <TextField label='Lastnames'/>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker/>
+                    </LocalizationProvider>
                     <div>
                         <InputLabel id='idType'>Identification</InputLabel>
                         <Select label='Identificacion'>
@@ -77,9 +139,16 @@ export const ModalAdd = ({close}) => {
                             <MenuItem value='J'>J</MenuItem>
                             <MenuItem value='E'>E</MenuItem>
                         </Select>
-                        <TextField />
+                        <TextField type="text"/>
                     </div>
-                    <TextField label='Address'/>
+                    <div>
+                        <p>Driver licence photo:</p>
+                        <input type="file" />
+                    </div>
+                    <div>
+                        <p>Passport photo:</p>
+                        <input type="file" />
+                    </div>
                     <TextField label='Phone'/>
                     <div className='Buttons'>
                         <Button variant='contained' type='submit'>save</Button>

@@ -17,6 +17,7 @@
     width: 40vw;
     justify-content: space-between;
     padding: 0px 20px;
+    border-radius: 15px;
 
     .Buttons{
         display: flex;
@@ -158,6 +159,7 @@ body{
     height: 80vh;
     background-color: white;
     border: 1px solid black;
+    border-radius: 15px;
     position: absolute;
     margin-top: 30px;
     display: flex;
@@ -227,6 +229,13 @@ body{
     h4{
         margin: 5px 10px;
         text-align: center;
+    }
+
+    div{
+
+            .Select{
+                width: 150%;
+            }
     }
 }
 

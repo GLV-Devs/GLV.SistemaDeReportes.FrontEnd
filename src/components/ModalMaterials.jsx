@@ -49,10 +49,7 @@ export const ModalAdd = ({close}) => {
         e.preventDefault()
         const data = {
             name: e.target[0].value,
-            idType: e.target[2].value,
-            idNumber: e.target[4].value,
-            address: e.target[6].value,
-            phone: e.target[8].value,
+            unit: e.target[2].value,
         }
         console.log(data)
         setSucces(true)
@@ -69,17 +66,7 @@ export const ModalAdd = ({close}) => {
                 <form className="Modal" onSubmit={handleSubmit}>
                     <h1>Agregar Material</h1>
                     <TextField label='Nombre'/>
-                    <div>
-                        <InputLabel id='idType'>Identificacion</InputLabel>
-                        <Select label='Identificacion'>
-                            <MenuItem value='V'>V</MenuItem>
-                            <MenuItem value='J'>J</MenuItem>
-                            <MenuItem value='E'>E</MenuItem>
-                        </Select>
-                        <TextField />
-                    </div>
-                    <TextField label='Direccion'/>
-                    <TextField label='Telefono'/>
+                    <TextField label='Unit.'/>
                     <div className='Buttons'>
                         <Button variant='contained' type='submit'>save</Button>
                         <Button variant='contained' color='error' onClick={close}>cancel</Button>
