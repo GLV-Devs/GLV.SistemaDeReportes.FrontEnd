@@ -3,10 +3,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useRef } from "react"
 import { faker } from '@faker-js/faker'
+import axios from "axios";
+import { apiAddress } from '../globalResources'
 
 export const ModalView = ({info, close}) => {
 
     const [addNote, setAddNote] = useState(false)
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false)
 
     const infoPrueba = [{
         date: faker.date.past().toLocaleDateString(),
@@ -55,6 +58,7 @@ export const ModalView = ({info, close}) => {
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Used Materials</AccordionSummary>
                         <AccordionDetails>{usedMaterials.map((material) => (<div>{material.qtty} {material.name}</div>))}</AccordionDetails>
                     </Accordion>
+                    <Button variant='contained' color='error' onClick={() => setDeleteConfirmation(true)}>delete project</Button>
                 </div>
                 <div className="divider"></div>
                 <div className='right'>
@@ -75,18 +79,44 @@ export const ModalView = ({info, close}) => {
                 <Button variant="contained" color='error' onClick={close}>Close</Button>
             </div>
 
-            { addNote && <AddNoteModal close={ () => setAddNote(false) }/> }
+            { addNote && <AddReportModal close={ () => setAddNote(false) }/> }
+            { deleteConfirmation && <deleteModal close={ () => setAddNote(false) } projectKey={projectKey}/> }
         </div>
     )
 }
 
-export const ModalEdit = ({close}) => {
+export const ModalEdit = ({close, projectKey}) => {
 
     const [success, setSucces] = useState(false)
 
     function handleSubmit(e){
         e.preventDefault()
-        setSucces(true)
+        const data = {
+            name: ,
+            address: ,
+            stateId: {
+                value: 
+            },
+            contractorLogoId: {
+                value: 
+            },
+            clientLogoId: {
+                value:
+            },
+            eta: {
+                value: 
+            },
+            started: {
+                value: 
+            },
+            completed: {
+                value:
+            }
+        }
+        axios.put(`${apiAddress}/api/projects/${projectKey}`, data)
+        .then((response) => {
+            setSucces(true)
+        })
     }
 
     return(
@@ -141,12 +171,20 @@ export const ModalAdd = ({close}) => {
     function handleSubmit(e){
         e.preventDefault()
         const data = {
-            Name: e.target[0].value,
-            state: e.target[2].value,
-            personal: staff,
+            name: e.target[0].value,
+            adress: e.target[2].value,
+            stateId: staff,
+            siteStateId: ,
+            contractorLogoId: ,
+            clientLogoId: ,
+            eta: ,
+            started: ,
+            completed: ,
         }
-        setSucces(true)
-        console.log(data)
+        axios.post(`${apiAddress}/api/project`, data)
+        .then(
+            setSucces(true)
+        )
     }
 
     const infoPrueba = [{
@@ -220,18 +258,21 @@ export const ModalAdd = ({close}) => {
     )
 }
 
-export const AddNoteModal = ({close}) => {
+export const AddReportModal = ({close}) => {
 
     const [success, setSuccess] = useState(false)
 
     function handleSubmit(e){
         e.preventDefault()
         const data = {
-            category: e.target[1].value,
-            content: e.target[3].value,
-            files: e.target[5].value
+            reportUserId: e.target[1].value,
+            projectId: e.target[3].value,
+            dateReported: e.target[5].value
         }
-        setSuccess(true)
+        axios.post(`${apiAddress}/api/report/`, data)
+        .then((response) => {
+            setSuccess(true)
+        })
     }
 
     return(
@@ -273,6 +314,34 @@ export const AddNoteModal = ({close}) => {
                     </div>
                     <Button variant='contained' color='error' onClick={close}>Cancel</Button>
                 </form>
+            ) }
+        </>
+    )
+}
+
+export const deleteModal = ({close, projectKey}) => {
+    const [success, setSuccess] = useState(false)
+
+    async function handleDelete(){
+        e.preventDefault()
+        axios.delete(`${apiAddress}/api/report/${projectKey}`)
+        .then((response) => {
+            setSuccess(true)
+        })
+    }
+
+    return(
+        <>
+            { success ? (
+                <div className="Modal">
+                    <h1>The project has been deleted</h1>
+                    <Button variant='contained' color='error' onClick={close}>Close</Button>
+                </div>
+            ):(
+                <div className='Modal'>
+                    <Button variant='contained' onClick={handleDelete}>Delete</Button>
+                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                </div>
             ) }
         </>
     )

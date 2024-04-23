@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
+import { apiAddres } from '../globalResources'
 
 const Login = () => {
 
@@ -17,7 +18,7 @@ const Login = () => {
             passwordSHA256: e.target[2].value,
         }
         try{
-            axios.put('https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/identity', data)
+            axios.put(`${apiAddres}/api/identity`, data)
             .then((response) => {
                 console.log(response)
                 setUserData(response)

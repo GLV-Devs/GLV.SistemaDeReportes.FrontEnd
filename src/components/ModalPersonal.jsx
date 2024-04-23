@@ -4,10 +4,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useState } from "react"
 import axios from "axios";
+import { apiAddress } from '../globalResources'
 
 export const ModalView = ({info, close}) => {
 
-    axios.get(`https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/person/${info.id}`)
+    const [deleteCofirm, setDeleteConfirm] = useState(false)
+
+    axios.get(`${apiAddress}/api/person/${info.id}`)
 
     return(
         <div className='Modal'>
@@ -16,7 +19,10 @@ export const ModalView = ({info, close}) => {
             <h3>Identification: {info.idType}-{info.idNumber}</h3>
             <h3>Address: {info.address}</h3>
             <h3>Phone: {info.phone}</h3>
+            <Button variant='contained' color='error' onClick={setDeleteConfirm(true)}></Button>
             <Button variant="contained" color='error' onClick={close}>close</Button>
+
+            { deleteCofirm && <deleteModal close={() => setDeleteConfirm(false)} personKey={personKey}/> }
         </div>
     )
 }
@@ -38,7 +44,7 @@ export const ModalEdit = ({close}) => {
             PhoneNumber: e.target[13].value,
             ManagedProjects: e.target[15].value,
         }
-        axios.put(`https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/person/${info.id}`, data)
+        axios.put(`${apiAddress}/api/person/${info.id}`, data)
         .then(
             setSucces(true)
         )
@@ -111,7 +117,7 @@ export const ModalAdd = ({close}) => {
             PassportPhotoId: e.target[12].value,
             PhoneNumber: e.target[13].value,
         }
-        axios.post('https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/identity', data)
+        axios.post(`${apiAddress}/api/identity`, data)
         .then(
             setSucces(true)
         )
@@ -155,6 +161,34 @@ export const ModalAdd = ({close}) => {
                         <Button variant='contained' color='error' onClick={close}>cancel</Button>
                     </div>
                 </form>
+            ) }
+        </>
+    )
+}
+
+export const deleteModal = ({close, personKey}) => {
+    const [success, setSuccess] = useState(false)
+
+    async function handleDelete(){
+        e.preventDefault()
+        axios.delete(`${apiAddress}/api/person/${personKey}`)
+        .then((response) => {
+            setSuccess(true)
+        })
+    }
+
+    return(
+        <>
+            { success ? (
+                <div className="Modal">
+                    <h1>The person has been deleted</h1>
+                    <Button variant='contained' color='error' onClick={close}>Close</Button>
+                </div>
+            ):(
+                <div className='Modal'>
+                    <Button variant='contained' onClick={handleDelete}>Delete</Button>
+                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                </div>
             ) }
         </>
     )

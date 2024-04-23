@@ -1,0 +1,1 @@
+export const apiAddress = 'https://c2hpskzr-7239.use2.devtunnels.ms/swagger'

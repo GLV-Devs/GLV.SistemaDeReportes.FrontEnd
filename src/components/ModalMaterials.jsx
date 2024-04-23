@@ -1,4 +1,5 @@
 import { Button, TextField, Select, MenuItem, InputLabel } from "@mui/material"
+import { apiAddress } from '../globalResources'
 import { useState } from "react"
 
 export const ModalView = ({info, close}) => {
