@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { AppContext } from "../context/AppContext";
 import { useContext } from "react";
+import { apiAddress } from "../globalResources";
 import axios from "axios";
 
 const NavBar = () => {
@@ -11,7 +12,7 @@ const NavBar = () => {
 
     async function logOut(){
         setUserData('')
-        axios.delete('https://c2hpskzr-7239.use2.devtunnels.ms/swagger/api/identity')
+        axios.delete(`${apiAddress}/api/identity/`)
         .then(
             navigate('/login')
         )

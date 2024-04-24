@@ -92,26 +92,26 @@ export const ModalEdit = ({close, projectKey}) => {
     function handleSubmit(e){
         e.preventDefault()
         const data = {
-            name: ,
-            address: ,
-            stateId: {
-                value: 
-            },
-            contractorLogoId: {
-                value: 
-            },
-            clientLogoId: {
-                value:
-            },
-            eta: {
-                value: 
-            },
-            started: {
-                value: 
-            },
-            completed: {
-                value:
-            }
+            // name: ,
+            // address: ,
+            // stateId: {
+            //     value: 
+            // },
+            // contractorLogoId: {
+            //     value: 
+            // },
+            // clientLogoId: {
+            //     value:
+            // },
+            // eta: {
+            //     value: 
+            // },
+            // started: {
+            //     value: 
+            // },
+            // completed: {
+            //     value:
+            // }
         }
         axios.put(`${apiAddress}/api/projects/${projectKey}`, data)
         .then((response) => {
@@ -171,15 +171,15 @@ export const ModalAdd = ({close}) => {
     function handleSubmit(e){
         e.preventDefault()
         const data = {
-            name: e.target[0].value,
-            adress: e.target[2].value,
-            stateId: staff,
-            siteStateId: ,
-            contractorLogoId: ,
-            clientLogoId: ,
-            eta: ,
-            started: ,
-            completed: ,
+            // name: e.target[0].value,
+            // adress: e.target[2].value,
+            // stateId: staff,
+            // siteStateId: ,
+            // contractorLogoId: ,
+            // clientLogoId: ,
+            // eta: ,
+            // started: ,
+            // completed: ,
         }
         axios.post(`${apiAddress}/api/project`, data)
         .then(

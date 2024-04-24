@@ -1,11 +1,20 @@
 import { TextField, Button } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
-import { apiAddres } from '../globalResources'
+import { apiAddress } from '../globalResources'
+import { hash } from '../encrypt'
 
 const Login = () => {
+
+    // async function trys(){
+    //     axios.
+    // }
+
+    // useEffect(() => {
+
+    // })
 
     const { setUserData } = useContext(AppContext)
     const navigate = useNavigate()
@@ -15,18 +24,16 @@ const Login = () => {
         e.preventDefault();
         const data = {
             identifier: e.target[0].value,
-            passwordSHA256: e.target[2].value,
+            passwordSHA256: await hash(e.target[2].value),
         }
-        try{
-            axios.put(`${apiAddres}/api/identity`, data)
-            .then((response) => {
-                console.log(response)
-                setUserData(response)
-                navigate('/main')
-            })
-        } catch(err){
-            setError(true)
-        }
+        console.log(data)
+        axios.put(`${apiAddress}/api/identity`, data)
+        .then((response) => {
+            console.log(response)
+            setUserData(response)
+            navigate('/main')
+        })
+
     }
     return(
         <div className="Login">
