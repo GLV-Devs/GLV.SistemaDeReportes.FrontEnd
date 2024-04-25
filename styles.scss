@@ -138,14 +138,32 @@ body{
 
         .IdTypes{
             @include pages();
+
+            .LI{
+                @include LI();
+                margin: 10px;
+                align-items: center
+            }
         }
 
         .SiteStates{
             @include pages();
+
+            .LI{
+                @include LI();
+                margin: 10px;
+                align-items: center
+            }
         }
 
         .ProjectRoles{
             @include pages();
+
+            .LI{
+                @include LI();
+                margin: 10px;
+                align-items: center
+            }
         }
 
         .ProjectStates{

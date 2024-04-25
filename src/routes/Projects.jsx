@@ -1,7 +1,9 @@
 import { ModalAdd, ModalEdit, ModalView } from "../components/ModalProjects";
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import { useState } from "react";
 import { faker } from '@faker-js/faker'
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const Projects = () => {
 
@@ -42,8 +44,12 @@ const Projects = () => {
                     </div>
 
                     <div className="Buttons">
-                        <Button variant='contained' onClick={ () => openEditModal() }>edit</Button>
-                        <Button variant='contained' onClick={ () => openViewModal(project) }>see info</Button>
+                        <Tooltip title='Edit'>
+                            <Button onClick={ () => openEditModal() }> <ModeEditIcon/> </Button>
+                        </Tooltip>
+                        <Tooltip title='See info'>
+                            <Button onClick={ () => openViewModal(project) }> <VisibilityIcon/> </Button>
+                        </Tooltip>
                     </div>
                 </div>
             )) }
