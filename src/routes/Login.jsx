@@ -1,4 +1,4 @@
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useState, useContext, useEffect } from "react";
@@ -8,20 +8,15 @@ import { hash } from '../encrypt'
 
 const Login = () => {
 
-    // async function trys(){
-    //     axios.
-    // }
-
-    // useEffect(() => {
-
-    // })
-
     const { setUserData } = useContext(AppContext)
     const navigate = useNavigate()
     const [error, setError] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     async function handleSubmit(e){
         e.preventDefault();
+        setError(false)
+        setLoading(true)
         const data = {
             identifier: e.target[0].value,
             passwordSHA256: await hash(e.target[2].value),
@@ -29,9 +24,16 @@ const Login = () => {
         console.log(data)
         axios.put(`${apiAddress}/api/identity`, data)
         .then((response) => {
+            if(response.status == 200){
+                setUserData(response)
+                navigate('/main')
+            }
             console.log(response)
-            setUserData(response)
-            navigate('/main')
+        }).catch((err) => {
+            if(err){
+                setLoading(false)
+                setError(true)
+            }
         })
 
     }
@@ -39,10 +41,10 @@ const Login = () => {
         <div className="Login">
             <form onSubmit={handleSubmit}>
                 <h1>Login</h1>
-                <TextField type="text" label='Username'/>
-                <TextField type="password" label='Password'/>
-                { error && <h3>Algo salio mal</h3> }
-                <Button variant="contained" type="submit">Login</Button>
+                <TextField disabled={loading} type="text" label='Username'/>
+                <TextField disabled={loading} type="password" label='Password'/>
+                { error && <h3 style={{color: 'red', margin: '0px'}}>An error has occurred</h3> }
+                <Button disabled={loading} variant="contained" type="submit">{ loading ? (<CircularProgress/>):(<>Login</>) }</Button>
             </form>
         </div>
     )

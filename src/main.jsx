@@ -9,6 +9,10 @@ import Main from './routes/MainPage'
 import Materials from './routes/Materials'
 import Projects from './routes/Projects'
 import Personal from './routes/Personal'
+import IdTypes from './routes/IdTypes'
+import SiteStates from './routes/SiteStates'
+import ProjectRoles from './routes/ProjectRoles'
+import ProjectStates from './routes/ProjectStates'
 import AppContextProvider from './context/AppContextProvider'
 
 const router = createBrowserRouter([
@@ -33,6 +37,18 @@ const router = createBrowserRouter([
         },{
           path: '/main/productos',
           element: <Materials />,
+        },{
+          path: '/main/ManageIdTypes',
+          element: <IdTypes/>,
+        },{
+          path: '/main/SiteStates',
+          element: <SiteStates/>,
+        },{
+          path: '/main/ProjectRoles',
+          element: <ProjectRoles/>,
+        },{
+          path: '/main/ProjectStates',
+          element: <ProjectStates/>,
         }]
       }
     ],
