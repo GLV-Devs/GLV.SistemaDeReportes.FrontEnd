@@ -6,7 +6,7 @@ import { useState, useContext, useEffect } from "react";
 import { apiAddress } from "../globalResources";
 import { AppContext } from "../context/AppContext";
 
-const SiteStates = () => {
+const ReportLinesCategory = () => {
 
     useEffect(() => {getList()}, [])
 
@@ -29,7 +29,7 @@ const SiteStates = () => {
         const data = {
             name: e.target[0].value
         }
-        axios.post(`${apiAddress}/api/sitestate`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/reports/lines/categories`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -47,10 +47,10 @@ const SiteStates = () => {
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/sitestate/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/reports/lines/categories/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
-                setSuccess(true)
+            setSuccess(true)
             }
         })
         .catch((err) => {
@@ -69,7 +69,7 @@ const SiteStates = () => {
         const data = {
             name: e.target[0].value,
         }
-        axios.put(`${apiAddress}/api/sitestate/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/reports/lines/categories/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -87,7 +87,7 @@ const SiteStates = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/sitestate`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/reports/lines/categories`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setListLoadin(false)
@@ -110,9 +110,9 @@ const SiteStates = () => {
     }
 
     return(
-        <div className='SiteStates'>
-            <h1>Site state Manager</h1>
-            <Button variant='contained' onClick={() => setAddModal(true)}>new site state</Button>
+        <div className='ReportLinesCategories'>
+            <h1>Report Lines categories Manager</h1>
+            <Button variant='contained' onClick={() => setAddModal(true)}>new report line category</Button>
             { listLoading && <CircularProgress/> }
             { listError && <>
                 <h3 style={{margin: '0px', color: 'red'}}>An error has ocurred</h3>
@@ -123,7 +123,7 @@ const SiteStates = () => {
                     {list.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
-                            <div>
+                            <div className="Buttons">
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
@@ -138,7 +138,7 @@ const SiteStates = () => {
 
             { addModal && 
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Add New site State</h1>
+                    <h1>Add New Report line category</h1>
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
@@ -150,7 +150,7 @@ const SiteStates = () => {
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setLoading(false); setError(false)}}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -158,11 +158,11 @@ const SiteStates = () => {
 
             { editModal && 
                 <form className="Modal" onSubmit={handleUpdate}>
-                    <h1>Edit site State</h1>
+                    <h1>Edit Report line category</h1>
                     {success ? (
                         <>
                             <h1>Edited Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem (0); setLoading(false); getList()}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setError(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -178,11 +178,11 @@ const SiteStates = () => {
 
             { deleteModal && 
                 <form className="Modal">
-                    <h1>Delete this site State?</h1>
+                    <h1>Delete this Report line category?</h1>
                     {success ? (
                         <>
                             <h1>Deleted Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList(); setError(false)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); getList(); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
@@ -194,8 +194,8 @@ const SiteStates = () => {
                         </>)}
                 </form>
             }
-        </div>
+        </div>  
     )
 }
 
-export default SiteStates;
+export default ReportLinesCategory;

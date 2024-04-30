@@ -3,10 +3,11 @@ import { AppContext } from "./AppContext";
 
 const AppContextProvider = ({children}) => {
 
-    const [userData, setUserData] = useState({})
+    const [accessToken, setAccessToken] = useState('')
+    const [userInfo, setUserInfo] = useState('')
 
     return(
-    <AppContext.Provider value={{userData, setUserData}}>
+    <AppContext.Provider value={{accessToken, setAccessToken, userInfo, setUserInfo}}>
         {children}
     </AppContext.Provider>
     )

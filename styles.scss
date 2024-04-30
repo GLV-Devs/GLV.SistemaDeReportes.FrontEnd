@@ -19,6 +19,7 @@
     padding: 0px 20px;
     border-radius: 15px;
     box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
+    margin: 10px;
 
     .Buttons{
         display: flex;
@@ -38,6 +39,14 @@
 
     h3{
         align-self: flex-start;
+        margin: 7px;
+        color: gray;
+
+        span{
+            color: black;
+            // font-weight: 100;
+            // font-size: 15px;
+        }
     }
 
     .Accordion{
@@ -120,7 +129,7 @@ body{
             }
         }
 
-        .Materials{
+        .Products{
             @include pages();
 
             .LI{
@@ -141,8 +150,6 @@ body{
 
             .LI{
                 @include LI();
-                margin: 10px;
-                align-items: center
             }
         }
 
@@ -151,8 +158,6 @@ body{
 
             .LI{
                 @include LI();
-                margin: 10px;
-                align-items: center
             }
         }
 
@@ -161,8 +166,6 @@ body{
 
             .LI{
                 @include LI();
-                margin: 10px;
-                align-items: center
             }
         }
 
@@ -171,8 +174,6 @@ body{
 
             .LI{
                 @include LI();
-                margin: 10px;
-                align-items: center
             }
         }
 
@@ -182,6 +183,14 @@ body{
             .Buttons{
                 display: flex;
                 gap: 15px;
+            }
+        }
+
+        .ReportLinesCategories{
+            @include pages();
+
+            .LI{
+                @include LI();
             }
         }
     }
@@ -219,9 +228,29 @@ body{
     overflow-y: scroll;
     gap: 10px;
     box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
+    padding-bottom: 25px;
+
+    .fields{
+        width: 50%;
+    }
+
+    .file{
+        // margin-bottom: 25px;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        padding: 10px;
+        width: calc(50% - 22px);
+    }
 
     .Select{
         @include Select()
+    }
+
+    p{
+        color: rgb(118, 118, 118);
+        font-weight: 500;
+        font-size: 16px;
+        margin-bottom: 0px;
     }
 
     .header{
@@ -245,6 +274,7 @@ body{
     }
 
     .Buttons{
+        margin-top: 10px;
         display: flex;
         gap: 10px;
     }
@@ -253,6 +283,7 @@ body{
         display: flex;
         flex-direction: row;
         gap: 15px;
+        width: 70%;
 
         .select{
             width: 200px;
@@ -263,6 +294,7 @@ body{
         display: flex;
         flex-direction: row;
         gap: 15px;
+        width: 70%;
 
         .select{
             width: 200px;

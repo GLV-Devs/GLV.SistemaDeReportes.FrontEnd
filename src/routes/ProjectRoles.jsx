@@ -10,7 +10,7 @@ const ProjectRoles = () => {
 
     useEffect(() => {getList()}, [])
 
-    const { userData } = useContext(AppContext)
+    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -20,26 +20,26 @@ const ProjectRoles = () => {
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(true)
     const [list, setList] = useState('')
+    const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
         e.preventDefault()
         setError(false)
         setLoading(true)
         const data = {
-            name: e.target[0].value,
-            symbol: e.target[2].value,
-            format: e.target[4].value,
+            name: e.target[0].value
         }
-        axios.post(`${apiAddress}/api/projectrole`, data)
+        axios.post(`${apiAddress}/api/projectrole`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -47,16 +47,17 @@ const ProjectRoles = () => {
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/projectrole`)
+        axios.delete(`${apiAddress}/api/projectrole/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
             setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -68,16 +69,17 @@ const ProjectRoles = () => {
         const data = {
             name: e.target[0].value,
         }
-        axios.put(`${apiAddress}/api/projectrole`, data)
+        axios.put(`${apiAddress}/api/projectrole/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -85,37 +87,25 @@ const ProjectRoles = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/projectrole`, {headers: {'Authorization': `Bearer ${userData.data.accessToken}`}})
+        axios.get(`${apiAddress}/api/projectrole`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setListLoadin(false)
                 setListError(false)
-                console.log(response)
+                if(response.data.data == null){
+                    setList([{name: ''}])
+                }else{
+                    setList(response.data.data)
+                }
             }
         })
         .catch((err) => {
             setListError(true)
             setListLoadin(false)
             console.log(err)
-        })
-    }
-
-    async function getList(){
-        setListError(false)
-        setListLoadin(true)
-        axios.get(`${apiAddress}/api/projectroles`, {headers: {'Authorization': `Bearer ${userData.data.accessToken}`}})
-        .then((response) => {
-            if(response.status == 200){
-                setListLoadin(false)
-                setListError(false)
-                setList(response.data)
-                console.log(response)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
-        })
-        .catch((err) => {
-            setListError(true)
-            setListLoadin(false)
-            console.log(err)
         })
     }
 
@@ -131,14 +121,14 @@ const ProjectRoles = () => {
             { !listLoading && !listError && 
                 <div>
                     {list.map((item) => (
-                        <div className='LI'>
+                        <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
                             <div>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => setEditModal(true)}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => setDeleteModal(true)}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -152,7 +142,7 @@ const ProjectRoles = () => {
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -160,7 +150,7 @@ const ProjectRoles = () => {
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setAddModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -171,8 +161,8 @@ const ProjectRoles = () => {
                     <h1>Edit Project Role</h1>
                     {success ? (
                         <>
-                            <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <h1>Edited Successfully</h1>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setError(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -180,7 +170,7 @@ const ProjectRoles = () => {
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setEditModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setEditModal(false); setSelectedItem(0); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -191,15 +181,15 @@ const ProjectRoles = () => {
                     <h1>Delete this Project Role?</h1>
                     {success ? (
                         <>
-                            <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <h1>Deleted Successfully</h1>
+                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); getList(); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" onClick={handleDelete} disabled={loading}>{loading ? (<CircularProgress/>):(<>Delete</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setDeleteModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setDeleteModal(false); setSelectedItem(0); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>

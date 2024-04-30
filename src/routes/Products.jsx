@@ -1,15 +1,17 @@
 import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
+import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import axios from "axios";
 import { useState, useContext, useEffect } from "react";
 import { apiAddress } from "../globalResources";
 import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
-const SiteStates = () => {
+const Products = () => {
 
     useEffect(() => {getList()}, [])
 
+    const navigate = useNavigate()
     const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -19,7 +21,7 @@ const SiteStates = () => {
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState('')
+    const [list, setList] = useState([])
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
@@ -27,9 +29,10 @@ const SiteStates = () => {
         setError(false)
         setLoading(true)
         const data = {
-            name: e.target[0].value
+            name: e.target[0].value,
+            unit: e.target[2].value,
         }
-        axios.post(`${apiAddress}/api/sitestate`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/product`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -38,6 +41,7 @@ const SiteStates = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            console.log(err.response.data)
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -47,10 +51,10 @@ const SiteStates = () => {
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/sitestate/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/product/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
-                setSuccess(true)
+            setSuccess(true)
             }
         })
         .catch((err) => {
@@ -68,8 +72,9 @@ const SiteStates = () => {
         setLoading(true)
         const data = {
             name: e.target[0].value,
+            unit: e.target[2].value,
         }
-        axios.put(`${apiAddress}/api/sitestate/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/product/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -87,13 +92,13 @@ const SiteStates = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/sitestate`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/product`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status){
+            if(response.status == 200){
                 setListLoadin(false)
                 setListError(false)
                 if(response.data.data == null){
-                    setList([{name: ''}])
+                    setList([{name: '', id: ""}])
                 }else{
                     setList(response.data.data)
                 }
@@ -110,47 +115,48 @@ const SiteStates = () => {
     }
 
     return(
-        <div className='SiteStates'>
-            <h1>Site state Manager</h1>
-            <Button variant='contained' onClick={() => setAddModal(true)}>new site state</Button>
+        <div className='Products'>
+            <h1>Products</h1>
+            <Button variant='contained' onClick={() => setAddModal(true)}>new product</Button>
             { listLoading && <CircularProgress/> }
             { listError && <>
                 <h3 style={{margin: '0px', color: 'red'}}>An error has ocurred</h3>
                 <Button variant='text' onClick={() => getList()}>Retry</Button>
             </> }
             { !listLoading && !listError && 
-                <div>
+                <>
                     {list.map((item) => (
                         <div className='LI' key={item.id}>
-                            <h3>{item.name}</h3>
-                            <div>
+                            <h3>{item.name}  |  {item.unit}</h3>
+                            <div className="Buttons">
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setSelectedItem(item.id); setDeleteModal(true)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
                     ))}
-                </div>
+                </>
             }
 
             { addModal && 
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Add New site State</h1>
+                    <h1>Add New Product</h1>
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false); setLoading(false); getList()}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false); setLoading(false);getList()}}>close</Button>
                         </>
                     ):(
                         <>
                             <TextField label='Name' disabled={loading}/>
+                            <TextField label='Unit' disabled={loading}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setLoading(false); setError(false)}}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -158,19 +164,20 @@ const SiteStates = () => {
 
             { editModal && 
                 <form className="Modal" onSubmit={handleUpdate}>
-                    <h1>Edit site State</h1>
+                    <h1>Edit Product</h1>
                     {success ? (
                         <>
                             <h1>Edited Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem (0); setLoading(false); getList()}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); getList(); setSelectedItem(0); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
                             <TextField label='Name' disabled={loading}/>
+                            <TextField label='Unit' disabled={loading}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setEditModal(false); setSelectedItem(0); setError(false)}}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setEditModal(false); setError(false); setSelectedItem(0)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -178,18 +185,18 @@ const SiteStates = () => {
 
             { deleteModal && 
                 <form className="Modal">
-                    <h1>Delete this site State?</h1>
+                    <h1>Delete Product</h1>
                     {success ? (
                         <>
                             <h1>Deleted Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList(); setError(false)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); getList(); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" onClick={handleDelete} disabled={loading}>{loading ? (<CircularProgress/>):(<>Delete</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setDeleteModal(false); setSelectedItem(0); setError(false)}}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setDeleteModal(false); setSelectedItem(0)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -198,4 +205,4 @@ const SiteStates = () => {
     )
 }
 
-export default SiteStates;
+export default Products;

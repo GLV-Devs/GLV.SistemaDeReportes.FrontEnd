@@ -7,7 +7,7 @@ import axios from "axios";
 
 const NavBar = () => {
 
-    const { setUserData } = useContext(AppContext)
+    const { setAccessToken, userInfo } = useContext(AppContext)
     const navigate = useNavigate()
     const [adminMenuAnchor, setAdminMenuAnchor] = useState(null)
     const open = Boolean(adminMenuAnchor)
@@ -17,7 +17,7 @@ const NavBar = () => {
     }
 
     async function logOut(){
-        setUserData('')
+        setAccessToken('')
         axios.delete(`${apiAddress}/api/identity/`)
         .then(
             navigate('/login')
@@ -26,12 +26,12 @@ const NavBar = () => {
 
     return(
         <div className="NavBar">
-            <h4>Control System - Jesus Lozano</h4>
+            <h4>Control System - {userInfo.names} {userInfo.lastName}</h4>
 
             <div className="Buttons">
                 <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/personas')}>Staff</Button>
                 <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/proyectos')}>projects</Button>
-                <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/productos')}>Materials</Button>
+                <Button variant="text" size="small" color='inherit' onClick={() => navigate('/main/productos')}>Products</Button>
                 <Button variant='text' size='small' color='inherit' onClick={openAdminMenu}>Admin</Button>
                 <Button
                     aria-controls={open ? 'AdminMenu' : undefined}
@@ -57,6 +57,7 @@ const NavBar = () => {
                     <MenuItem onClick={() => {setAdminMenuAnchor(null); navigate('/main/ProjectRoles')}}>Project Roles</MenuItem>
                     <MenuItem onClick={() => {setAdminMenuAnchor(null); navigate('/main/SiteStates')}}>Site states</MenuItem>
                     <MenuItem onClick={() => {setAdminMenuAnchor(null); navigate('/main/productos')}}>Products</MenuItem>
+                    <MenuItem onClick={() => {setAdminMenuAnchor(null); navigate('/main/reportlinescategories')}}>Report Lines Categories</MenuItem>
                 </Menu>
             </div>
         </div>

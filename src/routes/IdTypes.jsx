@@ -1,5 +1,7 @@
-import { Button, TextField, CircularProgress } from "@mui/material";
+import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import axios from "axios";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import { useState, useContext, useEffect } from "react";
 import { apiAddress } from "../globalResources";
 import { AppContext } from "../context/AppContext";
@@ -10,7 +12,7 @@ const IdTypes = () => {
     useEffect(() => {getList()}, [])
 
     const navigate = useNavigate()
-    const { userData } = useContext(AppContext)
+    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -19,7 +21,8 @@ const IdTypes = () => {
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState('')
+    const [list, setList] = useState([])
+    const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -30,19 +33,20 @@ const IdTypes = () => {
             symbol: e.target[2].value,
             format: e.target[4].value,
         }
-        axios.post(`${apiAddress}/api/identificationtype`, data, {headers: {'Authorization': `Bearer ${userData.data.accessToken}`}})
+        axios.post(`${apiAddress}/api/identificationtype`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
-                setList(response.data)
             }else if (response.status == 401){
                 navigate('/Login')
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            console.log(err.response.data)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -50,16 +54,17 @@ const IdTypes = () => {
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/identificationtype`)
+        axios.delete(`${apiAddress}/api/identificationtype/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status == 200){
             setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -73,16 +78,17 @@ const IdTypes = () => {
             symbol: e.target[2].value,
             format: e.target[4].value,
         }
-        axios.put(`${apiAddress}/api/identificationtype`, data)
+        axios.put(`${apiAddress}/api/identificationtype/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -90,18 +96,25 @@ const IdTypes = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/identificationtype`, {headers: {'Authorization': `Bearer ${userData.data.accessToken}`}})
+        axios.get(`${apiAddress}/api/identificationtype`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setListLoadin(false)
                 setListError(false)
-                console.log(response)
+                if(response.data.data == null){
+                    setList([{name: ''}])
+                }else{
+                    setList(response.data.data)
+                }
             }
         })
         .catch((err) => {
             setListError(true)
             setListLoadin(false)
             console.log(err)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
         })
     }
 
@@ -117,14 +130,14 @@ const IdTypes = () => {
             { !listLoading && !listError && 
                 <div>
                     {list.map((item) => (
-                        <div className='LI'>
+                        <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
                             <div>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => setEditModal(true)}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => setDeleteModal(true)}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -138,7 +151,7 @@ const IdTypes = () => {
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(true)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -154,13 +167,13 @@ const IdTypes = () => {
                 </form>
             }
 
-            { addModal && 
-                <form className="Modal" onSubmit={handleSubmit}>
+            { editModal && 
+                <form className="Modal" onSubmit={handleUpdate}>
                     <h1>Edit ID Type</h1>
                     {success ? (
                         <>
-                            <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(true)}}>close</Button>
+                            <h1>Edited Successfully</h1>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -170,7 +183,7 @@ const IdTypes = () => {
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setError(false)}}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -182,14 +195,14 @@ const IdTypes = () => {
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" onClick={handleDelete} disabled={loading}>{loading ? (<CircularProgress/>):(<>Delete</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setDeleteModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>

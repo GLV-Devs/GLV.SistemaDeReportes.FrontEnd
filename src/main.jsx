@@ -6,7 +6,7 @@ import Root from './routes/Root'
 import Login from './routes/Login'
 import ErrorPage from './routes/ErrorPage'
 import Main from './routes/MainPage'
-import Materials from './routes/Materials'
+import Products from './routes/Products'
 import Projects from './routes/Projects'
 import Personal from './routes/Personal'
 import IdTypes from './routes/IdTypes'
@@ -14,6 +14,7 @@ import SiteStates from './routes/SiteStates'
 import ProjectRoles from './routes/ProjectRoles'
 import ProjectStates from './routes/ProjectStates'
 import AppContextProvider from './context/AppContextProvider'
+import ReportLinesCategory from './routes/ReportLineCategory'
 
 const router = createBrowserRouter([
   {
@@ -36,7 +37,7 @@ const router = createBrowserRouter([
           element: <Projects />,
         },{
           path: '/main/productos',
-          element: <Materials />,
+          element: <Products />,
         },{
           path: '/main/ManageIdTypes',
           element: <IdTypes/>,
@@ -49,6 +50,9 @@ const router = createBrowserRouter([
         },{
           path: '/main/ProjectStates',
           element: <ProjectStates/>,
+        },{
+          path: '/main/reportlinescategories',
+          element: <ReportLinesCategory/>
         }]
       }
     ],

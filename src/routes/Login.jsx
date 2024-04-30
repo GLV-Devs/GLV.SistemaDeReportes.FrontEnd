@@ -8,7 +8,7 @@ import { hash } from '../encrypt'
 
 const Login = () => {
 
-    const { setUserData } = useContext(AppContext)
+    const { setAccessToken, setUserInfo } = useContext(AppContext)
     const navigate = useNavigate()
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -21,14 +21,23 @@ const Login = () => {
             identifier: e.target[0].value,
             passwordSHA256: await hash(e.target[2].value),
         }
-        console.log(data)
+        // console.log(data)
         axios.put(`${apiAddress}/api/identity`, data)
         .then((response) => {
             if(response.status == 200){
-                setUserData(response)
-                navigate('/main')
+                setAccessToken(response.data.data[0].key)
             }
-            console.log(response)
+            // console.log(response)
+            axios.get(`${apiAddress}/api/account`, {headers: {'Authorization': `Session ${response.data.data[0].key}`}})
+            .then((subResponse) => {
+                if(response.status){
+                    setUserInfo(subResponse.data.data[0])
+                    navigate('/main')
+                }
+            }).catch((err) => {
+                setLoading(false)
+                setError(true)
+            })
         }).catch((err) => {
             if(err){
                 setLoading(false)

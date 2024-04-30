@@ -10,7 +10,7 @@ const ProjectStates = () => {
 
     useEffect(() => {getList()}, [])
 
-    const { userData } = useContext(AppContext)
+    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
@@ -19,21 +19,23 @@ const ProjectStates = () => {
     const [editModal, setEditModal] = useState(false)
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState('')
+    const [list, setList] = useState([])
+    const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/projectstate`)
+        axios.delete(`${apiAddress}/api/projectstate/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
             setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -45,16 +47,17 @@ const ProjectStates = () => {
         const data = {
             name: e.target[0].value,
         }
-        axios.post(`${apiAddress}/api/projectstate`, data)
+        axios.post(`${apiAddress}/api/projectstate`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -66,16 +69,17 @@ const ProjectStates = () => {
         const data = {
             name: e.target[0].value,
         }
-        axios.put(`${apiAddress}/api/projectstate`, data)
+        axios.put(`${apiAddress}/api/projectstate${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
             }
         })
         .catch((err) => {
-            if(err){
-                setLoading(false)
-                setError(true)
+            setLoading(false)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
             }
         })
     }
@@ -83,18 +87,21 @@ const ProjectStates = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/projectstate`, {headers: {'Authorization': `Bearer ${userData.data.accessToken}`}})
+        axios.get(`${apiAddress}/api/projectstate`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setListLoadin(false)
                 setListError(false)
-                console.log(response)
+                setList(response.data.data)
             }
         })
         .catch((err) => {
             setListError(true)
             setListLoadin(false)
-            console.log(err)
+            console.log(err.response.data)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
         })
     }
 
@@ -110,14 +117,14 @@ const ProjectStates = () => {
             { !listLoading && !listError && 
                 <div>
                     {list.map((item) => (
-                        <div className='LI'>
+                        <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
                             <div>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => setEditModal(true)}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => setDeleteModal(true)}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true), setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -131,7 +138,7 @@ const ProjectStates = () => {
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -139,7 +146,7 @@ const ProjectStates = () => {
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setAddModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setError(false); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -150,8 +157,8 @@ const ProjectStates = () => {
                     <h1>Edit Project State</h1>
                     {success ? (
                         <>
-                            <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <h1>Edited Successfully</h1>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
@@ -159,7 +166,7 @@ const ProjectStates = () => {
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setEditModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setEditModal(false); setSelectedItem(0); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
@@ -170,15 +177,15 @@ const ProjectStates = () => {
                     <h1>Delete this Project State?</h1>
                     {success ? (
                         <>
-                            <h1>Added Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(false)}}>close</Button>
+                            <h1>Deleted Successfully</h1>
+                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" onClick={handleDelete} disabled={loading}>{loading ? (<CircularProgress/>):(<>Delete</>)}</Button>
-                                <Button variant="contained" color='error' disabled={loading} onClick={() => setDeleteModal(false)}>cancel</Button>
+                                <Button variant="contained" color='error' disabled={loading} onClick={() => {setDeleteModal(false); setSelectedItem(0); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
                 </form>
