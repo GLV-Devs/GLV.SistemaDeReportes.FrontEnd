@@ -2,15 +2,14 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import axios from "axios";
-import { useState, useContext, useEffect } from "react";
-import { apiAddress } from "../globalResources";
-import { AppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { apiAddress, accessToken } from "../globalResources";
+
 
 const SiteStates = () => {
 
     useEffect(() => {getList()}, [])
 
-    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -66,8 +65,12 @@ const SiteStates = () => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let name
+        if(e.target[0].value == ''){
+            name = null
+        }else{ name = e.target[0].value }
         const data = {
-            name: e.target[0].value,
+            name: name,
         }
         axios.put(`${apiAddress}/api/sitestate/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
@@ -87,7 +90,7 @@ const SiteStates = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/sitestate`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/sites/state`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setListLoadin(false)

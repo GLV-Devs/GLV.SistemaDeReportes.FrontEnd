@@ -2,9 +2,9 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import { useState, useContext, useEffect } from "react";
-import { apiAddress } from "../globalResources";
-import { AppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { apiAddress, accessToken } from "../globalResources";
+
 import { useNavigate } from "react-router-dom";
 
 const Products = () => {
@@ -12,7 +12,6 @@ const Products = () => {
     useEffect(() => {getList()}, [])
 
     const navigate = useNavigate()
-    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -70,9 +69,17 @@ const Products = () => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let name
+        let unit
+        if(e.target[0].value == ''){
+            name = null
+        }else{ name = e.target[0].value }
+        if(e.target[2].value == ''){
+            unit = null
+        }else{ unit = e.target[2].value }
         const data = {
-            name: e.target[0].value,
-            unit: e.target[2].value,
+            name: name,
+            unit: unit,
         }
         axios.put(`${apiAddress}/api/product/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
@@ -83,6 +90,7 @@ const Products = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            console.log(err.response.data)
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -125,7 +133,28 @@ const Products = () => {
             </> }
             { !listLoading && !listError && 
                 <>
-                    {list.map((item) => (
+                    <table>
+                        <ht>
+                            <td>Name</td>
+                            <td>Unit.</td>
+                            <td></td>
+                        </ht>
+                        {list.map((item) => (
+                            <tr key={item.id}>
+                                <td>{item.name}</td>
+                                <td>{item.unit}</td>
+                                <td>
+                                    <Tooltip title='Edit'>
+                                        <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
+                                    </Tooltip>
+                                    <Tooltip title='Delete'>
+                                        <Button color='error' onClick={() => {setSelectedItem(item.id); setDeleteModal(true)}}> <DeleteIcon/> </Button>
+                                    </Tooltip>
+                                </td>
+                            </tr>
+                        ))}
+                    </table>
+                    {/* {list.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}  |  {item.unit}</h3>
                             <div className="Buttons">
@@ -137,7 +166,7 @@ const Products = () => {
                                 </Tooltip>
                             </div>
                         </div>
-                    ))}
+                    ))} */}
                 </>
             }
 

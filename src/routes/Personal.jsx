@@ -2,20 +2,21 @@ import { Button, TextField, CircularProgress, Tooltip, InputLabel, Select, MenuI
 import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useState, useContext, useEffect } from "react";
-import { apiAddress } from "../globalResources";
+import { apiAddress, accessToken } from "../globalResources";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { getIdTypeName } from '../functions'
 
 const Personal = () => {
 
     useEffect(() => {getList(); getIdList()}, [])
 
     const navigate = useNavigate()
-    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -28,6 +29,9 @@ const Personal = () => {
     const [idList, setIdList] = useState([])
     const [idType, setIdType] = useState(0)
     const [selectedItem, setSelectedItem] = useState(0)
+    const [viewModal, setViewModal] = useState(false)
+    const [passportImage, setPassportImage] = useState('')
+    const [identificationToShow, setIdentificationToShow] = useState('')
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -71,7 +75,7 @@ const Personal = () => {
             if(err.response.status == 401){
                 navigate('/Login')
             }
-    })
+        })
     }
 
     async function handleDelete(){
@@ -96,36 +100,57 @@ const Personal = () => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let Names
+        let LastNames
+        let DateOfBirth
+        let IdentificationTypeId
+        let IdentificationNumber
         let DriverLicensePhotoId
         let PassportPhotoId
+        let PhoneNumber
+        let ManagedProjects
+        const licenseInput = document.getElementById('license')
+        const passportInput = document.getElementById('passport')
         
-        if (e.target[11].value == ''){
-            DriverLicensePhotoId = null
-        }else{
-            axios.post(`${apiAddress}/data/personal/license`, e.target[11].value, {headers: {'Authorization': `Session${accessToken}`}})
-            .then((response) => {
-                Driver
+        if(e.target[0].value == ''){Names = null}else{Names = e.target[0].value}
+        if(e.target[2].value == ''){LastNames = null}else{LastNames = e.target[2].value}
+        if(e.target[4].value == ''){DateOfBirth = null}else{DateOfBirth = Date(e.target[4].value)}
+        if(e.target[7].value == ''){IdentificationTypeId = null}else{IdentificationTypeId = Number(e.target[7].value)}
+        if(e.target[9].value == ''){IdentificationNumber = null}else{IdentificationNumber = Number(e.target[9].value)}
+        if (e.target[11].value == ''){ DriverLicensePhotoId = null}else{
+            axios.post(`${apiAddress}/data/personal/license`, licenseInput.files[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'image/png'}})
+            .then(async (response) => {
+                DriverLicensePhotoId = await response.data.data[0].key
+            }).catch((err) => {
+                console.log(err.response.data)
             })
         }
-
-        if (e.target[12].value == ''){
-            PassportPhotoId = null
+        if (e.target[12].value == ''){ PassportPhotoId = null }else{
+            axios.post(`${apiAddress}/data/personal/identification`, passportInput.files[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'image/png'}})
+            .then(async (response) => {
+                PassportPhotoId = await response.data.data[0].key
+            }).catch((err) => {
+                console.log(err.response.data)
+            })
         }
+        if(e.target[13].value == ''){PhoneNumber = null}else{PhoneNumber = e.target[13].value}
+        if(e.target[15].value == ''){ManagedProjects = null}else{ManagedProjects = e.target[15].value}
 
         const data = {
-            Names: e.target[0].value,
-            LastNames: e.target[2].value,
-            DateOfBirth: Date(e.target[4].value),
-            IdentificationTypeId: Number(e.target[7].value),
-            IdentificationNumber: Number(e.target[9].value),
+            Names: Names,
+            LastNames: LastNames,
+            DateOfBirth: DateOfBirth,
+            IdentificationTypeId: IdentificationTypeId,
+            IdentificationNumber: IdentificationNumber,
             DriverLicensePhotoId: DriverLicensePhotoId,
             PassportPhotoId: PassportPhotoId,
-            PhoneNumber: e.target[13].value,
-            ManagedProjects: e.target[15].value,
+            PhoneNumber: PhoneNumber,
+            ManagedProjects: ManagedProjects,
         }
+        console.log(data)
         axios.put(`${apiAddress}/api/person/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 200){
+            if(response.status){
                 setSuccess(true)
             }
         })
@@ -188,6 +213,18 @@ const Personal = () => {
         })
     }
 
+    function getPassportPhoto(){
+        axios.get(`${apiAddress}/data/personal/identification/${selectedItem.id}`, {headers: {'Authorization': `Session ${accessToken}`}, responseType: 'arraybuffer'})
+        .then((response) => {
+            const base64 = btoa(
+                new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
+            )
+            setPassportImage(base64)
+        }).catch((err) => {
+            console.log(err.response)
+        })
+    }
+
     return(
         <div className='Personal'>
             <h1>Person Manager</h1>
@@ -203,6 +240,9 @@ const Personal = () => {
                         <div className='LI' key={item.id}>
                             <h3>{item.names} {item.lastNames}</h3>
                             <div className="Buttons">
+                            <Tooltip title='See info'>
+                                    <Button onClick={() => {setViewModal(true); setSelectedItem(item); getPassportPhoto(); console.log(getIdTypeName(item.identificationTypeId))}}> <VisibilityIcon/> </Button>
+                                </Tooltip>
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
@@ -263,14 +303,14 @@ const Personal = () => {
                     {success ? (
                         <>
                             <h1>Edited Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setAddModal(false); setSuccess(true); setSelectedItem(0)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); getList(); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
-                            <TextField label='Names'/>
-                            <TextField label='LastNames'/>
+                            <TextField label='Names' disabled={loading}/>
+                            <TextField label='LastNames'disabled={loading}/>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker/>
+                                <DatePicker disabled={loading}/>
                             </LocalizationProvider>
                             <div>
                                 <InputLabel id='idType'>Identification</InputLabel>
@@ -279,17 +319,17 @@ const Personal = () => {
                                     <MenuItem value='J'>J</MenuItem>
                                     <MenuItem value='E'>E</MenuItem>
                                 </Select>
-                                <TextField type="text"/>
+                                <TextField type="text" disabled={loading}/>
                             </div>
                             <div>
                                 <p>Driver licence photo:</p>
-                                <input type="file" />
+                                <input type="file" id='license' disabled={loading}/>
                             </div>
                             <div>
                                 <p>Passport photo:</p>
-                                <input type="file" />
+                                <input type="file" id='passport' disabled={loading}/>
                             </div>
-                            <TextField label='Phone'/>
+                            <TextField label='Phone' disabled={loading}/>
                             <div>
                                 <InputLabel id='ManagedProjects'>managed Projects</InputLabel>
                                 <Select label='ManagedProjects' className="Select">
@@ -324,6 +364,20 @@ const Personal = () => {
                             </div>
                         </>)}
                 </form>
+            }
+
+            { viewModal && 
+                <div className='Modal'>
+                    <h1>Person information</h1>
+                    <h3>Names: {selectedItem.names}</h3>
+                    <h3>Last names: {selectedItem.lastNames}</h3>
+                    <h3>Date Of Birth: {new Date(selectedItem.dateOfBirth).toDateString()}</h3>
+                    <h3>Identification: {identificationToShow} {selectedItem.identificationNumber}</h3>
+                    <h3>Phone: {selectedItem.phoneNumber}</h3>
+                    <h3>Pasaporte: </h3>
+                    <img src={`data:image/jpeg;base64,${passportImage}`} alt="" />
+                    <Button variant='contained' onClick={() => {setViewModal(false)}}>close</Button>
+                </div>
             }
         </div>
     )

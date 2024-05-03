@@ -2,15 +2,13 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import axios from "axios";
-import { useState, useContext, useEffect } from "react";
-import { apiAddress } from "../globalResources";
-import { AppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { apiAddress, accessToken } from "../globalResources";
 
 const ProjectStates = () => {
 
     useEffect(() => {getList()}, [])
 
-    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
@@ -66,8 +64,12 @@ const ProjectStates = () => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let name
+        if(e.target[0].value == ''){
+            name = null
+        }else{ name = e.target[0].value }
         const data = {
-            name: e.target[0].value,
+            name: name,
         }
         axios.put(`${apiAddress}/api/projectstate${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
@@ -87,7 +89,7 @@ const ProjectStates = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/projectstate`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/project/states`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setListLoadin(false)

@@ -1,17 +1,18 @@
 import { TextField, Button, CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import { apiAddress } from '../globalResources'
+import { apiAddress, ChangeApiAddress, setAccessToken } from '../globalResources'
 import { hash } from '../encrypt'
 
 const Login = () => {
 
-    const { setAccessToken, setUserInfo } = useContext(AppContext)
+    const { setUserInfo } = useContext(AppContext)
     const navigate = useNavigate()
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [showAddress, setShowAddress] = useState(apiAddress)
 
     async function handleSubmit(e){
         e.preventDefault();
@@ -44,7 +45,12 @@ const Login = () => {
                 setError(true)
             }
         })
+    }
 
+    const change = (e) => {
+        e.preventDefault()
+        ChangeApiAddress(e.target[0].value)
+        setShowAddress(apiAddress)
     }
     return(
         <div className="Login">
@@ -55,6 +61,14 @@ const Login = () => {
                 { error && <h3 style={{color: 'red', margin: '0px'}}>An error has occurred</h3> }
                 <Button disabled={loading} variant="contained" type="submit">{ loading ? (<CircularProgress/>):(<>Login</>) }</Button>
             </form>
+
+            {/* Debug Tool */}
+            <form onSubmit={change}>
+                <p>Current address: {showAddress}</p>
+                <TextField label='Backend address'/>
+                <Button type="submit">Change</Button>
+            </form>
+            {/* Debug Tool */}
         </div>
     )
 }

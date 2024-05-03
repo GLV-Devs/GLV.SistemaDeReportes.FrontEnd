@@ -1,6 +1,6 @@
-
 import { useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
+import Footer from '../components/Footer'
 
 const Root = () => {
 
@@ -12,6 +12,7 @@ const Root = () => {
     return(
         <div className="container">
             <Outlet />
+            {/* <Footer /> */}
         </div>
     )
 }

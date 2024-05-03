@@ -7,7 +7,7 @@ import axios from "axios";
 
 const NavBar = () => {
 
-    const { setAccessToken, userInfo } = useContext(AppContext)
+    const { userInfo } = useContext(AppContext)
     const navigate = useNavigate()
     const [adminMenuAnchor, setAdminMenuAnchor] = useState(null)
     const open = Boolean(adminMenuAnchor)
@@ -17,7 +17,6 @@ const NavBar = () => {
     }
 
     async function logOut(){
-        setAccessToken('')
         axios.delete(`${apiAddress}/api/identity/`)
         .then(
             navigate('/login')

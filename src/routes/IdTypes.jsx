@@ -2,9 +2,8 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import { useState, useContext, useEffect } from "react";
-import { apiAddress } from "../globalResources";
-import { AppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { apiAddress, accessToken } from "../globalResources";
 import { useNavigate } from "react-router-dom";
 
 const IdTypes = () => {
@@ -12,7 +11,6 @@ const IdTypes = () => {
     useEffect(() => {getList()}, [])
 
     const navigate = useNavigate()
-    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -73,10 +71,22 @@ const IdTypes = () => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let name
+        let symbol
+        let format
+        if(e.target[0].value == ''){
+            name = null
+        }else{ name = e.target[0].value }
+        if(e.target[2].value == ''){
+            symbol = null
+        }else{ symbol = e.target[2].value }
+        if(e.target[4].value == ''){
+            format = null
+        }else{ format = e.target[4].value }
         const data = {
-            name: e.target[0].value,
-            symbol: e.target[2].value,
-            format: e.target[4].value,
+            name: name,
+            symbol: symbol,
+            format: format,
         }
         axios.put(`${apiAddress}/api/identificationtype/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {

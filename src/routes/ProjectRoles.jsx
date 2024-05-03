@@ -2,15 +2,13 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import axios from "axios";
-import { useState, useContext, useEffect } from "react";
-import { apiAddress } from "../globalResources";
-import { AppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { apiAddress, accessToken } from "../globalResources";
 
 const ProjectRoles = () => {
 
     useEffect(() => {getList()}, [])
 
-    const { accessToken } = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -29,7 +27,7 @@ const ProjectRoles = () => {
         const data = {
             name: e.target[0].value
         }
-        axios.post(`${apiAddress}/api/projectrole`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/project/roles`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -47,7 +45,7 @@ const ProjectRoles = () => {
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/projectrole/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/project/roles/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
             setSuccess(true)
@@ -66,10 +64,14 @@ const ProjectRoles = () => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let name
+        if(e.target[0].value == ''){
+            name = null
+        }else{ name = e.target[0].value }
         const data = {
-            name: e.target[0].value,
+            name: name,
         }
-        axios.put(`${apiAddress}/api/projectrole/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/project/roles/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -87,7 +89,7 @@ const ProjectRoles = () => {
     async function getList(){
         setListError(false)
         setListLoadin(true)
-        axios.get(`${apiAddress}/api/projectrole`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/project/roles`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setListLoadin(false)

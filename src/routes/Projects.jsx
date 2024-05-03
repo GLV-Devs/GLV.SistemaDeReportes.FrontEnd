@@ -1,11 +1,11 @@
-import { ModalAdd, ModalEdit, ModalView } from "../components/ModalProjects";
+import { ModalAdd, ModalEdit, ModalView, ExportModal } from "../components/ModalProjects";
 import { Button, Tooltip, CircularProgress } from "@mui/material";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import axios from "axios";
-import { apiAddress } from "../globalResources";
-import { AppContext } from "../context/AppContext";
+import { apiAddress, accessToken } from "../globalResources";
 import { useNavigate } from "react-router-dom";
 
 const Projects = () => {
@@ -14,7 +14,6 @@ const Projects = () => {
 
     const navigate = useNavigate()
 
-    const { accessToken } = useContext(AppContext)
     const [edit, setEdit] = useState(false)
     const [add, setAdd] = useState(false)
     const [view, setView] = useState(false)
@@ -25,6 +24,7 @@ const Projects = () => {
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoading] = useState(false)
     const [selectedItem, setSelectedItem] = useState('')
+    const [exportReport, setExportReport] = useState(false)
 
     async function getList(){
         setListError(false)
@@ -70,6 +70,9 @@ const Projects = () => {
                         </div>
 
                         <div className="Buttons">
+                            <Tooltip title='Export'>
+                                <Button onClick={ () => {setExportReport(true); setSelectedItem(item);} }> <GetAppIcon/> </Button>
+                            </Tooltip>
                             <Tooltip title='Edit'>
                                 <Button onClick={ () => {setSelectedItem(item); setEdit(true);} }> <ModeEditIcon/> </Button>
                             </Tooltip>
@@ -85,6 +88,7 @@ const Projects = () => {
             { edit && <ModalEdit projectKey={selectedItem.id} close={() => {setEdit(false); getList()}}/> }
             { add &&  <ModalAdd close={() => {setAdd(false); getList()}}/>}
             { view && <ModalView projectId={selectedItem} close={() => {setView(false); getList()}}/> }
+            { exportReport && <ExportModal close={() => setExportReport(false)} projectId={selectedItem.id}/>}
         </div>
     )
 }

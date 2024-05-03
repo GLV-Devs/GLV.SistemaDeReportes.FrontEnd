@@ -1,31 +1,29 @@
-import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress } from "@mui/material"
+import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel } from "@mui/material"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useContext, useEffect } from "react"
 import axios from "axios";
-import { apiAddress } from '../globalResources'
+import { apiAddress, accessToken } from '../globalResources'
 import { AppContext } from "../context/AppContext";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useNavigate } from "react-router-dom";
-import { convertToISO } from "../functions";
+import { convertToISO, getRoleName, getProductName } from "../functions";
 
 export const ModalView = ({projectId, close}) => {
 
-    useEffect(() => { getStatus(); getSiteState(); getReportList() },[])
+    useEffect(() => { getStatus(); getSiteState() },[])
 
     const navigate = useNavigate()
-    const {accessToken} = useContext(AppContext)
     const [info, setInfo] = useState(projectId)
-    console.log(projectId)
+    // console.log(projectId)
     const completed = new Date(info.completed)
     const started = new Date(info.started)
     const [status, setStatus] = useState()
     const [siteState, setSiteState] = useState()
-    const [roleIdList, setRoleIdList] = useState([])
-    const [reportList, setReportList] = useState([])
+    const [selectedReport, setSelectedReport] = useState('')
 
     async function getStatus(){
         axios.get(`${apiAddress}/api/project/states/${info.stateId}`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -51,26 +49,23 @@ export const ModalView = ({projectId, close}) => {
         })
     }
 
-    function getRolelist(){
-        console.log(roleId)
-        axios.get(`${apiAddress}/api/identificationtype/${roleId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+    function exportReport(id){
+        const data = {
+            "start": "2004/01/01",
+            "end": "2025/01/01",
+            "projectKey": id
+        }
+        axios.post(`${apiAddress}/data/export/project/general/pdf`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
-        }).catch((err) => {console.log(err.response)})
-    }
-
-    function getReportInfo(){
-        info.reports.map((item) => {
-            axios.get(`${apiAddress}/api/reports/${item}`, {headers: {'Authorization': `Session ${accessToken}`}})
-            .then((response => {
-                console.log(response.data)
-                // setReportList([...reportList, response.data.data])
-            }))
+        }).catch((err) => {
+            console.log(err.response.data)
         })
     }
 
     const [addNote, setAddNote] = useState(false)
     const [deleteConfirmation, setDeleteConfirmation] = useState(false)
+    const [fullReport, setFullReport] = useState(false)
 
     return(
         <div className='ModalDual'>
@@ -87,14 +82,14 @@ export const ModalView = ({projectId, close}) => {
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Staff</AccordionSummary>
                         <AccordionDetails>
-                            {info.involvedPeople.map((item) => (<p key={item.id}>{item.personNames} {item.personLastNames} - {item.roleId}</p>))}
+                            {info.involvedPeople.map((item) => (<p key={item.id}>{item.personNames} {item.personLastNames} - {getRoleName(item.roleId)}</p>))}
                         </AccordionDetails>
                     </Accordion>
 
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Budgets</AccordionSummary>
                         <AccordionDetails>
-                            {info.budgets.map((item) => (<p>{`${item.productId} - (${item.totalSpent} used of ${item.quantity})`}</p>))}
+                            {info.budgets.map((item) => (<p>{`${getProductName(item.productId)} - (${item.totalSpent} used of ${item.quantity})`}</p>))}
                         </AccordionDetails>
                     </Accordion>
                     <Button sx={{'margin': '20px'}} variant='contained' color='error' onClick={() => setDeleteConfirmation(true)}>delete project</Button>
@@ -103,12 +98,10 @@ export const ModalView = ({projectId, close}) => {
                 <div className='right'>
                     <h1>Reports</h1>
                         {info.reports.map((item) => (
-                            <Accordion key={item} className="Accordion" variant="elevation">
-                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    {item}
-                                </AccordionSummary>
-                                <AccordionDetails>{item}</AccordionDetails>
-                            </Accordion>
+                            <div className='reportContainer'>
+                                <h3>{new Date(item.dateReported).toLocaleString()}</h3>
+                                <Button onClick={() => {exportReport(item.id)}}>see report</Button>
+                            </div>
                         ))}
                 </div>
             </div>
@@ -120,6 +113,7 @@ export const ModalView = ({projectId, close}) => {
 
             { addNote && <AddReportModal close={() => setAddNote(false)} id={info.id}/> }
             { deleteConfirmation && <deleteModal close={ () => setAddNote(false) } projectKey={info.id}/> }
+            { fullReport && <ReportInfo reportId={info.id} close={() => {setFullReport(false)}}/> }
         </div>
     )
 }
@@ -129,7 +123,6 @@ export const ModalEdit = ({close, projectKey}) => {
     useEffect(() => {getStaffList(); getProductList(); getStatusList(); getRolesList(); getSiteStateList()}, [])
     const navigate = useNavigate()
 
-    const { accessToken } = useContext(AppContext)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -405,7 +398,6 @@ export const ModalAdd = ({close}) => {
     useEffect(() => {getStaffList(); getProductList(); getStatusList(); getRolesList(); getSiteStateList()}, [])
     const navigate = useNavigate()
 
-    const { accessToken } = useContext(AppContext)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -447,14 +439,14 @@ export const ModalAdd = ({close}) => {
             clientLogoId: null,
         }
         // console.log(data)
-        axios.post(`${apiAddress}/api/project`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/projects`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
                 setLoading(false)
             }
         }).catch((err) => {
-            // console.log(err)
+            console.log(err)
             setError(true)
             setLoading(false)
             if(err.response.status == 401){
@@ -559,7 +551,7 @@ export const ModalAdd = ({close}) => {
             { success ? (
                 <div className="Modal">
                     <h1>Project added</h1>
-                    <Button variant='contained' color='error' onClick={() => {close; getList()}}>close</Button>
+                    <Button variant='contained' color='error' onClick={close}>close</Button>
                 </div>
             ):(
                 <form className="Modal" onSubmit={handleSubmit}>
@@ -611,112 +603,60 @@ export const ModalAdd = ({close}) => {
 
 export const AddReportModal = ({close, id}) => {
 
-    useEffect(() => { getCategoryList() }, [])
+    const [linesList, setLinesList] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState(0)
+    const { reportLineCategoryList } = useContext(AppContext)
 
-    const today = new Date()
-    const projectId = id
-    const navigate = useNavigate()
-    const { accessToken, userInfo } = useContext(AppContext)
-    const [success, setSuccess] = useState(false)
-    const date = new Date()
-    const [categoryList, setCategoryList] = useState([])
-    const [categorySelected, setCategorySelected] = useState(0)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(false)
-
-    const handleCategory = (e) => {
-        setCategorySelected(e.target.value)
-    }
-
-    function handleSubmit(e){
+    const handleSubmit = (e) => {
         e.preventDefault()
-        setLoading(true)
-        setError(false)
-        const reportData = {
-            reporterUserId: userInfo.id,
-            projectId: projectId,
-            dateReported: today.toDateString()
-        }
-        const productData = {
-            "reportId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "productId": 0,
-            "quantity": 0
-        }
-        axios.post(`${apiAddress}/api/reports/`, reportData, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            const lineData = {
-                "reportId": response.data.data[0].id,
-                "description": LineText.value,
-                "categoryId": Number(categorySelected)
-            }
-            axios.post(`${apiAddress}/api/reports/lines`, lineData, {headers: {'Authorization': `Session ${accessToken}`}})
-            .then((subResponse1) => {
-                console.log(subResponse1)
-            })
-        }).catch((err) => {
-            console.log(err)
-            setLoading(false)
-            setError(true)
-        })
     }
 
-    function getCategoryList(){
-        axios.get(`${apiAddress}/api/reports/lines/categories`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            if(response.data.data == null){
-                setCategoryList([{name: ''}])
-            }else{
-                setCategoryList(response.data.data)
-            }
-        }).catch((err) => {
-            console.log(err.response)
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
+    function saveLine(){
+        const inputLine = document.getElementById('line')
+        console.log(inputLine)
+        setLinesList([...linesList, {description: inputLine.value, category: selectedCategory}])
+        document.getElementById('line').value = ''
     }
 
     return(
-        <>
-            { success ? (
-                <div className="Modal">
-                    <h1>Report added</h1>
-                    <Button variant='contained' color='error' onClick={close}>Close</Button>
-                </div>
-            ):(
-                <form className='Modal' onSubmit={handleSubmit}>
-                    <div className="header">
-                        <div className='category'>
-                            <h1>Category: </h1>
-                            <Select
-                                label='category'
-                                onChange={handleCategory}
-                                id='category'
-                                value={categorySelected}
-                                disabled={loading}
-                            >
-                                {categoryList.map((item) => (<MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>))}
-                            </Select>
-                        </div>
-
-                        <Tooltip title='Add report'>
-                            <Fab color='info' type='submit'>
-                                <AddIcon />
-                            </Fab>
-                        </Tooltip>
-                    </div>
-                    <div className="info">
-                        <div>
-                            
-                        </div>
-                    
-                        <TextField multiline label='Notes' id='LineText'/>
-                        <input type='file' multiple/>
-                    </div>
-                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
-                </form>
-            ) }
-        </>
+        <form className="Modal Report" onSubmit={handleSubmit}>
+            <h1>Add new report</h1>
+            <table>
+                <th>Description</th>
+                <th>Category</th>
+                {linesList.map((item) => (
+                    <tr>
+                        <td>{item.description}</td>
+                        <td className='cat'>{item.category}</td>
+                    </tr>
+                ))}
+            </table>
+            <div className="NewLine">
+                <TextField multiline label='Description' id='line'/>
+                <InputLabel id="Category" sx={{position: "relative", bottom: '40px', left: '40px'}}>Category</InputLabel>
+                <Select
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    value={selectedCategory}
+                    id="Category"
+                    labelId="Category"
+                    label="Category"
+                    sx={{width: '150px', position: 'relative', right: '30px'}}
+                >
+                    {reportLineCategoryList.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                    ))}
+                </Select>
+                <input type='file' multiple/>
+                <Tooltip title='Add report line'>
+                    <Fab onClick={() => saveLine()} color='info' sx={{position: 'relative', left: '20px'}}> <AddIcon/> </Fab>
+                </Tooltip>
+            </div>
+            
+            <div className="Buttons">
+                <Button variant='contained' color='error' onClick={close}>cancel</Button>
+                <Button variant='contained' type="submit">save report</Button>
+            </div>
+        </form>
     )
 }
 
@@ -749,5 +689,72 @@ export const deleteModal = ({close, projectKey}) => {
                 </div>
             ) }
         </>
+    )
+}
+
+export const ReportInfo = ({reportId, close}) => {
+
+    const navigate = useNavigate()
+    const [info, setInfo] = useState('')
+
+    useEffect(() => {
+        axios.get(`${apiAddress}/api/report`, reportId, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            console.log(response.data.data)
+            // setInfo(response.data.data)
+        }).catch((err) => {
+            if(err.response.status == 401){
+                navigate('./Login')
+            }
+        })
+    })
+
+    return(
+        <div className="Modal">
+            <Button onClick={close} variant='contained'>Close</Button>
+        </div>
+    )
+}
+
+export const ExportModal = ({projectId, close}) => {
+
+    function getGeneralReport(e){
+        e.prevent.preventDefault()
+        const sinceInput = document.getElementById('since')
+        const toInput = document.getElementById('to')
+        const data = {
+            projectId: projectId,
+            startDate: sinceInput.value,
+            endDate: toInput.value,
+        }
+        axios.get(`${apiAddress}/`, data, {headers: {'Authorization': `Session ${accessToken}`}, responseType})
+        .then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'file.pdf');
+            document.body.appendChild(link);
+            link.click();
+        })
+    }
+
+    return(
+        <div className="Modal">
+            <h1>Export general report</h1>
+            <form onSubmit={getGeneralReport}>
+                <div>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker id='since' label='Export from'/>
+                    </LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker id='to' label='to'/>
+                    </LocalizationProvider>
+                </div>
+                <div className='Buttons'>
+                    <Button variant='contained' type='submit'>export</Button>
+                    <Button variant='contained' color='error' onClick={close}>cancel</Button>
+                </div>
+            </form>
+        </div>
     )
 }
