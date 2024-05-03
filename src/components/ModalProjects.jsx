@@ -718,43 +718,44 @@ export const ReportInfo = ({reportId, close}) => {
 
 export const ExportModal = ({projectId, close}) => {
 
-    function getGeneralReport(e){
-        e.prevent.preventDefault()
-        const sinceInput = document.getElementById('since')
-        const toInput = document.getElementById('to')
+    async function getGeneralReport(e){
+        e.preventDefault()
         const data = {
-            projectId: projectId,
-            startDate: sinceInput.value,
-            endDate: toInput.value,
+            projectKey: projectId,
+            start: e.target[0].value,
+            end: e.target[3].value,
         }
-        axios.get(`${apiAddress}/`, data, {headers: {'Authorization': `Session ${accessToken}`}, responseType})
-        .then((response) => {
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'file.pdf');
-            document.body.appendChild(link);
+        console.log(data)
+
+        const PDFKey = await axios.post(`${apiAddress}/data/export/project/general/pdf`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/data/export/project/general/download/?token=${PDFKey.data.data[0]}`, {headers: {'Authorization': `Session ${accessToken}`}, responseType: 'blob'})
+        .then(response=>{
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href= url
+            link.setAttribute('download','Ticket.pdf')
+            document.body.appendChild(link)
             link.click();
+        }).catch(error=>{
+            console.log(error);
         })
     }
 
     return(
-        <div className="Modal">
+        <form onSubmit={getGeneralReport} className="Modal">
             <h1>Export general report</h1>
-            <form onSubmit={getGeneralReport}>
-                <div>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker id='since' label='Export from'/>
-                    </LocalizationProvider>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker id='to' label='to'/>
-                    </LocalizationProvider>
-                </div>
-                <div className='Buttons'>
-                    <Button variant='contained' type='submit'>export</Button>
-                    <Button variant='contained' color='error' onClick={close}>cancel</Button>
-                </div>
-            </form>
-        </div>
+            <div>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker id='since' label='Export from'/>
+                </LocalizationProvider>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker id='to' label='to'/>
+                </LocalizationProvider>
+            </div>
+            <div className='Buttons'>
+                <Button variant='contained' type='submit'>export</Button>
+                <Button variant='contained' color='error' onClick={close}>cancel</Button>
+            </div>
+        </form>
     )
 }
