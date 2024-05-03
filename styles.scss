@@ -363,6 +363,20 @@ body{
 
         .right{
             @include subModal();
+
+            .report{
+                // background-color: red;
+                width: 90%;
+                display: flex;
+                align-items: center;
+                justify-content: space-evenly;
+                border: 1px solid black;
+                
+                .buttons{
+                    // height: 50%;
+                    // background-color: blue;
+                }
+            }
         }
     }
 

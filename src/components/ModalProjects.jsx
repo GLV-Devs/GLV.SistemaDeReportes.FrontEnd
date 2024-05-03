@@ -97,16 +97,22 @@ export const ModalView = ({projectId, close}) => {
                 <div className="divider"></div>
                 <div className='right'>
                     <h1>Reports</h1>
-                        {info.reports.map((item) => (
-                            <div className='reportContainer'>
-                                <h3>{new Date(item.dateReported).toLocaleString()}</h3>
-                                <Button onClick={() => {exportReport(item.id)}}>see report</Button>
+                        <div className='report'>
+                            <h3>fecha - reportador</h3>
+                            <div className="Buttons">
+                                {/* ver reporte: muestra la info de viewReporte */}
+                                <Button>1</Button>
+                                {/* editar reporte: edita quien lo reporta y la fecha */}
+
+                                {/* dentro de ver reportes se manejan las lineas tal y como ya estan
+                                y se abrira un modal para los atachment */}
+                                <Button>2</Button>
                             </div>
-                        ))}
+                        </div>
                 </div>
             </div>
             
-            <div className="Buttons">
+            <div className="buttons">
                 <Button variant='contained' onClick={() => setAddNote(true)}>Add report</Button>
                 <Button variant="contained" color='error' onClick={close}>Close</Button>
             </div>
