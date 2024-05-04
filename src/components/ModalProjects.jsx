@@ -109,7 +109,7 @@ export const ModalView = ({projectId, close}) => {
                             <div className="Buttons">
                                 {/* ver reporte: muestra la info de viewReporte */}
                                 <Tooltip title='See report'>
-                                    <Button onClick={() => {setSelectedReport(item.id); setSeeReportModal(true)}}> <VisibilityIcon/> </Button>
+                                    <Button onClick={() => {setSelectedReport(item.id); setSeeReportModal(true); console.log(item.id)}}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 {/* editar reporte: edita quien lo reporta y la fecha */}
                                 <Tooltip title='Edit report'>
