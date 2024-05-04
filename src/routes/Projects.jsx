@@ -85,9 +85,9 @@ const Projects = () => {
             </> }
             
 
-            { edit && <ModalEdit projectKey={selectedItem.id} close={() => {setEdit(false); getList()}}/> }
+            { edit && <ModalEdit projectKey={selectedItem.id} close={() => {setEdit(false)}}/> }
             { add &&  <ModalAdd close={() => {setAdd(false); getList()}}/>}
-            { view && <ModalView projectId={selectedItem} close={() => {setView(false); getList()}}/> }
+            { view && <ModalView projectId={selectedItem} close={() => {setView(false)}}/> }
             { exportReport && <ExportModal close={() => setExportReport(false)} projectId={selectedItem.id}/>}
         </div>
     )

@@ -13,7 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useNavigate } from "react-router-dom";
 import { convertToISO, getRoleName, getProductName } from "../functions";
-import { ViewReport } from "./ModalReports";
+import { ViewReport, EditReportInfo } from "./ModalReports";
 
 export const ModalView = ({projectId, close}) => {
 
@@ -30,6 +30,7 @@ export const ModalView = ({projectId, close}) => {
     const [selectedReport, setSelectedReport] = useState('')
     const [reportList, setReportList] = useState(projectId.reports)
     const [seeReportModal, setSeeReportModal] = useState(false)
+    const [editReportModal, setEditReportModal] = useState(false)
 
     async function getStatus(){
         axios.get(`${apiAddress}/api/project/states/${info.stateId}`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -112,7 +113,7 @@ export const ModalView = ({projectId, close}) => {
                                 </Tooltip>
                                 {/* editar reporte: edita quien lo reporta y la fecha */}
                                 <Tooltip title='Edit report'>
-                                    <Button> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditReportModal(true); setSelectedReport(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 {/* dentro de ver reportes se manejan las lineas tal y como ya estan
                                 y se abrira un modal para los atachment */}
@@ -130,6 +131,7 @@ export const ModalView = ({projectId, close}) => {
 
             { deleteConfirmation && <deleteModal close={ () => setAddNote(false) } projectKey={info.id}/> }
             { seeReportModal && <ViewReport close={() => {setSeeReportModal(false)}} reportKey={selectedReport}/> }
+            { editReportModal && <EditReportInfo close={(setEditReportModal(false))} projectKey={selectedReport}/> }
         </div>
     )
 }
