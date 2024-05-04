@@ -13,6 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useNavigate } from "react-router-dom";
 import { convertToISO, getRoleName, getProductName } from "../functions";
+import { ViewReport } from "./ModalReports";
 
 export const ModalView = ({projectId, close}) => {
 
@@ -21,13 +22,13 @@ export const ModalView = ({projectId, close}) => {
     const {userInfo} = useContext(AppContext)
     const navigate = useNavigate()
     const [info, setInfo] = useState(projectId)
-    console.log(projectId)
+    // console.log(projectId)
     const completed = new Date(info.completed)
     const started = new Date(info.started)
     const [status, setStatus] = useState()
     const [siteState, setSiteState] = useState()
     const [selectedReport, setSelectedReport] = useState('')
-    const [reportList, setReportList] = useState([projectId.reports])
+    const [reportList, setReportList] = useState(projectId.reports)
     const [seeReportModal, setSeeReportModal] = useState(false)
 
     async function getStatus(){
@@ -107,7 +108,7 @@ export const ModalView = ({projectId, close}) => {
                             <div className="Buttons">
                                 {/* ver reporte: muestra la info de viewReporte */}
                                 <Tooltip title='See report'>
-                                    <Button> <VisibilityIcon/> </Button>
+                                    <Button onClick={() => {setSelectedReport(item.id); setSeeReportModal(true)}}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 {/* editar reporte: edita quien lo reporta y la fecha */}
                                 <Tooltip title='Edit report'>
@@ -128,6 +129,7 @@ export const ModalView = ({projectId, close}) => {
             </div>
 
             { deleteConfirmation && <deleteModal close={ () => setAddNote(false) } projectKey={info.id}/> }
+            { seeReportModal && <ViewReport close={() => {setSeeReportModal(false)}} reportKey={selectedReport}/> }
         </div>
     )
 }

@@ -10,5 +10,5 @@ export let accessToken
 
 export function setAccessToken(newToken){
     accessToken = newToken
-    console.log(accessToken)
+    // console.log(accessToken)
 }
