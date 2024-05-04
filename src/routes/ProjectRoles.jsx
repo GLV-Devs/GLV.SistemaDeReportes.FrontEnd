@@ -125,7 +125,7 @@ const ProjectRoles = () => {
                     {list.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
-                            <div>
+                            <div className='Buttons'>
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>

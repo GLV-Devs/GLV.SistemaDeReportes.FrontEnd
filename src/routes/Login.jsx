@@ -63,11 +63,11 @@ const Login = () => {
             </form>
 
             {/* Debug Tool */}
-            <form onSubmit={change}>
+            {/* <form onSubmit={change}>
                 <p>Current address: {showAddress}</p>
                 <TextField label='Backend address'/>
                 <Button type="submit">Change</Button>
-            </form>
+            </form> */}
             {/* Debug Tool */}
         </div>
     )

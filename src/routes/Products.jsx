@@ -134,16 +134,14 @@ const Products = () => {
             { !listLoading && !listError && 
                 <>
                     <table>
-                        <ht>
-                            <td>Name</td>
-                            <td>Unit.</td>
-                            <td></td>
-                        </ht>
+                        <th>Name</th>
+                        <th>Unit.</th>
+                        <th>Options</th>
                         {list.map((item) => (
                             <tr key={item.id}>
                                 <td>{item.name}</td>
                                 <td>{item.unit}</td>
-                                <td>
+                                <td className='options'>
                                     <Tooltip title='Edit'>
                                         <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                     </Tooltip>
