@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { apiAddress, accessToken } from '../globalResources'
-import { Button, TextField, Select, MenuItem, CircularProgress } from '@mui/material'
+import { Button, TextField, Select, MenuItem, CircularProgress, Skeleton } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -9,92 +9,54 @@ import { useNavigate } from 'react-router-dom'
 
 export const ViewReport = ({reportKey, close}) => {
 
-    // declaraciones:
+    console.log(reportKey)
     const navigate = useNavigate()
-    let dateReported
-    // control de estados:
-    const [loading, setLoading] = useState(true)
-    const [loadingAddLine, setLoadingAddLine] = useState(false)
-    const [selectedCategory, setSelectedCategory] = useState(0)
-    // informacion para mostrar:
-    const [info, setInfo] = useState(null)
-    const [linesList, setLinesList] = useState([])
 
-    useEffect(() => {getInfo(); getLinesList()}, [])
-
-    async function getInfo(){
-        axios.get(`${apiAddress}/api/reports/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            console.log(response.data.data[0])
-            setInfo(response.data.data[0])
-            dateReported = new Date(info.dateReported)
-        })
-    }
-    async function getLinesList(){
-        axios.get(`${apiAddress}/api/reports/lines/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            // setLinesList(response.data.data)
-            console.log(response.data.data)
-        }).catch((err) => {
-            if(err.response.status == 401){
-                navigate('/Login')
+    useEffect(() => {
+        async function getInfo(){
+            try{
+                const response = await axios.get(`${apiAddress}/api/reports/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+                console.log(response)
+                const dateReported = new Date(response.data.data[0].dateReported)
+                if(response.data.data[0].reporterUser.lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].reporterUser.lastNames}
+                setInfo({
+                    dateReported: `${dateReported.getDate()}/${dateReported.getMonth() + 1}/${dateReported.getFullYear()}`,
+                    reportedBy: `${response.data.data[0].reporterUser.names} ${lastNames}`
+                })
+                if(response.status == 200){
+                    setLoading(false)
+                }
+            }catch(err){
+                console.log(err)
+                if(err.response.status == 401){
+                    navigate('/Login')
+                }
             }
-        })
-    }
-
-    async function addReportLine(){
-        setLoadingAddLine(true)
-        const inputLine = document.getElementById('line')
-        const data = {
-            reportId: reportKey,
-            description: inputLine.value,
-            category: selectedCategory,
         }
-        axios.post(`${apiAddress}/api/reports/lines`, data, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            console.log(response)
-            setLoadingAddLine(false)
-        })
-    }
+        getInfo()
+    },[])
+
+    const [loading, setLoading] = useState(true)
+    const [info, setInfo] = useState()
+    let lastNames
 
     return(
-        <div className='Modal'>
-            { loading ? (<CircularProgress/>):(
+        <div className='Modal full'>
+            <h1>Report info</h1>
+            { loading ? (
                 <>
-                    <h3>{dateReported}</h3>
-                    <h3>Reported by: {info.reporterUser.names}</h3>
-                    <table>
-                        <th>Description</th>
-                        <th>Category</th>
-                        {linesList.map((item) => (
-                            <tr>
-                                <td>{item.description}</td>
-                                <td className='cat'>{item.category}</td>
-                            </tr>
-                        ))}
-                    </table>
-                    <div className="NewLine">
-                        <TextField multiline label='Description' id='line' disabled={loadingAddLine}/>
-                        <InputLabel id="Category" sx={{position: "relative", bottom: '40px', left: '40px'}}>Category</InputLabel>
-                        <Select
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            value={selectedCategory}
-                            id="Category"
-                            labelId="Category"
-                            label="Category"
-                            disabled={loadingAddLine}
-                            sx={{width: '150px', position: 'relative', right: '30px'}}
-                        >
-                            {reportLineCategoryList.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
-                            ))}
-                        </Select>
-                        <Tooltip title='Add report line'>
-                            <Fab disabled={loadingAddLine} onClick={() => saveLine()} color='info' sx={{position: 'relative', left: '20px'}}> <AddIcon/> </Fab>
-                        </Tooltip>
-                    </div>
+                <Skeleton width={300} height={40} animation='wave'/>
+                <Skeleton width={300} height={40} animation='wave'/>
+                <Skeleton width={500} height={80} animation='wave' variant='rounded'/>
+                </>
+            ):(
+                <>
+                    <h3>Reported by: {info.reportedBy}</h3>
+                    <h3>Date reported: {info.dateReported}</h3>
                 </>
             ) }
+            
+            <Button onClick={close} color='error' variant='contained'>Close</Button>
         </div>
     )
 }

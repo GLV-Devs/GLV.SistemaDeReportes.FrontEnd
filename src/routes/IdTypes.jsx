@@ -2,14 +2,14 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { apiAddress, accessToken } from "../globalResources";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
 const IdTypes = () => {
 
-    useEffect(() => {getList()}, [])
-
+    const {idTypeList, setIdTypeList} = useContext(AppContext)
     const navigate = useNavigate()
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -19,7 +19,6 @@ const IdTypes = () => {
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState([])
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
@@ -112,9 +111,9 @@ const IdTypes = () => {
                 setListLoadin(false)
                 setListError(false)
                 if(response.data.data == null){
-                    setList([{name: ''}])
+                    setIdTypeList([{name: ''}])
                 }else{
-                    setList(response.data.data)
+                    setIdTypeList(response.data.data)
                 }
             }
         })
@@ -139,7 +138,7 @@ const IdTypes = () => {
             </> }
             { !listLoading && !listError && 
                 <div>
-                    {list.map((item) => (
+                    {idTypeList.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
                             <div className='Buttons'>

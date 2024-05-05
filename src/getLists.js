@@ -6,9 +6,9 @@ export async function getReportLineCategoryList(){
         const response = await axios.get(`${apiAddress}/api/reports/lines/categories`, {headers: {'Authorization': `Session ${accessToken}`}})
         if(response == null){
             return [{name: ''}]
-        }else{return response.data.data}
+        }else{ return response.data.data }
     }catch(err){
-        console.log(err)
+        console.log(err.response)
         return [{name: 'error'}]
     }
 }

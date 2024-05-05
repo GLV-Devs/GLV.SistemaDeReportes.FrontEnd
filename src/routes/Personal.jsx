@@ -206,7 +206,7 @@ const Personal = () => {
         .catch((err) => {
             setListError(true)
             setListLoadin(false)
-            console.log(err)
+            console.log(err.response)
             if(err.response.status == 401){
                 navigate('/Login')
             }

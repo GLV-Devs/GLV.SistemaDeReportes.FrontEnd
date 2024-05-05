@@ -1,4 +1,4 @@
-import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel } from "@mui/material"
+import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel, Skeleton } from "@mui/material"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -17,7 +17,7 @@ import { ViewReport, EditReportInfo } from "./ModalReports";
 
 export const ModalView = ({projectId, close}) => {
 
-    useEffect(() => { getStatus(); getSiteState() },[])
+    useEffect(() => { getStatus(); getSiteState(), getReportList() },[])
 
     const {userInfo} = useContext(AppContext)
     const navigate = useNavigate()
@@ -28,9 +28,11 @@ export const ModalView = ({projectId, close}) => {
     const [status, setStatus] = useState()
     const [siteState, setSiteState] = useState()
     const [selectedReport, setSelectedReport] = useState('')
-    const [reportList, setReportList] = useState(projectId.reports)
+    const [reportList, setReportList] = useState([])
     const [seeReportModal, setSeeReportModal] = useState(false)
     const [editReportModal, setEditReportModal] = useState(false)
+    const [loadingReports, setLoadingReports] = useState(true)
+    const [addingReport, setAddingReport] = useState(false)
 
     async function getStatus(){
         axios.get(`${apiAddress}/api/project/states/${info.stateId}`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -57,17 +59,53 @@ export const ModalView = ({projectId, close}) => {
     }
 
     function addNewReport(){
+        setAddingReport(true)
         const date = new Date()
         const data = {
             "reporterUserId": userInfo.id,
             "projectId": info.id,
             "dateReported": `${(`${date.getDate()}`).padStart(2, '0')}/${(`${date.getMonth()+1}`).padStart(2, '0')}/${date.getFullYear()}`
         }
-        // console.log(data)
         axios.post(`${apiAddress}/api/reports`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            console.log(response)
+            if(response.status = 201){
+                let lastNames
+                if(response.data.data[0].reporterUser.lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].reporterUser.lastNames}
+                const reporterUser = response.data.data[0].reporterUser.names + lastNames
+                setReportList([...reportList, {
+                    reporterUser: reporterUser,
+                    dateReported: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
+                    id: response.data.data[0].id
+                }])
+                setAddingReport(false)
+            }
+        }).catch((err) => {
+            console.log(err)
+            setAddingReport(false)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
         })
+    }
+
+    function getReportList(){
+        let temp = []
+        projectId.reports.map(async(item) => {
+            let lastNames
+            const date = new Date(item.dateReported)
+            axios.get(`${apiAddress}/api/person/${item.reporterUserId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((response) => {
+                if(response.data.data[0].lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].lastNames}
+                const reporterUser = response.data.data[0].names + lastNames
+                temp = [...temp, {
+                    reporterUser: reporterUser,
+                    dateReported: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
+                    id: item.id
+                }]
+                setReportList(temp)
+            })
+        })
+        setLoadingReports(false)
     }
 
     const [addNote, setAddNote] = useState(false)
@@ -103,29 +141,42 @@ export const ModalView = ({projectId, close}) => {
                 <div className="divider"></div>
                 <div className='right'>
                     <h1>Reports</h1>
-                    {reportList.map((item) => (
-                        <div className='ReportListItem' key={item.id}>
-                            <h3>{item.dateReported} - {item.reporterUserId}</h3>
-                            <div className="Buttons">
-                                {/* ver reporte: muestra la info de viewReporte */}
-                                <Tooltip title='See report'>
-                                    <Button onClick={() => {setSelectedReport(item.id); setSeeReportModal(true); console.log(item.id)}}> <VisibilityIcon/> </Button>
-                                </Tooltip>
-                                {/* editar reporte: edita quien lo reporta y la fecha */}
-                                <Tooltip title='Edit report'>
-                                    <Button onClick={() => {setEditReportModal(true); setSelectedReport(item.id)}}> <ModeEditIcon/> </Button>
-                                </Tooltip>
-                                {/* dentro de ver reportes se manejan las lineas tal y como ya estan
-                                y se abrira un modal para los atachment */}
-                            </div>
-                        </div>
-                    ))}
+                    { loadingReports ? (
+                        <>
+                            <Skeleton width={500} height={60} animation='wave'></Skeleton>
+                            <Skeleton width={500} height={60} animation='wave'></Skeleton>
+                            <Skeleton width={500} height={60} animation='wave'></Skeleton>
+                            <Skeleton width={500} height={60} animation='wave'></Skeleton>
+                            <Skeleton width={500} height={60} animation='wave'></Skeleton>
+                        </>
+                    ):(
+                        <>
+                            {reportList.map((item) => (
+                                <div className='ReportListItem' key={item.id}>
+                                    <h3>{item.dateReported} - {item.reporterUser}</h3>
+                                    <div className="Buttons">
+                                        {/* ver reporte: muestra la info de viewReporte */}
+                                        <Tooltip title='See report'>
+                                            <Button onClick={() => {setSelectedReport(item.id); setSeeReportModal(true); console.log(item.id)}}> <VisibilityIcon/> </Button>
+                                        </Tooltip>
+                                        {/* editar reporte: edita quien lo reporta y la fecha */}
+                                        <Tooltip title='Edit report'>
+                                            <Button onClick={() => {setEditReportModal(true); setSelectedReport(item.id)}}> <ModeEditIcon/> </Button>
+                                        </Tooltip>
+                                        {/* dentro de ver reportes se manejan las lineas tal y como ya estan
+                                        y se abrira un modal para los atachment */}
+                                    </div>
+                                </div>
+                            ))}
+                        </>
+                    ) }
+
                         
                 </div>
             </div>
             
-            <div className="buttons">
-                <Button variant='contained' onClick={() => addNewReport()}>Add report</Button>
+            <div className="modalButtons Buttons">
+                <Button variant='contained' onClick={() => addNewReport()} disabled={addingReport}>{addingReport ? (<CircularProgress size={24}/>):(<>Add report</>)}</Button>
                 <Button variant="contained" color='error' onClick={close}>Close</Button>
             </div>
 
@@ -746,20 +797,17 @@ export const ExportModal = ({projectId, close}) => {
         setSuccess(false)
         e.preventDefault()
         const data = {
-            projectKey: projectId,
-            start: e.target[0].value,
-            end: e.target[3].value,
+            projectId: projectId,
+            startDate: sinceInput.value,
+            endDate: toInput.value,
         }
-        console.log(data)
-
-        const PDFKey = await axios.post(`${apiAddress}/data/export/project/general/pdf`, data, {headers: {'Authorization': `Session ${accessToken}`}})
-        axios.get(`${apiAddress}/data/export/project/general/download/?token=${PDFKey.data.data[0]}`, {headers: {'Authorization': `Session ${accessToken}`}, responseType: 'blob'})
-        .then(response=>{
-            const url = window.URL.createObjectURL(new Blob([response.data]))
-            const link = document.createElement('a')
-            link.href= url
-            link.setAttribute('download','Ticket.pdf')
-            document.body.appendChild(link)
+        axios.get(`${apiAddress}/`, data, {headers: {'Authorization': `Session ${accessToken}`}, responseType})
+        .then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'file.pdf');
+            document.body.appendChild(link);
             link.click();
             setLoading(false)
             setSuccess(true)
@@ -770,7 +818,7 @@ export const ExportModal = ({projectId, close}) => {
     }
 
     return(
-        <form onSubmit={getGeneralReport} className="Modal">
+        <form className="Modal">
             <h1>Export general report</h1>
             <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
