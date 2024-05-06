@@ -98,7 +98,8 @@ export const ViewReport = ({reportKey, close}) => {
         .then((response) => {
             console.log(response)
             setDeleting(false)
-            setModalDeleteReport(false)
+            setModalDeleteReport(false);
+            ()=>{close}
         }).catch((err) => {
             console.log(err.response)
         })

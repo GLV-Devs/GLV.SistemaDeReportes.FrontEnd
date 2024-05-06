@@ -33,6 +33,7 @@ export const ModalView = ({projectId, close}) => {
     const [editReportModal, setEditReportModal] = useState(false)
     const [loadingReports, setLoadingReports] = useState(true)
     const [addingReport, setAddingReport] = useState(false)
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false)
 
     async function getStatus(){
         axios.get(`${apiAddress}/api/project/states/${info.stateId}`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -64,7 +65,7 @@ export const ModalView = ({projectId, close}) => {
         const data = {
             "reporterUserId": userInfo.id,
             "projectId": info.id,
-            "dateReported": `${(`${date.getDate()}`).padStart(2, '0')}/${(`${date.getMonth()+1}`).padStart(2, '0')}/${date.getFullYear()}`
+            "dateReported": `${(`${date.getMonth()+1}`).padStart(2, '0')}/${(`${date.getDate()}`).padStart(2, '0')}/${date.getFullYear()}`
         }
         axios.post(`${apiAddress}/api/reports`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
@@ -93,6 +94,7 @@ export const ModalView = ({projectId, close}) => {
         projectId.reports.map(async(item) => {
             let lastNames
             const date = new Date(item.dateReported)
+            console.log(date)
             axios.get(`${apiAddress}/api/person/${item.reporterUserId}`, {headers: {'Authorization': `Session ${accessToken}`}})
             .then((response) => {
                 if(response.data.data[0].lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].lastNames}
@@ -107,9 +109,6 @@ export const ModalView = ({projectId, close}) => {
         })
         setLoadingReports(false)
     }
-
-    const [addNote, setAddNote] = useState(false)
-    const [deleteConfirmation, setDeleteConfirmation] = useState(false)
 
     return(
         <div className='ModalDual'>
@@ -180,7 +179,7 @@ export const ModalView = ({projectId, close}) => {
                 <Button variant="contained" color='error' onClick={close}>Close</Button>
             </div>
 
-            { deleteConfirmation && <deleteModal close={ () => setAddNote(false) } projectKey={info.id}/> }
+            { deleteConfirmation && <DeleteModal close={ () => setDeleteConfirmation(false) } projectKey={info.id} closeAll={close}/> }
             { seeReportModal && <ViewReport close={() => {setSeeReportModal(false)}} reportKey={selectedReport}/> }
             { editReportModal && <EditReportInfo close={(setEditReportModal(false))} projectKey={selectedReport}/> }
         </div>
@@ -670,74 +669,22 @@ export const ModalAdd = ({close}) => {
     )
 }
 
-export const AddReportModal = ({close, id}) => {
+export const DeleteModal = ({closeAll, projectKey, close}) => {
 
-    const [linesList, setLinesList] = useState([])
-    const [selectedCategory, setSelectedCategory] = useState(0)
-    const { reportLineCategoryList } = useContext(AppContext)
+    const [deleting, setDeleting] = useState(false)
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-    }
-
-    function saveLine(){
-        const inputLine = document.getElementById('line')
-        console.log(inputLine)
-        setLinesList([...linesList, {description: inputLine.value, category: selectedCategory}])
-        document.getElementById('line').value = ''
-    }
-
-    return(
-        <form className="Modal Report" onSubmit={handleSubmit}>
-            <h1>Add new report</h1>
-            <table>
-                <th>Description</th>
-                <th>Category</th>
-                {linesList.map((item) => (
-                    <tr>
-                        <td>{item.description}</td>
-                        <td className='cat'>{item.category}</td>
-                    </tr>
-                ))}
-            </table>
-            <div className="NewLine">
-                <TextField multiline label='Description' id='line'/>
-                <InputLabel id="Category" sx={{position: "relative", bottom: '40px', left: '40px'}}>Category</InputLabel>
-                <Select
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    value={selectedCategory}
-                    id="Category"
-                    labelId="Category"
-                    label="Category"
-                    sx={{width: '150px', position: 'relative', right: '30px'}}
-                >
-                    {reportLineCategoryList.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
-                    ))}
-                </Select>
-                <input type='file' multiple/>
-                <Tooltip title='Add report line'>
-                    <Fab onClick={() => saveLine()} color='info' sx={{position: 'relative', left: '20px'}}> <AddIcon/> </Fab>
-                </Tooltip>
-            </div>
-            
-            <div className="Buttons">
-                <Button variant='contained' color='error' onClick={close}>cancel</Button>
-                <Button variant='contained' type="submit">save report</Button>
-            </div>
-        </form>
-    )
-}
-
-export const deleteModal = ({close, projectKey}) => {
-    const [success, setSuccess] = useState(false)
-
-    async function handleDelete(){
-        e.preventDefault()
-        axios.delete(`${apiAddress}/api/report/${projectKey}`)
+    function handleDelete(){
+        setDeleting(true)
+        axios.delete(`${apiAddress}/api/report/${projectKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            setSuccess(true)
+            console.log(response)
+            if(response.status == 200){
+                setDeleting(false);
+                ()=>closeAll
+            }
         }).catch((err) => {
+            console.log(err)
+            setDeleting(false)
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -745,42 +692,12 @@ export const deleteModal = ({close, projectKey}) => {
     }
 
     return(
-        <>
-            { success ? (
-                <div className="Modal">
-                    <h1>The project has been deleted</h1>
-                    <Button variant='contained' color='error' onClick={close}>Close</Button>
-                </div>
-            ):(
-                <div className='Modal'>
-                    <Button variant='contained' onClick={handleDelete}>Delete</Button>
-                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
-                </div>
-            ) }
-        </>
-    )
-}
-
-export const ReportInfo = ({reportId, close}) => {
-
-    const navigate = useNavigate()
-    const [info, setInfo] = useState('')
-
-    useEffect(() => {
-        axios.get(`${apiAddress}/api/report`, reportId, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            console.log(response.data.data)
-            // setInfo(response.data.data)
-        }).catch((err) => {
-            if(err.response.status == 401){
-                navigate('./Login')
-            }
-        })
-    })
-
-    return(
-        <div className="Modal">
-            <Button onClick={close} variant='contained'>Close</Button>
+        <div className='Modal'>
+            <h1>Delete this prooject?</h1>
+            <div className='Buttons'>
+                <Button variant='contained' onClick={handleDelete} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
+                <Button variant='contained' color='error' onClick={close} disabled={deleting}>Cancel</Button>
+            </div>
         </div>
     )
 }
