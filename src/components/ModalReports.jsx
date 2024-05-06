@@ -41,6 +41,7 @@ export const ViewReport = ({reportKey, close}) => {
     },[])
 
     function saveLine(){
+        setAdding(true)
         const inputLine = document.getElementById('line')
         const data = {
             "reportId": reportKey,
@@ -50,10 +51,12 @@ export const ViewReport = ({reportKey, close}) => {
         axios.post(`${apiAddress}/api/reports/lines`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status == 201){
-                setLinesList([...linesList, response.data.data[0]])
+                getLines()
+                setAdding(false)
             }
         }).catch((err) => {
             console.log(err.response)
+            setAdding(false)
         })
     }
 
@@ -88,6 +91,19 @@ export const ViewReport = ({reportKey, close}) => {
         })
     }
 
+    function deleteReport(){
+        console.log('ejecutanding')
+        setDeleting(true)
+        axios.delete(`${apiAddress}/api/reports/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            console.log(response)
+            setDeleting(false)
+            setModalDeleteReport(false)
+        }).catch((err) => {
+            console.log(err.response)
+        })
+    }
+
     //controlled form
     const [selectedCategory, setSelectedCategory] = useState(0)
     //controlled form
@@ -95,10 +111,12 @@ export const ViewReport = ({reportKey, close}) => {
     const [selected, setSelected] = useState(0)
     const [loading, setLoading] = useState(true)
     const [modalDelete, setModalDelete] = useState(false)
+    const [modalDeleteReport, setModalDeleteReport] = useState(false)
     const [info, setInfo] = useState()
     const [linesList, setLinesList] = useState([])
     const {reportLineCategoryList} = useContext(AppContext)
     const [deleting, setDeleting] = useState(false)
+    const [adding, setAdding] = useState(false)
     let lastNames
 
     return(
@@ -138,7 +156,7 @@ export const ViewReport = ({reportKey, close}) => {
                         ))}
                     </table>
                     <div className="NewLine">
-                        <TextField multiline label='Description' id='line' sx={{width: '56%'}}/>
+                        <TextField multiline label='Description' id='line' sx={{width: '56%'}} disabled={adding}/>
                         <InputLabel id="Category" sx={{position: "relative", bottom: '40px', left: '40px'}}>Category</InputLabel>
                         <Select
                             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -147,15 +165,17 @@ export const ViewReport = ({reportKey, close}) => {
                             labelId="Category"
                             label="Category"
                             sx={{width: '150px', position: 'relative', right: '30px'}}
+                            disabled={adding}
                         >
                             {reportLineCategoryList.map((item) => (
                                 <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
                             ))}
                         </Select>
                         <Tooltip title='Add report line'>
-                            <IconButton size='large' onClick={() => saveLine()} color='black' sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}}> <AddIcon/> </IconButton>
+                            <IconButton size='large' onClick={() => saveLine()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={adding}> {adding ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
                         </Tooltip>
                     </div>
+                    <Button variant='contained' color='warning' onClick={() => {setModalDeleteReport(true)}}>Delete Report</Button>
                 </>
             ) }
             
@@ -168,6 +188,15 @@ export const ViewReport = ({reportKey, close}) => {
                     <Button variant='contained' onClick={()=>setModalDelete(false)} disabled={deleting}>close</Button>
                     <Button variant='contained' color='error' onClick={() => deleteLine()} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
                 </div>
+            </div> }
+
+            { modalDeleteReport && 
+            <div className='Modal'>
+            <h1>Delete this entire report?</h1>
+            <div className='Buttons'>
+                <Button variant='contained' onClick={()=>setModalDeleteReport(false)} disabled={deleting}>close</Button>
+                <Button variant='contained' color='error' onClick={() => deleteReport()} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
+            </div>
             </div> }
         </div>
     )
