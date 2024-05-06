@@ -75,14 +75,30 @@ export const ViewReport = ({reportKey, close}) => {
         })
     }
 
+    function deleteLine(){
+        setDeleting(true)
+        axios.delete(`${apiAddress}/api/reports/lines/${selected}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            console.log(response)
+            setDeleting(false)
+            setModalDelete(false)
+            getLines()
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
     //controlled form
     const [selectedCategory, setSelectedCategory] = useState(0)
     //controlled form
 
+    const [selected, setSelected] = useState(0)
     const [loading, setLoading] = useState(true)
+    const [modalDelete, setModalDelete] = useState(false)
     const [info, setInfo] = useState()
     const [linesList, setLinesList] = useState([])
     const {reportLineCategoryList} = useContext(AppContext)
+    const [deleting, setDeleting] = useState(false)
     let lastNames
 
     return(
@@ -108,7 +124,7 @@ export const ViewReport = ({reportKey, close}) => {
                                 <td className='cat'>{item.category}</td>
                                 <td className='options'>
                                     <Tooltip title='Delete'>
-                                        <IconButton> <DeleteIcon/> </IconButton>
+                                        <IconButton onClick={()=>{setSelected(item.id); setModalDelete(true)}}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Edit'>    
                                         <IconButton> <ModeEditIcon/> </IconButton>
@@ -137,13 +153,22 @@ export const ViewReport = ({reportKey, close}) => {
                             ))}
                         </Select>
                         <Tooltip title='Add report line'>
-                            <Fab onClick={() => saveLine()} color='info' sx={{position: 'relative', left: '5px'}}> <AddIcon/> </Fab>
+                            <IconButton size='large' onClick={() => saveLine()} color='black' sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}}> <AddIcon/> </IconButton>
                         </Tooltip>
                     </div>
                 </>
             ) }
             
             <Button onClick={close} color='error' variant='contained'>Close</Button>
+
+            { modalDelete && 
+            <div className='Modal'>
+                <h1>Delete this report line?</h1>
+                <div className='Buttons'>
+                    <Button variant='contained' onClick={()=>setModalDelete(false)} disabled={deleting}>close</Button>
+                    <Button variant='contained' color='error' onClick={() => deleteLine()} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
+                </div>
+            </div> }
         </div>
     )
 }
