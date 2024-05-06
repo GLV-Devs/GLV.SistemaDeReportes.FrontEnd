@@ -59,7 +59,7 @@ const Login = () => {
                 <TextField disabled={loading} type="text" label='Username'/>
                 <TextField disabled={loading} type="password" label='Password'/>
                 { error && <h3 style={{color: 'red', margin: '0px'}}>An error has occurred</h3> }
-                <Button disabled={loading} variant="contained" type="submit">{ loading ? (<CircularProgress/>):(<>Login</>) }</Button>
+                <Button disabled={loading} variant="contained" type="submit">{ loading ? (<CircularProgress size={24}/>):(<>Login</>) }</Button>
             </form>
 
             {/* Debug Tool */}

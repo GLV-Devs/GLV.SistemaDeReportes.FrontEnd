@@ -231,8 +231,11 @@ body{
     padding-bottom: 25px;
 
     .NewLine{
+        margin-top: 30px;
         display: flex;
         align-items: center;
+        justify-content: center;
+        width: 80%;
     }
 
     .fields{
@@ -408,6 +411,7 @@ body{
 table{
     border-collapse: collapse;
     width: 70%;
+    max-width: 70%;
     margin: 15px;
     margin-top: 0px;
     border: 1px solid black;
@@ -424,15 +428,29 @@ table{
             width: 25%;
             text-align: center;
         }
+
+        .desc{
+            p{
+                word-wrap: break-word;
+                width: 500px;
+                margin: 0px;
+                color: black;
+            }
+        }
     }
 
     th{
         background-color: lightgray;
         margin: 0px;
+        max-width: 70%;
+
     }
 
     td{
         border: 1px solid black;
         border-spacing: 0;
+        table-layout: fixed;
+        max-width: 70%;
+        white-space: initial;
     }
 }

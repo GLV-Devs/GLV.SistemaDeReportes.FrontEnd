@@ -1,26 +1,29 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { apiAddress, accessToken } from '../globalResources'
-import { Button, TextField, Select, MenuItem, CircularProgress, Skeleton } from '@mui/material'
+import { Button, TextField, Select, MenuItem, CircularProgress, Skeleton, InputLabel, Tooltip, Fab, IconButton } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add';
 import { DatePicker } from '@mui/x-date-pickers'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { AppContext } from '../context/AppContext'
+import DeleteIcon from '@mui/icons-material/Delete';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import AttachmentIcon from '@mui/icons-material/Attachment';
 
 export const ViewReport = ({reportKey, close}) => {
 
-    console.log(reportKey)
     const navigate = useNavigate()
 
     useEffect(() => {
         async function getInfo(){
             try{
                 const response = await axios.get(`${apiAddress}/api/reports/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-                console.log(response)
                 const dateReported = new Date(response.data.data[0].dateReported)
                 if(response.data.data[0].reporterUser.lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].reporterUser.lastNames}
                 setInfo({
-                    dateReported: `${dateReported.getDate()}/${dateReported.getMonth() + 1}/${dateReported.getFullYear()}`,
+                    dateReported: `${dateReported.getMonth() + 1}/${dateReported.getDate()}/${dateReported.getFullYear()}`,
                     reportedBy: `${response.data.data[0].reporterUser.names} ${lastNames}`
                 })
                 if(response.status == 200){
@@ -34,10 +37,52 @@ export const ViewReport = ({reportKey, close}) => {
             }
         }
         getInfo()
+        getLines()
     },[])
+
+    function saveLine(){
+        const inputLine = document.getElementById('line')
+        const data = {
+            "reportId": reportKey,
+            "description": inputLine.value,
+            "categoryId": selectedCategory
+        }
+        axios.post(`${apiAddress}/api/reports/lines`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            if(response.status == 201){
+                setLinesList([...linesList, response.data.data[0]])
+            }
+        }).catch((err) => {
+            console.log(err.response)
+        })
+    }
+
+    function getLines(){
+        let temp = []
+        axios.get(`${apiAddress}/api/reports/lines/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            response.data.data.map(async(item) => {
+                axios.get(`${apiAddress}/api/reports/lines/categories/${item.categoryId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+                .then((res2) => {
+                    temp = [...temp, {
+                        description: item.description,
+                        category: res2.data.data[0].name,
+                        id: item.id
+                    }]
+                    setLinesList(temp)
+                })
+            })
+        })
+    }
+
+    //controlled form
+    const [selectedCategory, setSelectedCategory] = useState(0)
+    //controlled form
 
     const [loading, setLoading] = useState(true)
     const [info, setInfo] = useState()
+    const [linesList, setLinesList] = useState([])
+    const {reportLineCategoryList} = useContext(AppContext)
     let lastNames
 
     return(
@@ -53,6 +98,48 @@ export const ViewReport = ({reportKey, close}) => {
                 <>
                     <h3>Reported by: {info.reportedBy}</h3>
                     <h3>Date reported: {info.dateReported}</h3>
+                    <table>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>options</th>
+                        {linesList.map((item) => (
+                            <tr>
+                                <td className='desc' disabled><p>{item.description}</p></td>
+                                <td className='cat'>{item.category}</td>
+                                <td className='options'>
+                                    <Tooltip title='Delete'>
+                                        <IconButton> <DeleteIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Edit'>    
+                                        <IconButton> <ModeEditIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Add atachment'>
+                                        <IconButton disabled> <AttachmentIcon/> </IconButton>
+                                    </Tooltip>
+
+                                </td>
+                            </tr>
+                        ))}
+                    </table>
+                    <div className="NewLine">
+                        <TextField multiline label='Description' id='line' sx={{width: '56%'}}/>
+                        <InputLabel id="Category" sx={{position: "relative", bottom: '40px', left: '40px'}}>Category</InputLabel>
+                        <Select
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            value={selectedCategory}
+                            id="Category"
+                            labelId="Category"
+                            label="Category"
+                            sx={{width: '150px', position: 'relative', right: '30px'}}
+                        >
+                            {reportLineCategoryList.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                            ))}
+                        </Select>
+                        <Tooltip title='Add report line'>
+                            <Fab onClick={() => saveLine()} color='info' sx={{position: 'relative', left: '5px'}}> <AddIcon/> </Fab>
+                        </Tooltip>
+                    </div>
                 </>
             ) }
             

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Menu, MenuItem } from "@mui/material";
 import { AppContext } from "../context/AppContext";
 import { useContext, useState } from "react";
-import { apiAddress } from "../globalResources";
+import { accessToken, apiAddress } from "../globalResources";
 import axios from "axios";
 
 const NavBar = () => {
@@ -17,7 +17,7 @@ const NavBar = () => {
     }
 
     async function logOut(){
-        axios.delete(`${apiAddress}/api/identity/`)
+        axios.delete(`${apiAddress}/api/identity/`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then(
             navigate('/login')
         )

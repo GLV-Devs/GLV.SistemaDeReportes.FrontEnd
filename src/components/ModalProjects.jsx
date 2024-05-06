@@ -792,33 +792,35 @@ export const ExportModal = ({projectId, close}) => {
     const [success, setSuccess] = useState(false)
 
     async function getGeneralReport(e){
+        e.preventDefault()
         setLoading(true)
         setError(false)
         setSuccess(false)
-        e.preventDefault()
         const data = {
-            projectId: projectId,
-            startDate: sinceInput.value,
-            endDate: toInput.value,
+            projectKey: projectId,
+            start: e.target[0].value,
+            end: e.target[3].value,
         }
-        axios.get(`${apiAddress}/`, data, {headers: {'Authorization': `Session ${accessToken}`}, responseType})
-        .then((response) => {
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'file.pdf');
-            document.body.appendChild(link);
-            link.click();
-            setLoading(false)
-            setSuccess(true)
-        }).catch(error=>{
-            console.log(error);
+        console.log(data)
+        const PDFkey = await axios.post(`${apiAddress}/data/export/project/general/pdf`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/data/export/project/general/download/?token=${PDFkey.data.data[0]}`, {headers: {'Authorization': `Session ${accessToken}`}, responseType: 'blob'})
+        .then((response=>{
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href=url
+            link.setAttribute('download','ticket.pdf')
+            document.body.appendChild(link)
+            link.click()
+        })).catch(error=>{
             setError(true)
+            console.log(error)
         })
+        setLoading(false)
+
     }
 
     return(
-        <form className="Modal">
+        <form className="Modal" onSubmit={getGeneralReport}>
             <h1>Export general report</h1>
             <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
