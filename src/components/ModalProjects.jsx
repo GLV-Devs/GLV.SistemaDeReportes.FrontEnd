@@ -672,12 +672,14 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
 
     const navigate = useNavigate()
     const [deleting, setDeleting] = useState(false)
+    const [error, setError] = useState(false)
+    const [success, setSuccess] = useState(false)
     const [ready, setReady] = useState(false)
-    const [count, setCount] = useState(16)
+    const [count, setCount] = useState(20)
     const [deleteKey, setDeleteKey] = useState('')
 
     useEffect(() => {
-        getDeletekey()
+        getDeleteKey()
     }, [])
 
     useEffect(() => {
@@ -700,11 +702,16 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
         setDeleting(true)
         axios.delete(`${apiAddress}/api/projects/?token=${deleteKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
+            console.log(response)
             if(response.status == 200){
-                () => {closeAll}
-                () => {updateList}
+                setDeleting(false)
+                setError(false)
+                setReady(false)
+                setSuccess(true)
             }
         }).catch((err) => {
+            setError(true)
+            setDeleting(false)
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -714,13 +721,23 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
 
     return(
         <div className='Modal'>
-            <h1>Delete this prooject?</h1>
-            <div className='Buttons'>
-                <Button variant='contained' onClick={handleDelete} disabled={deleting || !ready}>
-                    {deleting ? (<CircularProgress size={24}/>):(<>Delete {count}</>)}
-                </Button>
-                <Button variant='contained' color='error' onClick={close} disabled={deleting}>Cancel</Button>
-            </div>
+            <h1>Delete this project?</h1>
+            { success ? (
+                <>
+                    <h3>The project has been deleted</h3>
+                    <Button variant='contained' color='error' onClick={() => {closeAll(); updateList()}}>close</Button>
+                </>
+            ):(
+                <>
+                    <div className='Buttons'>
+                        <Button variant='contained' onClick={handleDelete} disabled={deleting || !ready}>
+                            {deleting ? (<CircularProgress size={24}/>):(<>Delete {count}</>)}
+                        </Button>
+                        <Button variant='contained' color='error' onClick={close} disabled={deleting}>Cancel</Button>
+                    </div>
+                    { error && <h3 style={{'color': 'red'}}>An error has ocurred</h3> }
+                </>
+            ) }
         </div>
     )
 }
