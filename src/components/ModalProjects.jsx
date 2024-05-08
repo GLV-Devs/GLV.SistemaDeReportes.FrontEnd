@@ -94,7 +94,6 @@ export const ModalView = ({projectId, close}) => {
         projectId.reports.map(async(item) => {
             let lastNames
             const date = new Date(item.dateReported)
-            console.log(date)
             axios.get(`${apiAddress}/api/person/${item.reporterUserId}`, {headers: {'Authorization': `Session ${accessToken}`}})
             .then((response) => {
                 if(response.data.data[0].lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].lastNames}
@@ -671,23 +670,43 @@ export const ModalAdd = ({close}) => {
 
 export const DeleteModal = ({closeAll, projectKey, close}) => {
 
+    const navigate = useNavigate()
     const [deleting, setDeleting] = useState(false)
+    const [ready, setReady] = useState(false)
+    const [count, setCount] = useState(16)
+    const [PDFkey, setPDFkey] = useState('')
 
-    function handleDelete(){
+    useEffect(() => {
+        getPDFkey()
+    }, [])
+
+    useEffect(() => {
+        console.log(PDFkey)
+        const decrease = setInterval(() => {
+            if(count > 0){
+                setCount(count - 1)
+            }else if (count == 0){
+                setReady(true)
+            }
+        }, 1000)
+        return () => clearInterval(decrease)
+    }, [count])
+
+    async function getPDFkey(){
+        let response = await axios.delete(`${apiAddress}/api/projects/${projectKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        setPDFkey(response.data.data[0])
+    }
+
+    async function handleDelete(){
         setDeleting(true)
-        axios.delete(`${apiAddress}/api/report/${projectKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/projects/?token=${PDFkey}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
-            if(response.status == 200){
-                setDeleting(false);
-                ()=>closeAll
-            }
         }).catch((err) => {
-            console.log(err)
-            setDeleting(false)
             if(err.response.status == 401){
                 navigate('/Login')
             }
+            console.log(err.response)
         })
     }
 
@@ -695,7 +714,9 @@ export const DeleteModal = ({closeAll, projectKey, close}) => {
         <div className='Modal'>
             <h1>Delete this prooject?</h1>
             <div className='Buttons'>
-                <Button variant='contained' onClick={handleDelete} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
+                <Button variant='contained' onClick={handleDelete} disabled={deleting || !ready}>
+                    {deleting ? (<CircularProgress size={24}/>):(<>Delete {count}</>)}
+                </Button>
                 <Button variant='contained' color='error' onClick={close} disabled={deleting}>Cancel</Button>
             </div>
         </div>

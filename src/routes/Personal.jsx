@@ -32,6 +32,24 @@ const Personal = () => {
     const [viewModal, setViewModal] = useState(false)
     const [passportImage, setPassportImage] = useState('')
     const [identificationToShow, setIdentificationToShow] = useState('')
+    const [count, setCount] = useState(16)
+    const [deleteKey, setDeleteKey] = useState('')
+    const [deleteReady, setDeleteReady] = useState(false)
+
+    async function startCounter(){
+        // response = await axios.delete(`${apiAddress}/api/person/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        // setDeleteKey(response.data.data[0])
+        const decrease = setInterval(() => {
+            let i = 16
+            if(i > 0){
+                i = i - 1
+                setCount(i)
+            }else if(i == 0){
+                setDeleteReady(true)
+                clearInterval(decrease)
+            }
+        }, 1000, count)
+    }
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -247,7 +265,7 @@ const Personal = () => {
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); startCounter()}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -359,7 +377,7 @@ const Personal = () => {
                         <>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
-                                <Button variant="contained" onClick={handleDelete} disabled={loading}>{loading ? (<CircularProgress/>):(<>Delete</>)}</Button>
+                                <Button variant="contained" onClick={handleDelete} disabled={loading || !deleteReady}>{loading ? (<CircularProgress/>):(<>Delete {count}</>)}</Button>
                                 <Button variant="contained" color='error' disabled={loading} onClick={() => {setDeleteModal(false); setSelectedItem(0)}}>cancel</Button>
                             </div>
                         </>)}
