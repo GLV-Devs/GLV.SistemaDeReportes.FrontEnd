@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { convertToISO, getRoleName, getProductName } from "../functions";
 import { ViewReport, EditReportInfo } from "./ModalReports";
 
-export const ModalView = ({projectId, close}) => {
+export const ModalView = ({projectId, close, updateList}) => {
 
     useEffect(() => { getStatus(); getSiteState(), getReportList() },[])
 
@@ -178,7 +178,7 @@ export const ModalView = ({projectId, close}) => {
                 <Button variant="contained" color='error' onClick={close}>Close</Button>
             </div>
 
-            { deleteConfirmation && <DeleteModal close={ () => setDeleteConfirmation(false) } projectKey={info.id} closeAll={close}/> }
+            { deleteConfirmation && <DeleteModal close={ () => setDeleteConfirmation(false) } projectKey={info.id} closeAll={close} updateList={updateList}/> }
             { seeReportModal && <ViewReport close={() => {setSeeReportModal(false)}} reportKey={selectedReport}/> }
             { editReportModal && <EditReportInfo close={(setEditReportModal(false))} projectKey={selectedReport}/> }
         </div>
@@ -668,20 +668,19 @@ export const ModalAdd = ({close}) => {
     )
 }
 
-export const DeleteModal = ({closeAll, projectKey, close}) => {
+export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
 
     const navigate = useNavigate()
     const [deleting, setDeleting] = useState(false)
     const [ready, setReady] = useState(false)
     const [count, setCount] = useState(16)
-    const [PDFkey, setPDFkey] = useState('')
+    const [deleteKey, setDeleteKey] = useState('')
 
     useEffect(() => {
-        getPDFkey()
+        getDeletekey()
     }, [])
 
     useEffect(() => {
-        console.log(PDFkey)
         const decrease = setInterval(() => {
             if(count > 0){
                 setCount(count - 1)
@@ -692,16 +691,19 @@ export const DeleteModal = ({closeAll, projectKey, close}) => {
         return () => clearInterval(decrease)
     }, [count])
 
-    async function getPDFkey(){
+    async function getDeleteKey(){
         let response = await axios.delete(`${apiAddress}/api/projects/${projectKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        setPDFkey(response.data.data[0])
+        setDeleteKey(response.data.data[0])
     }
 
     async function handleDelete(){
         setDeleting(true)
-        axios.delete(`${apiAddress}/api/projects/?token=${PDFkey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/projects/?token=${deleteKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            console.log(response)
+            if(response.status == 200){
+                () => {closeAll}
+                () => {updateList}
+            }
         }).catch((err) => {
             if(err.response.status == 401){
                 navigate('/Login')

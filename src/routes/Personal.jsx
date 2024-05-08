@@ -36,19 +36,20 @@ const Personal = () => {
     const [deleteKey, setDeleteKey] = useState('')
     const [deleteReady, setDeleteReady] = useState(false)
 
-    async function startCounter(){
-        // response = await axios.delete(`${apiAddress}/api/person/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        // setDeleteKey(response.data.data[0])
+    useEffect(() => {
         const decrease = setInterval(() => {
-            let i = 16
-            if(i > 0){
-                i = i - 1
-                setCount(i)
-            }else if(i == 0){
+            if(count > 0){
+                setCount(count -1)
+            }else if(count == 0){
                 setDeleteReady(true)
-                clearInterval(decrease)
             }
-        }, 1000, count)
+        }, 1000)
+        return () => clearInterval(decrease)
+    }, [count])
+
+    async function getDeleteKey(){
+        response = await axios.delete(`${apiAddress}/api/person/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        setDeleteKey(response.data.data[0])
     }
 
     async function handleSubmit(e){
@@ -265,7 +266,7 @@ const Personal = () => {
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); startCounter()}}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(16)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -371,7 +372,7 @@ const Personal = () => {
                     {success ? (
                         <>
                             <h1>Deleted Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false)}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(
                         <>
