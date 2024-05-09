@@ -2,14 +2,14 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
 import { apiAddress, accessToken } from "../globalResources";
 
 
 const SiteStates = () => {
 
-    useEffect(() => {getList()}, [])
-
+    const {siteStateList, setSiteStateList} = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -17,7 +17,7 @@ const SiteStates = () => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
-    const [listLoading, setListLoadin] = useState(true)
+    const [listLoading, setListLoadin] = useState(false)
     const [list, setList] = useState('')
     const [selectedItem, setSelectedItem] = useState(0)
 
@@ -96,7 +96,7 @@ const SiteStates = () => {
                 setListLoadin(false)
                 setListError(false)
                 if(response.data.data == null){
-                    setList([{name: ''}])
+                    setSiteStateList([{name: ''}])
                 }else{
                     setList(response.data.data)
                 }
@@ -123,7 +123,7 @@ const SiteStates = () => {
             </> }
             { !listLoading && !listError && 
                 <div>
-                    {list.map((item) => (
+                    {siteStateList.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
                             <div className='Buttons'>

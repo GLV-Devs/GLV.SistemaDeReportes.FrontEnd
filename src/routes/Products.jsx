@@ -2,15 +2,14 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { apiAddress, accessToken } from "../globalResources";
-
+import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
 const Products = () => {
 
-    useEffect(() => {getList()}, [])
-
+    const {productList, setProductList} = useContext(AppContext)
     const navigate = useNavigate()
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -19,8 +18,7 @@ const Products = () => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
-    const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState([])
+    const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
@@ -106,9 +104,9 @@ const Products = () => {
                 setListLoadin(false)
                 setListError(false)
                 if(response.data.data == null){
-                    setList([{name: '', id: ""}])
+                    setProductList([{name: '', id: ""}])
                 }else{
-                    setList(response.data.data)
+                    setProductList(response.data.data)
                 }
             }
         })
@@ -137,7 +135,7 @@ const Products = () => {
                         <th>Name</th>
                         <th>Unit.</th>
                         <th>Options</th>
-                        {list.map((item) => (
+                        {productList.map((item) => (
                             <tr key={item.id}>
                                 <td>{item.name}</td>
                                 <td>{item.unit}</td>

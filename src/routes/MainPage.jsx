@@ -6,7 +6,7 @@ import { getRolesList, getIdTypeList, getProductList, getReportLineCategoryList,
 
 const Main = () => {
 
-    const { rolesList, setRolesList, setProductList, setIdTypeList, setReportLineCategoryList, setProjectStateList, setSiteStateList } = useContext(AppContext)
+    const { setRolesList, setProductList, setIdTypeList, setReportLineCategoryList, setProjectStateList, setSiteStateList } = useContext(AppContext)
     
     useEffect(() => {
         getAllLists()

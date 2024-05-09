@@ -4,7 +4,7 @@ import axios from "axios";
 export async function getReportLineCategoryList(){
     try{
         const response = await axios.get(`${apiAddress}/api/reports/lines/categories`, {headers: {'Authorization': `Session ${accessToken}`}})
-        if(response == null){
+        if(response.data.data == null){
             return [{name: ''}]
         }else{ return response.data.data }
     }catch(err){
@@ -16,7 +16,7 @@ export async function getReportLineCategoryList(){
 export async function getRolesList(){
     try{
         const response = await axios.get(`${apiAddress}/api/project/roles`, {headers: {'Authorization': `Session ${accessToken}`}})
-        if(response == null){
+        if(response.data.data == null){
             return [{name: ''}]
         }else{return response.data.data}
     }catch(err){
@@ -27,7 +27,7 @@ export async function getRolesList(){
 export async function getProductList(){
     try{
         const response = await axios.get(`${apiAddress}/api/product`, {headers: {'Authorization': `Session ${accessToken}`}})
-        if(response == null){
+        if(response.data.data == null){
             return [{name: ''}]
         }else{return response.data.data}
     }catch(err){
@@ -37,8 +37,8 @@ export async function getProductList(){
 
 export async function getIdTypeList(){
     try{
-        axios.get(`${apiAddress}/api/identificationtype`, {headers: {'Authorization': `Session ${accessToken}`}})
-        if(response == null){
+        const response = await axios.get(`${apiAddress}/api/identificationtype`, {headers: {'Authorization': `Session ${accessToken}`}})
+        if(response.data.data == null){
             return [{name: ''}]
         }else{return response.data.data}
     }catch(err){
@@ -48,8 +48,8 @@ export async function getIdTypeList(){
 
 export async function getProjectStateList(){
     try{
-        axios.get(`${apiAddress}/api/project/states`, {headers: {'Authorization': `Session ${accessToken}`}})
-        if(response == null){
+        const response = await axios.get(`${apiAddress}/api/project/states`, {headers: {'Authorization': `Session ${accessToken}`}})
+        if(response.data.data == null){
             return [{name: ''}]
         }else{return response.data.data}
     }catch(err){

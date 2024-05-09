@@ -2,13 +2,13 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
 import { apiAddress, accessToken } from "../globalResources";
 
 const ProjectStates = () => {
 
-    useEffect(() => {getList()}, [])
-
+    const {projectStateList, setProjectStateList} = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
@@ -16,14 +16,13 @@ const ProjectStates = () => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
     const [listError, setListError] = useState(false)
-    const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState([])
+    const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/projectstate/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/project/states/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
             setSuccess(true)
@@ -45,7 +44,7 @@ const ProjectStates = () => {
         const data = {
             name: e.target[0].value,
         }
-        axios.post(`${apiAddress}/api/projectstate`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/project/states`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -71,7 +70,7 @@ const ProjectStates = () => {
         const data = {
             name: name,
         }
-        axios.put(`${apiAddress}/api/projectstate${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/project/states/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -94,7 +93,7 @@ const ProjectStates = () => {
             if(response.status){
                 setListLoadin(false)
                 setListError(false)
-                setList(response.data.data)
+                setProjectStateList(response.data.data)
             }
         })
         .catch((err) => {
@@ -118,10 +117,10 @@ const ProjectStates = () => {
             </> }
             { !listLoading && !listError && 
                 <div>
-                    {list.map((item) => (
+                    {projectStateList.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
-                            <div>
+                            <div className='Buttons'>
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>

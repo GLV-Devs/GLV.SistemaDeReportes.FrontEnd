@@ -18,7 +18,7 @@ const IdTypes = () => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
-    const [listLoading, setListLoadin] = useState(true)
+    const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
@@ -203,7 +203,7 @@ const IdTypes = () => {
                     <h1>Delete this ID Type?</h1>
                     {success ? (
                         <>
-                            <h1>Added Successfully</h1>
+                            <h1>Deleted Successfully</h1>
                             <Button variant="contained" color='error' onClick={() => {setDeleteModal(false); setSuccess(false); setSelectedItem(0); setLoading(false); getList()}}>close</Button>
                         </>
                     ):(

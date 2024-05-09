@@ -2,13 +2,13 @@ import { Button, TextField, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
 import { apiAddress, accessToken } from "../globalResources";
 
 const ProjectRoles = () => {
 
-    useEffect(() => {getList()}, [])
-
+    const {rolesList, setRolesList} = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -16,8 +16,7 @@ const ProjectRoles = () => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
-    const [listLoading, setListLoadin] = useState(true)
-    const [list, setList] = useState('')
+    const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
@@ -95,9 +94,9 @@ const ProjectRoles = () => {
                 setListLoadin(false)
                 setListError(false)
                 if(response.data.data == null){
-                    setList([{name: ''}])
+                    setRolesList([{name: ''}])
                 }else{
-                    setList(response.data.data)
+                    setRolesList(response.data.data)
                 }
             }
         })
@@ -122,7 +121,7 @@ const ProjectRoles = () => {
             </> }
             { !listLoading && !listError && 
                 <div>
-                    {list.map((item) => (
+                    {rolesList.map((item) => (
                         <div className='LI' key={item.id}>
                             <h3>{item.name}</h3>
                             <div className='Buttons'>
