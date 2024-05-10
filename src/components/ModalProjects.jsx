@@ -3,6 +3,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useState, useContext, useEffect } from "react"
 import axios from "axios";
 import { apiAddress, accessToken } from '../globalResources'
@@ -14,6 +15,7 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { useNavigate } from "react-router-dom";
 import { convertToISO, getRoleName, getProductName } from "../functions";
 import { ViewReport, EditReportInfo } from "./ModalReports";
+import dayjs from "dayjs";
 
 export const ModalView = ({projectId, close, updateList}) => {
 
@@ -22,7 +24,7 @@ export const ModalView = ({projectId, close, updateList}) => {
     const {userInfo} = useContext(AppContext)
     const navigate = useNavigate()
     const [info, setInfo] = useState(projectId)
-    // console.log(projectId)
+    console.log(projectId)
     const completed = new Date(info.completed)
     const started = new Date(info.started)
     const [status, setStatus] = useState()
@@ -185,11 +187,12 @@ export const ModalView = ({projectId, close, updateList}) => {
     )
 }
 
-export const ModalEdit = ({close, projectKey}) => {
+export const ModalEdit = ({close, projectInfo}) => {
 
-    useEffect(() => {getStaffList(); getProductList(); getStatusList(); getRolesList(); getSiteStateList()}, [])
+    useEffect(() => {getStaffList()}, [])
     const navigate = useNavigate()
 
+    const { productList, projectStateList, rolesList, siteStateList } = useContext(AppContext)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -199,10 +202,6 @@ export const ModalEdit = ({close, projectKey}) => {
     const [materialSelected, setMaterialSelected] = useState('')
     const [qttySelected, setQttySelected] = useState([])
     const [staffList, setStaffList] = useState([])
-    const [productList, setProductList] = useState([])
-    const [statusList, setStatusList] = useState([])
-    const [rolesList, setRolesList] = useState([])
-    const [siteStateList, setSiteStateList] = useState([])
     const [siteState, setSiteState] = useState('')
 
     const handleStatus = (e) => {
@@ -217,12 +216,12 @@ export const ModalEdit = ({close, projectKey}) => {
         setLoading(true)
         setError(false)
         const data = {
-            "projectId": projectKey,
+            "projectId": projectInfo.id,
             "personId": staffSelected,
             "roleId": Number(roleSelected)
         }
-        // console.log(data)
-        axios.post(`${apiAddress}/api/project/involvements`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        console.log(data)
+        axios.post(`${apiAddress}/api/projects/involvements`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             setLoading(false)
             setStaffSelected('')
@@ -262,28 +261,39 @@ export const ModalEdit = ({close, projectKey}) => {
 
     function handleUpdate(e){
         e.preventDefault()
+        // console.log(projectInfo.id)
         setError(false)
         setLoading(true)
         const data = {
             name: e.target[0].value,
             address: e.target[2].value,
-            eta: e.target[4].value,
-            started: convertToISO(e.target[7].value),
-            completed: convertToISO(e.target[10].value),
-            stateId: Number(e.target[13].value),
-            siteStateId: Number(e.target[15].value),
+            eta: {
+                value: e.target[4].value,
+            },
+            started: {
+                value: convertToISO(e.target[7].value),
+            },
+            completed: {
+                value: convertToISO(e.target[10].value),
+            },
+            stateId: {
+                value: Number(e.target[13].value),
+            },
+            siteStateId: {
+                value: Number(e.target[15].value),
+            },
             contractorLogoId: null,
             clientLogoId: null,
         }
-        // console.log(data)
-        axios.post(`${apiAddress}/api/project`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        console.log(data)
+        axios.put(`${apiAddress}/api/projects/${projectInfo.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
                 setLoading(false)
             }
         }).catch((err) => {
-            // console.log(err)
+            console.log(err.response)
             setError(true)
             setLoading(false)
             if(err.response.status == 401){
@@ -310,79 +320,6 @@ export const ModalEdit = ({close, projectKey}) => {
         })
     }
 
-    async function getProductList(){
-        axios.get(`${apiAddress}/api/product`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            // console.log(response)
-            if(response.status){
-                // console.log(response.data.data)
-                if(response.data.data == null){
-                    setProductList([{name: ''}])
-                }else{
-                    setProductList(response.data.data)
-                }
-            }
-        }).catch((err) => {
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
-
-    async function getStatusList(){
-        axios.get(`${apiAddress}/api/projectstate`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            // console.log(response)
-            if(response.status){
-                if(response.data.data == null){
-                    setStatusList([{name: ''}])
-                }else{
-                    setStatusList(response.data.data)
-                }
-            }
-        }).catch((err) => {
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
-
-    async function getRolesList(){
-        axios.get(`${apiAddress}/api/projectrole`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            // console.log(response)
-            if(response.status){
-                if(response.data.data == null){
-                    setRolesList([{name: ''}])
-                }else{
-                    setRolesList(response.data.data)
-                }
-            }
-        }).catch((err) => {
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
-
-    async function getSiteStateList(){
-        axios.get(`${apiAddress}/api/sitestate`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            // console.log(response)
-            if(response.status){
-                if(response.data.data == null){
-                    setSiteStateList([{name: ''}])
-                }else{
-                    setSiteStateList(response.data.data)
-                }
-            }
-        }).catch((err) => {
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
-
     return(
         <>
             { success ? (
@@ -393,16 +330,16 @@ export const ModalEdit = ({close, projectKey}) => {
             ):(
                 <form className="Modal" onSubmit={handleUpdate}>
                     <h1>Add Project</h1>
-                    <TextField label='Name' className='fields' disabled={loading}/>
-                    <TextField label='Address' className='fields' disabled={loading}/>
+                    <TextField label='Name' className='fields' disabled={loading} defaultValue={projectInfo.name}/>
+                    <TextField label='Address' className='fields' disabled={loading} defaultValue={projectInfo.address}/>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker label='Estimated Time' format="DD/MM/YYYY" className='fields' disabled={loading}/>
+                        <DatePicker label='Estimated Time' format="DD/MM/YYYY" className='fields' disabled={loading} defaultValue={dayjs(projectInfo.eta)}/>
                     </LocalizationProvider>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker label='Started' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading}/>
+                        <DateTimePicker label='Started' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading} defaultValue={dayjs(projectInfo.started)}/>
                     </LocalizationProvider>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker label='Completed' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading}/>
+                        <DateTimePicker label='Completed' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading} defaultValue={dayjs(projectInfo.completed)}/>
                     </LocalizationProvider>
                     <div className="Select fields">
                         <p style={{width: '35%'}}>Project status:</p>
@@ -413,7 +350,7 @@ export const ModalEdit = ({close, projectKey}) => {
                             sx={{width: '65%'}}
                             disabled={loading}
                         >
-                            {statusList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
+                            {projectStateList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
                         </Select>
                     </div>
                     <div className="Select fields">
@@ -430,7 +367,7 @@ export const ModalEdit = ({close, projectKey}) => {
                     <p style={{position: 'relative', right: '32%'}}>Staff:</p>
                     <div className='staffSelect fields' >
                         <Select label='Staff' className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)} disabled={loading}>
-                            {staffList.map((item) => <MenuItem value={item.id}>{item.names}</MenuItem> )}
+                            {staffList.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
                         </Select>
                         <Select className="select" id='RoleSelector' onChange={(e) => setRoleSelected(e.target.value)} disabled={loading}>
                             {rolesList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
@@ -439,6 +376,27 @@ export const ModalEdit = ({close, projectKey}) => {
                             <Fab color='info' onClick={addStaff} disabled={loading}><AddIcon/></Fab>
                         </Tooltip>
                     </div>
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Options</th>
+                        </tr>
+                        projectInfo.involvedPeople.map((item) => {
+                            <tr>
+                                <td>{item.personNames} {item.personLastNames}</td>
+                                <td>{item.roleId}</td>
+                                <td>
+                                    <Tooltip title='Edit'>
+                                        <IconButton> <ModeEditIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Delete'>
+                                        <IconButton> <DeleteIcon/> </IconButton>
+                                    </Tooltip>
+                                </td>
+                            </tr>
+                        })
+                    </table>
                     <p style={{position: 'relative', right: '30%'}}>Materials:</p>
                     <div className='materialSelect' >
                         <Select className="select" id='MaterialSelector' onChange={(e) => setMaterialSelected(e.target.value)} disabled={loading}>

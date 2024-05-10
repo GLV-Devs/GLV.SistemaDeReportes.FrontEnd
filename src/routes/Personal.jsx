@@ -11,6 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { getIdTypeName } from '../functions'
+import dayjs from "dayjs";
 
 const Personal = () => {
 
@@ -133,7 +134,7 @@ const Personal = () => {
         
         if(e.target[0].value == ''){Names = null}else{Names = e.target[0].value}
         if(e.target[2].value == ''){LastNames = null}else{LastNames = e.target[2].value}
-        if(e.target[4].value == ''){DateOfBirth = null}else{DateOfBirth = Date(e.target[4].value)}
+        if(e.target[4].value == ''){DateOfBirth = null}else{DateOfBirth = e.target[4].value}
         if(e.target[7].value == ''){IdentificationTypeId = null}else{IdentificationTypeId = Number(e.target[7].value)}
         if(e.target[9].value == ''){IdentificationNumber = null}else{IdentificationNumber = Number(e.target[9].value)}
         if (e.target[11].value == ''){ DriverLicensePhotoId = null}else{
@@ -156,24 +157,34 @@ const Personal = () => {
         if(e.target[15].value == ''){ManagedProjects = null}else{ManagedProjects = e.target[15].value}
 
         const data = {
-            Names: Names,
-            LastNames: LastNames,
-            DateOfBirth: DateOfBirth,
-            IdentificationTypeId: IdentificationTypeId,
-            IdentificationNumber: IdentificationNumber,
-            DriverLicensePhotoId: DriverLicensePhotoId,
-            PassportPhotoId: PassportPhotoId,
+            names: Names,
+            lastNames: LastNames,
+            DateOfBirth: {
+                value: DateOfBirth,
+            },
+            IdentificationTypeId: {
+                value: IdentificationTypeId,
+            },
+            IdentificationNumber: {
+                value: IdentificationNumber,
+            },
+            DriverLicensePhotoId: {
+                value: DriverLicensePhotoId,
+            },
+            PassportPhotoId: {
+                value: PassportPhotoId,
+            },
             PhoneNumber: PhoneNumber,
-            ManagedProjects: ManagedProjects,
+            ManagedProjects: null,
         }
         console.log(data)
-        axios.put(`${apiAddress}/api/person/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/person/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
             }
-        })
-        .catch((err) => {
+        }).catch((err) => {
+            console.log(err.response)
             setLoading(false)
             setError(true)
             if(err.response.status == 401){
@@ -190,7 +201,6 @@ const Personal = () => {
             if(response.status){
                 setListLoadin(false)
                 setListError(false)
-                console.log(response.data.data)
                 if(response.data.data == null){
                     setList([{name: ''}])
                 }else{
@@ -263,7 +273,7 @@ const Personal = () => {
                                     <Button onClick={() => {setViewModal(true); setSelectedItem(item); getPassportPhoto(); console.log(getIdTypeName(item.identificationTypeId))}}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
                                     <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(16)}}> <DeleteIcon/> </Button>
@@ -300,11 +310,11 @@ const Personal = () => {
                             </div>
                             <div className="fields file">
                                 <p>Driver licence photo:</p>
-                                <input type="file" accept="image/*" id='DriverLicensePhoto'/>
+                                <input type="file" accept="image/*" id='DriverLicensePhoto' disabled={true}/>
                             </div>
                             <div className="fields file" style={{marginBottom: '15px'}}>
                                 <p>Passport photo:</p>
-                                <input type="file" accept="image/*" id='PassportPhoto'/>
+                                <input type="file" accept="image/*" id='PassportPhoto' disabled={true}/>
                             </div>
                             <TextField label='Phone' className="fields"/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
@@ -326,37 +336,37 @@ const Personal = () => {
                         </>
                     ):(
                         <>
-                            <TextField label='Names' disabled={loading}/>
-                            <TextField label='LastNames'disabled={loading}/>
+                            <TextField label='Names' disabled={loading} defaultValue={selectedItem.names} className="fields"/>
+                            <TextField label='LastNames'disabled={loading} defaultValue={selectedItem.lastNames} className="fields"/>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker disabled={loading}/>
+                                <DatePicker disabled={loading} defaultValue={dayjs(selectedItem.dateOfBirth)} className="fields" format="YYYY/MM/DD" disableFuture/>
                             </LocalizationProvider>
-                            <div>
+                            <div className="fields">
                                 <InputLabel id='idType'>Identification</InputLabel>
-                                <Select label='Identificacion'>
-                                    <MenuItem value='V'>V</MenuItem>
-                                    <MenuItem value='J'>J</MenuItem>
-                                    <MenuItem value='E'>E</MenuItem>
+                                <Select label='Identificacion' value={idType} onChange={(e) => setIdType(e.target.value)} sx={{width: '30%'}}>
+                                    {idList.map((item) => (
+                                        <MenuItem value={item.id} key={item.id}>{item.symbol}</MenuItem>
+                                    ))}
                                 </Select>
-                                <TextField type="text" disabled={loading}/>
+                                <TextField type="text" disabled={loading} defaultValue={selectedItem.identificationNumber} sx={{width: '70%'}}/>
                             </div>
-                            <div>
+                            <div className="fields file">
                                 <p>Driver licence photo:</p>
-                                <input type="file" id='license' disabled={loading}/>
+                                <input type="file" id='license' disabled={true}/>
                             </div>
-                            <div>
+                            <div className="fields file" style={{marginBottom: '15px'}}>
                                 <p>Passport photo:</p>
-                                <input type="file" id='passport' disabled={loading}/>
+                                <input type="file" id='passport' disabled={true}/>
                             </div>
-                            <TextField label='Phone' disabled={loading}/>
-                            <div>
+                            <TextField label='Phone' disabled={loading} defaultValue={selectedItem.phoneNumber} className="fields"/>
+                            {/* <div>
                                 <InputLabel id='ManagedProjects'>managed Projects</InputLabel>
                                 <Select label='ManagedProjects' className="Select">
                                     <MenuItem value='V'>V</MenuItem>
                                     <MenuItem value='J'>J</MenuItem>
                                     <MenuItem value='E'>E</MenuItem>
                                 </Select>
-                            </div>
+                            </div> */}
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>

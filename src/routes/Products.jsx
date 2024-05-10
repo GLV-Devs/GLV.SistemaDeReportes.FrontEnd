@@ -79,7 +79,8 @@ const Products = () => {
             name: name,
             unit: unit,
         }
-        axios.put(`${apiAddress}/api/product/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        console.log(data)
+        axios.put(`${apiAddress}/api/product/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -141,7 +142,7 @@ const Products = () => {
                                 <td>{item.unit}</td>
                                 <td className='options'>
                                     <Tooltip title='Edit'>
-                                        <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
+                                        <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                     </Tooltip>
                                     <Tooltip title='Delete'>
                                         <Button color='error' onClick={() => {setSelectedItem(item.id); setDeleteModal(true)}}> <DeleteIcon/> </Button>
@@ -150,19 +151,6 @@ const Products = () => {
                             </tr>
                         ))}
                     </table>
-                    {/* {list.map((item) => (
-                        <div className='LI' key={item.id}>
-                            <h3>{item.name}  |  {item.unit}</h3>
-                            <div className="Buttons">
-                                <Tooltip title='Edit'>
-                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
-                                </Tooltip>
-                                <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => {setSelectedItem(item.id); setDeleteModal(true)}}> <DeleteIcon/> </Button>
-                                </Tooltip>
-                            </div>
-                        </div>
-                    ))} */}
                 </>
             }
 
@@ -197,8 +185,8 @@ const Products = () => {
                         </>
                     ):(
                         <>
-                            <TextField label='Name' disabled={loading}/>
-                            <TextField label='Unit' disabled={loading}/>
+                            <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
+                            <TextField label='Unit' disabled={loading} defaultValue={selectedItem.unit}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>

@@ -56,3 +56,14 @@ export async function getProjectStateList(){
         return([{name: 'Error'}])
     }
 }
+
+export async function getSiteStateList(){
+    try{
+        const response = await axios.get(`${apiAddress}/api/sites/state`, {headers: {'Authorization': `Session ${accessToken}`}})
+        if(response.data.data == null){
+            return [{name: ''}]
+        }else{return response.data.data}
+    }catch(err){
+        return([{name: 'Error'}])
+    }
+}

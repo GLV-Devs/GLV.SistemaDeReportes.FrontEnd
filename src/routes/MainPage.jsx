@@ -2,7 +2,7 @@ import NavBar from "../components/NavBar";
 import { Outlet } from "react-router-dom";
 import { useEffect, useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import { getRolesList, getIdTypeList, getProductList, getReportLineCategoryList, getProjectStateList } from "../getLists";
+import { getRolesList, getIdTypeList, getProductList, getReportLineCategoryList, getProjectStateList, getSiteStateList } from "../getLists";
 
 const Main = () => {
 
@@ -18,7 +18,7 @@ const Main = () => {
         setIdTypeList(await getIdTypeList())
         setReportLineCategoryList(await getReportLineCategoryList())
         setProjectStateList(await getProjectStateList())
-        setSiteStateList(await getProjectStateList())
+        setSiteStateList(await getSiteStateList())
     }
 
 

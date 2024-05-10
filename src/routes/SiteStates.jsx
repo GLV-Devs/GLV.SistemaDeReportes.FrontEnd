@@ -18,7 +18,6 @@ const SiteStates = () => {
     const [error, setError] = useState(false)
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(false)
-    const [list, setList] = useState('')
     const [selectedItem, setSelectedItem] = useState(0)
 
     async function handleSubmit(e){
@@ -72,7 +71,7 @@ const SiteStates = () => {
         const data = {
             name: name,
         }
-        axios.put(`${apiAddress}/api/sitestate/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/sitestate/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -98,7 +97,7 @@ const SiteStates = () => {
                 if(response.data.data == null){
                     setSiteStateList([{name: ''}])
                 }else{
-                    setList(response.data.data)
+                    setSiteStateList(response.data.data)
                 }
             }
         })
@@ -128,7 +127,7 @@ const SiteStates = () => {
                             <h3>{item.name}</h3>
                             <div className='Buttons'>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
                                     <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
@@ -169,7 +168,7 @@ const SiteStates = () => {
                         </>
                     ):(
                         <>
-                            <TextField label='Name' disabled={loading}/>
+                            <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>

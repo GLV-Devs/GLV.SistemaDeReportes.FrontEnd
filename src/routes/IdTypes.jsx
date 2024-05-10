@@ -87,7 +87,8 @@ const IdTypes = () => {
             symbol: symbol,
             format: format,
         }
-        axios.put(`${apiAddress}/api/identificationtype/${selectedItem}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        console.log(data)
+        axios.put(`${apiAddress}/api/identificationtype/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -143,7 +144,7 @@ const IdTypes = () => {
                             <h3>{item.name}</h3>
                             <div className='Buttons'>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item.id)}}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
                                     <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id)}}> <DeleteIcon/> </Button>
@@ -186,9 +187,9 @@ const IdTypes = () => {
                         </>
                     ):(
                         <>
-                            <TextField label='Name' disabled={loading}/>
-                            <TextField label='Symbol' disabled={loading}/>
-                            <TextField label='Format' disabled={loading}/>
+                            <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
+                            <TextField label='Symbol' disabled={loading} defaultValue={selectedItem.symbol}/>
+                            <TextField label='Format' disabled={loading} defaultValue={selectedItem.format}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>

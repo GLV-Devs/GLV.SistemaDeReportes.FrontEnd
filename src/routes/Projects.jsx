@@ -85,7 +85,7 @@ const Projects = () => {
             </> }
             
 
-            { edit && <ModalEdit projectKey={selectedItem.id} close={() => {setEdit(false)}}/> }
+            { edit && <ModalEdit projectInfo={selectedItem} close={() => {setEdit(false)}}/> }
             { add &&  <ModalAdd close={() => {setAdd(false); getList()}}/>}
             { view && <ModalView projectId={selectedItem} updateList={() => getList()} close={() => {setView(false)}}/> }
             { exportReport && <ExportModal close={() => setExportReport(false)} projectId={selectedItem.id}/>}
