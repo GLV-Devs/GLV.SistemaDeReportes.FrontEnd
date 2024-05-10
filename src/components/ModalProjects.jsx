@@ -382,7 +382,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <th>Role</th>
                             <th>Options</th>
                         </tr>
-                        projectInfo.involvedPeople.map((item) => {
+                        {/*projectInfo.involvedPeople.map((item) => {*/}
                             <tr>
                                 <td>{item.personNames} {item.personLastNames}</td>
                                 <td>{item.roleId}</td>
