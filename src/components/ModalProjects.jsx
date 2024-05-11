@@ -1,4 +1,4 @@
-import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel, Skeleton } from "@mui/material"
+import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel, Skeleton, IconButton } from "@mui/material"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -13,22 +13,27 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useNavigate } from "react-router-dom";
-import { convertToISO, getRoleName, getProductName } from "../functions";
+import { convertToISO, getRoleName, getItem } from "../functions";
 import { ViewReport, EditReportInfo } from "./ModalReports";
 import dayjs from "dayjs";
 
 export const ModalView = ({projectId, close, updateList}) => {
 
-    useEffect(() => { getStatus(); getSiteState(), getReportList() },[])
+    useEffect(() => { getReportList(); getBudgets(); getInvolvedPeople() },[])
 
-    const {userInfo} = useContext(AppContext)
+    const {userInfo, productList, projectStateList, siteStateList, rolesList } = useContext(AppContext)
     const navigate = useNavigate()
-    const [info, setInfo] = useState(projectId)
-    console.log(projectId)
-    const completed = new Date(info.completed)
-    const started = new Date(info.started)
-    const [status, setStatus] = useState()
-    const [siteState, setSiteState] = useState()
+    const [info, setInfo] = useState({
+        name: projectId.name,
+        address: projectId.address,
+        completed: new Date(projectId.completed),
+        started: new Date(projectId.started),
+        eta: projectId.eta,
+        state: getItem(projectId.stateId, projectStateList).name,
+        siteState: getItem(projectId.siteStateId, siteStateList).name,
+    })
+    const [budgets, setBudgets] = useState([])
+    const [involvedPeople, setInvolvedPeople] = useState([])
     const [selectedReport, setSelectedReport] = useState('')
     const [reportList, setReportList] = useState([])
     const [seeReportModal, setSeeReportModal] = useState(false)
@@ -36,30 +41,6 @@ export const ModalView = ({projectId, close, updateList}) => {
     const [loadingReports, setLoadingReports] = useState(true)
     const [addingReport, setAddingReport] = useState(false)
     const [deleteConfirmation, setDeleteConfirmation] = useState(false)
-
-    async function getStatus(){
-        axios.get(`${apiAddress}/api/project/states/${info.stateId}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            setStatus(response.data.data[0].name)
-        }).catch((err) => {
-            // console.log(err.response)
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
-
-    async function getSiteState(){
-        axios.get(`${apiAddress}/api/sites/state/${info.siteStateId}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            setSiteState(response.data.data[0].name)
-        }).catch((err) => {
-            // console.log(err.response)
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
 
     function addNewReport(){
         setAddingReport(true)
@@ -91,6 +72,32 @@ export const ModalView = ({projectId, close, updateList}) => {
         })
     }
 
+    function getInvolvedPeople(){
+        let temp = []
+        projectId.involvedPeople.map((item) => {
+            const data = {
+                name: `${item.personNames} ${item.personLastNames}`,
+                role: getItem(item.roleId, rolesList).name,
+            }
+            temp = [...temp, data]
+            setInvolvedPeople(temp)
+        })
+    }
+
+    function getBudgets(){
+        let temp = []
+        projectId.budgets.map((item) => {
+            const data = {
+                name: getItem(item.productId, productList).name,
+                unit: getItem(item.productId, productList).unit,
+                quantity: item.quantity,
+                totalSpent: item.totalSpent,
+            }
+            temp = [...temp, data]
+            setBudgets(temp)
+        })
+    }
+
     function getReportList(){
         let temp = []
         projectId.reports.map(async(item) => {
@@ -118,22 +125,22 @@ export const ModalView = ({projectId, close, updateList}) => {
                     <h1>Info</h1>
                     <h3>Name: <span>{info.name}</span></h3>
                     <h3>Address: <span>{info.address}</span></h3>
-                    <h3>Completed: <span>{completed.toDateString()} - {completed.toLocaleTimeString()}</span></h3>
-                    <h3>Started: <span>{started.toDateString()} - {started.toLocaleTimeString()}</span></h3>
+                    <h3>Completed: <span>{info.completed.toDateString()} - {info.completed.toLocaleTimeString()}</span></h3>
+                    <h3>Started: <span>{info.started.toDateString()} - {info.started.toLocaleTimeString()}</span></h3>
                     <h3>Estimated Time: <span>{info.eta}</span></h3>
-                    <h3>Project status: <span>{status}</span></h3>
-                    <h3>Site state: <span>{siteState}</span></h3>
+                    <h3>Project status: <span>{info.state}</span></h3>
+                    <h3>Site state: <span>{info.siteState}</span></h3>
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Staff</AccordionSummary>
                         <AccordionDetails>
-                            {info.involvedPeople.map((item) => (<p key={item.id}>{item.personNames} {item.personLastNames} - {getRoleName(item.roleId)}</p>))}
+                            {involvedPeople.map((item) => (<p>{item.name} - {item.role}</p>))}
                         </AccordionDetails>
                     </Accordion>
 
                     <Accordion className="Accordion" variant="elevation">
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>Budgets</AccordionSummary>
                         <AccordionDetails>
-                            {info.budgets.map((item) => (<p>{`${getProductName(item.productId)} - (${item.totalSpent} used of ${item.quantity})`}</p>))}
+                            {budgets.map((item) => (<p>{`${item.name} - (${item.totalSpent} ${item.unit} used of ${item.quantity} ${item.unit})`}</p>))}
                         </AccordionDetails>
                     </Accordion>
                     <Button sx={{'margin': '20px'}} variant='contained' color='error' onClick={() => setDeleteConfirmation(true)}>delete project</Button>
@@ -203,6 +210,20 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [qttySelected, setQttySelected] = useState([])
     const [staffList, setStaffList] = useState([])
     const [siteState, setSiteState] = useState('')
+    const [budgetList, setBudgetList] = useState([])
+
+    useEffect(() => {
+        let temp = []
+        projectInfo.budgets.map((item) => {
+            const data = {
+                name: getItem(item.productId, productList).name,
+                qtty: item.quantity,
+                unit: getItem(item.productId, productList).unit,
+            }
+            temp = [...temp, data]
+            setBudgetList(temp)
+        })
+    }, [])
 
     const handleStatus = (e) => {
         setStatus(e.target.value)
@@ -241,10 +262,10 @@ export const ModalEdit = ({close, projectInfo}) => {
         setError(false)
         const data = {
             "productId": materialSelected,
-            "projectId": projectKey,
+            "projectId": projectInfo.id,
             "quantity": qttySelected
         }
-        axios.post(`${apiAddress}/api/project/budget`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/projects/budget`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             setLoading(false)
             setMaterialSelected('')
@@ -382,7 +403,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <th>Role</th>
                             <th>Options</th>
                         </tr>
-                        {/*projectInfo.involvedPeople.map((item) => {*/}
+                        {projectInfo.involvedPeople.map((item) => (
                             <tr>
                                 <td>{item.personNames} {item.personLastNames}</td>
                                 <td>{item.roleId}</td>
@@ -395,7 +416,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                                     </Tooltip>
                                 </td>
                             </tr>
-                        })
+                        ))}
                     </table>
                     <p style={{position: 'relative', right: '30%'}}>Materials:</p>
                     <div className='materialSelect' >
@@ -407,6 +428,27 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <Fab color='info' onClick={addBudget} disabled={loading}><AddIcon/></Fab>
                         </Tooltip>
                     </div>
+                    <table>
+                        <tr>
+                            <th>Product</th>
+                            <th>Asigned</th>
+                            <th>Options</th>
+                        </tr>
+                        {budgetList.map((item) => (
+                            <tr>
+                                <td>{item.name}</td>
+                                <td>{item.qtty} {item.unit}</td>
+                                <td className='options'>
+                                    <Tooltip title='Edit'>
+                                        <IconButton> <ModeEditIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Delete'>
+                                        <IconButton> <DeleteIcon/> </IconButton>
+                                    </Tooltip>
+                                </td>
+                            </tr>
+                        ))}
+                    </table>
                         {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                     <div className='Buttons'>
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>

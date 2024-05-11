@@ -41,6 +41,7 @@ const Login = () => {
             })
         }).catch((err) => {
             if(err){
+                console.log(err.response)
                 setLoading(false)
                 setError(true)
             }

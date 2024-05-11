@@ -1,6 +1,3 @@
-import { useContext } from "react";
-import { AppContext } from "./context/AppContext";
-
 export function convertToISO(originalDate){
     const dateParts = originalDate.split(' ');
     const date = dateParts[0];
@@ -11,27 +8,21 @@ export function convertToISO(originalDate){
     return isoDate
 }
 
-export function getRoleName(id){
-    const {rolesList} = useContext(AppContext)
-    rolesList.map((item) => {
+export function getRoleName(id, list){
+    list.map((item) => {
         if(item.id == id){
             return item.name
         }
     })
 }
 
-export function getProductName(id){
-    const {productList} = useContext(AppContext)
-    productList.map((item) => {
-        if(item.id == id){
-            return item.name
-        }
-    })
+export function getItem(id, list){
+    let response = list.find((item) => item.id == id)
+    return response
 }
 
-export function getIdTypeName(id){
-    const {idTypeList} = useContext(AppContext)
-    idTypeList.map((item) => {
+export function getIdTypeName(id, list){
+    list.map((item) => {
         console.log(item)
         if(item.id == id){
             return item.name
