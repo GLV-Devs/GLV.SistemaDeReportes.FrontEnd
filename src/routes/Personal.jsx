@@ -10,13 +10,14 @@ import { useNavigate } from "react-router-dom";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { getIdTypeName } from '../functions'
+import { getItem } from '../functions'
 import dayjs from "dayjs";
 
 const Personal = () => {
 
-    useEffect(() => {getList(); getIdList()}, [])
+    useEffect(() => {getList()}, [])
 
+    const { idTypeList } = useContext(AppContext)
     const navigate = useNavigate()
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -218,42 +219,6 @@ const Personal = () => {
         })
     }
 
-    async function getIdList(){
-        setListError(false)
-        setListLoadin(true)
-        axios.get(`${apiAddress}/api/identificationtype`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            if(response.status){
-                // console.log(response.data.data)
-                if(response.data.data == null){
-                    setIdList([{name: '', symbol: '', format: ''}])
-                }else{
-                    setIdList(response.data.data)
-                }
-            }
-        })
-        .catch((err) => {
-            setListError(true)
-            setListLoadin(false)
-            console.log(err.response)
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        })
-    }
-
-    function getPassportPhoto(){
-        axios.get(`${apiAddress}/data/personal/identification/${selectedItem.id}`, {headers: {'Authorization': `Session ${accessToken}`}, responseType: 'arraybuffer'})
-        .then((response) => {
-            const base64 = btoa(
-                new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
-            )
-            setPassportImage(base64)
-        }).catch((err) => {
-            console.log(err.response)
-        })
-    }
-
     return(
         <div className='Personal'>
             <h1>Person Manager</h1>
@@ -270,13 +235,13 @@ const Personal = () => {
                             <h3>{item.names} {item.lastNames}</h3>
                             <div className="Buttons">
                             <Tooltip title='See info'>
-                                    <Button onClick={() => {setViewModal(true); setSelectedItem(item); getPassportPhoto(); console.log(getIdTypeName(item.identificationTypeId))}}> <VisibilityIcon/> </Button>
+                                    <Button onClick={() => {setViewModal(true); setSelectedItem({...item, idType: getItem(item.identificationTypeId, idTypeList).symbol}) }}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(16)}}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(16); setDeleteReady(false)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -302,7 +267,7 @@ const Personal = () => {
                             <div className="fields">
                                 <InputLabel id='idType'>Identification</InputLabel>
                                 <Select label='Identificacion' value={idType} onChange={(e) => setIdType(e.target.value)} sx={{width: '30%'}}>
-                                    {idList.map((item) => (
+                                    {idTypeList.map((item) => (
                                         <MenuItem value={item.id} key={item.id}>{item.symbol}</MenuItem>
                                     ))}
                                 </Select>
@@ -344,7 +309,7 @@ const Personal = () => {
                             <div className="fields">
                                 <InputLabel id='idType'>Identification</InputLabel>
                                 <Select label='Identificacion' value={idType} onChange={(e) => setIdType(e.target.value)} sx={{width: '30%'}}>
-                                    {idList.map((item) => (
+                                    {idTypeList.map((item) => (
                                         <MenuItem value={item.id} key={item.id}>{item.symbol}</MenuItem>
                                     ))}
                                 </Select>
@@ -401,10 +366,8 @@ const Personal = () => {
                     <h3>Names: {selectedItem.names}</h3>
                     <h3>Last names: {selectedItem.lastNames}</h3>
                     <h3>Date Of Birth: {new Date(selectedItem.dateOfBirth).toDateString()}</h3>
-                    <h3>Identification: {identificationToShow} {selectedItem.identificationNumber}</h3>
+                    <h3>Identification: {selectedItem.idType} {selectedItem.identificationNumber}</h3>
                     <h3>Phone: {selectedItem.phoneNumber}</h3>
-                    <h3>Pasaporte: </h3>
-                    <img src={`data:image/jpeg;base64,${passportImage}`} alt="" />
                     <Button variant='contained' onClick={() => {setViewModal(false)}}>close</Button>
                 </div>
             }

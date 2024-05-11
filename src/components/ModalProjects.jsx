@@ -44,10 +44,11 @@ export const ModalView = ({projectId, close, updateList}) => {
 
     function addNewReport(){
         setAddingReport(true)
+        console.log(projectId.id)
         const date = new Date()
         const data = {
             "reporterUserId": userInfo.id,
-            "projectId": info.id,
+            "projectId": projectId.id,
             "dateReported": `${(`${date.getMonth()+1}`).padStart(2, '0')}/${(`${date.getDate()}`).padStart(2, '0')}/${date.getFullYear()}`
         }
         axios.post(`${apiAddress}/api/reports`, data, {headers: {'Authorization': `Session ${accessToken}`}})
