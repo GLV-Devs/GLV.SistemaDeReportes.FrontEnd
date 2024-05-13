@@ -1,4 +1,4 @@
-import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel, Skeleton, IconButton } from "@mui/material"
+import { Button, TextField, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails, Fab, Tooltip, CircularProgress, InputLabel, Skeleton, IconButton, InputAdornment } from "@mui/material"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -169,7 +169,7 @@ export const ModalView = ({projectId, close, updateList}) => {
                                         </Tooltip>
                                         {/* editar reporte: edita quien lo reporta y la fecha */}
                                         <Tooltip title='Edit report'>
-                                            <Button onClick={() => {setEditReportModal(true); setSelectedReport(item.id)}}> <ModeEditIcon/> </Button>
+                                            <Button onClick={() => {setEditReportModal(true); setSelectedReport(item); console.log(editReportModal)}}> <ModeEditIcon/> </Button>
                                         </Tooltip>
                                         {/* dentro de ver reportes se manejan las lineas tal y como ya estan
                                         y se abrira un modal para los atachment */}
@@ -190,13 +190,14 @@ export const ModalView = ({projectId, close, updateList}) => {
 
             { deleteConfirmation && <DeleteModal close={ () => setDeleteConfirmation(false) } projectKey={info.id} closeAll={close} updateList={updateList}/> }
             { seeReportModal && <ViewReport close={() => {setSeeReportModal(false)}} reportKey={selectedReport}/> }
-            { editReportModal && <EditReportInfo close={(setEditReportModal(false))} projectKey={selectedReport}/> }
+            { editReportModal && <EditReportInfo close={() => setEditReportModal(false)} reportInfo={selectedReport}/> }
         </div>
     )
 }
 
 export const ModalEdit = ({close, projectInfo}) => {
 
+    console.log(projectInfo)
     useEffect(() => {getStaffList()}, [])
     const navigate = useNavigate()
 
@@ -204,25 +205,36 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [status, setStatus] = useState('')
+    const [status, setStatus] = useState(projectInfo.stateId)
     const [staffSelected, setStaffSelected] = useState('')
     const [roleSelected, setRoleSelected] = useState([])
     const [materialSelected, setMaterialSelected] = useState('')
     const [qttySelected, setQttySelected] = useState([])
     const [staffList, setStaffList] = useState([])
-    const [siteState, setSiteState] = useState('')
+    const [siteState, setSiteState] = useState(projectInfo.siteStateId)
     const [budgetList, setBudgetList] = useState([])
+    const [staffListSelect, setStaffListSelect] = useState([])
 
     useEffect(() => {
-        let temp = []
+        let tempBudgets = []
+        let tempStaff = []
         projectInfo.budgets.map((item) => {
             const data = {
                 name: getItem(item.productId, productList).name,
                 qtty: item.quantity,
                 unit: getItem(item.productId, productList).unit,
             }
-            temp = [...temp, data]
-            setBudgetList(temp)
+            tempBudgets = [...tempBudgets, data]
+            setBudgetList(tempBudgets)
+        })
+
+        projectInfo.involvedPeople.map((item) => {
+            const data = {
+                name: `${item.personNames} ${item.personLastNames}`,
+                role: getItem(item.roleId, rolesList).name,
+            }
+            tempStaff = [...tempStaff, data]
+            setStaffList(tempStaff)
         })
     }, [])
 
@@ -283,7 +295,6 @@ export const ModalEdit = ({close, projectInfo}) => {
 
     function handleUpdate(e){
         e.preventDefault()
-        // console.log(projectInfo.id)
         setError(false)
         setLoading(true)
         const data = {
@@ -333,7 +344,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                 if(response.data.data == null){
                     setStaffList([{name: ''}])
                 }
-                setStaffList(response.data.data)
+                setStaffListSelect(response.data.data)
             }
         }).catch((err) => {
             if(err.response.status == 401){
@@ -367,8 +378,8 @@ export const ModalEdit = ({close, projectInfo}) => {
                         <p style={{width: '35%'}}>Project status:</p>
                         <Select
                             label='Estado'
-                            onChange={handleSiteState}
-                            value={siteState}
+                            onChange={handleStatus}
+                            value={status}
                             sx={{width: '65%'}}
                             disabled={loading}
                         >
@@ -378,8 +389,8 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <div className="Select fields">
                         <p style={{width: '35%'}}>Site State:</p>
                         <Select
-                            onChange={handleStatus}
-                            value={status}
+                            onChange={handleSiteState}
+                            value={siteState}
                             sx={{width: '65%'}}
                             disabled={loading}
                         >
@@ -389,7 +400,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <p style={{position: 'relative', right: '32%'}}>Staff:</p>
                     <div className='staffSelect fields' >
                         <Select label='Staff' className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)} disabled={loading}>
-                            {staffList.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
+                            {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
                         </Select>
                         <Select className="select" id='RoleSelector' onChange={(e) => setRoleSelected(e.target.value)} disabled={loading}>
                             {rolesList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
@@ -404,11 +415,11 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <th>Role</th>
                             <th>Options</th>
                         </tr>
-                        {projectInfo.involvedPeople.map((item) => (
+                        {staffList.map((item) => (
                             <tr>
-                                <td>{item.personNames} {item.personLastNames}</td>
-                                <td>{item.roleId}</td>
-                                <td>
+                                <td>{item.name}</td>
+                                <td>{item.role}</td>
+                                <td style={{textAlign: 'center', width: '20%'}}>
                                     <Tooltip title='Edit'>
                                         <IconButton> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
@@ -424,7 +435,13 @@ export const ModalEdit = ({close, projectInfo}) => {
                         <Select className="select" id='MaterialSelector' onChange={(e) => setMaterialSelected(e.target.value)} disabled={loading}>
                             {productList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
                         </Select>
-                        <TextField label='Quantity' className="select" type='number' disabled={loading} onChange={(e) => setQttySelected(e.target.value)}/>
+                        <TextField
+                            label='Quantity'
+                            className="select"
+                            type='number'
+                            disabled={loading}
+                            onChange={(e) => setQttySelected(e.target.value)}
+                        />
                         <Tooltip title='Add material'>
                             <Fab color='info' onClick={addBudget} disabled={loading}><AddIcon/></Fab>
                         </Tooltip>
@@ -435,11 +452,11 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <th>Asigned</th>
                             <th>Options</th>
                         </tr>
-                        {budgetList.map((item) => (
+                            {budgetList.map((item) => (
                             <tr>
                                 <td>{item.name}</td>
                                 <td>{item.qtty} {item.unit}</td>
-                                <td className='options'>
+                                <td style={{textAlign: 'center', width: '20%'}}>
                                     <Tooltip title='Edit'>
                                         <IconButton> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
@@ -514,7 +531,7 @@ export const ModalAdd = ({close}) => {
                 setLoading(false)
             }
         }).catch((err) => {
-            console.log(err)
+            console.log(err.response)
             setError(true)
             setLoading(false)
             if(err.response.status == 401){

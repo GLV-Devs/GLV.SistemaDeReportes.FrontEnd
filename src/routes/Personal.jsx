@@ -238,7 +238,7 @@ const Personal = () => {
                                     <Button onClick={() => {setViewModal(true); setSelectedItem({...item, idType: getItem(item.identificationTypeId, idTypeList).symbol}) }}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Edit'>
-                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
+                                    <Button onClick={() => {setEditModal(true); setSelectedItem(item); setIdType(item.identificationTypeId)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
                                     <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(16); setDeleteReady(false)}}> <DeleteIcon/> </Button>
@@ -308,7 +308,12 @@ const Personal = () => {
                             </LocalizationProvider>
                             <div className="fields">
                                 <InputLabel id='idType'>Identification</InputLabel>
-                                <Select label='Identificacion' value={idType} onChange={(e) => setIdType(e.target.value)} sx={{width: '30%'}}>
+                                <Select
+                                    label='Identificacion'
+                                    value={idType}
+                                    onChange={(e) => setIdType(e.target.value)}
+                                    sx={{width: '30%'}}
+                                >
                                     {idTypeList.map((item) => (
                                         <MenuItem value={item.id} key={item.id}>{item.symbol}</MenuItem>
                                     ))}

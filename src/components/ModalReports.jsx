@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import { apiAddress, accessToken } from '../globalResources'
 import { Button, TextField, Select, MenuItem, CircularProgress, Skeleton, InputLabel, Tooltip, Fab, IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
-import { DatePicker } from '@mui/x-date-pickers'
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import axios from 'axios'
@@ -14,6 +14,7 @@ import AttachmentIcon from '@mui/icons-material/Attachment';
 
 export const ViewReport = ({reportKey, close}) => {
 
+    console.log(reportKey)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -53,6 +54,7 @@ export const ViewReport = ({reportKey, close}) => {
             if(response.status == 201){
                 getLines()
                 setAdding(false)
+                inputLine.value = ''
             }
         }).catch((err) => {
             console.log(err.response)
@@ -70,6 +72,7 @@ export const ViewReport = ({reportKey, close}) => {
                     temp = [...temp, {
                         description: item.description,
                         category: res2.data.data[0].name,
+                        categoryId: res2.data.data[0].id,
                         id: item.id
                     }]
                     setLinesList(temp)
@@ -118,6 +121,7 @@ export const ViewReport = ({reportKey, close}) => {
     const {reportLineCategoryList} = useContext(AppContext)
     const [deleting, setDeleting] = useState(false)
     const [adding, setAdding] = useState(false)
+    const [modalEditLine, setModalEditLine] = useState(false)
     let lastNames
 
     return(
@@ -146,12 +150,11 @@ export const ViewReport = ({reportKey, close}) => {
                                         <IconButton onClick={()=>{setSelected(item.id); setModalDelete(true)}}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Edit'>    
-                                        <IconButton> <ModeEditIcon/> </IconButton>
+                                        <IconButton onClick={()=>{setModalEditLine(true); setSelected(item)}}> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Add atachment'>
                                         <IconButton disabled> <AttachmentIcon/> </IconButton>
                                     </Tooltip>
-
                                 </td>
                             </tr>
                         ))}
@@ -199,6 +202,8 @@ export const ViewReport = ({reportKey, close}) => {
                 <Button variant='contained' color='error' onClick={() => deleteReport()} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
             </div>
             </div> }
+
+            { modalEditLine && <EditReportLine close={() => setModalEditLine(false)} reportLineInfo={selected}/> }
         </div>
     )
 }
@@ -236,16 +241,55 @@ export const AddAtachments = ({close, lineId}) => {
     )
 }
 
-export const EditReportLine = () => {
+export const EditReportLine = ({close, reportLineInfo}) => {
+
+    console.log(reportLineInfo)
+
+    useEffect(() => {
+        console.log('UseEffect')
+    }, [])
+
+    const {reportLineCategoryList} = useContext(AppContext)
+    const [success, setSuccess] = useState(false)
+    const [selectedCategory, setSelectedCategory] = useState(reportLineInfo.categoryId)
+
     return(
         <div className="Modal">
-
+            <h1>Edit this report?</h1>
+            { success ? (
+                <>
+                    <h1>The report has been Edited</h1>
+                    <Button variant='contained' onClick={close}>close</Button>
+                </>
+            ):(
+                <>
+                    <TextField defaultValue={reportLineInfo.description} className='fields' label='Description' multiline></TextField>
+                    <Select className='fields'
+                        value={selectedCategory}
+                        onChange={(e) => {setSelectedCategory(e.target.value)}}
+                        defaultValue={reportLineInfo.categoryId}
+                    >
+                        {reportLineCategoryList.map((item) => (
+                            <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                        ))}
+                    </Select>
+                    <div className='Buttons'>
+                        <Button variant='contained'>save</Button>
+                        <Button variant='contained' color='error' onClick={close}>close</Button>
+                    </div>
+                </>
+            ) }
         </div>
     )
 }
 
-export const EditReportInfo = ({reportKey, close}) => {
+export const EditReportInfo = ({reportInfo, close}) => {
 
+    useEffect(() => {
+        getStaffList()
+    },[])
+
+    const navigate = useNavigate()
     const [staffList, setStaffList] = useState([])
     const [staffSelected, setStaffSelected] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -255,8 +299,20 @@ export const EditReportInfo = ({reportKey, close}) => {
     function getStaffList(){
         axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            setStaffList(response.data.data)
-        })
+            response.data.data.map((item) => {
+                let lastNames
+                if(item.lastNames == null){lastNames = ''}else{lastNames = item.lastNames}
+                const data = {
+                    name: `${item.names} ${lastNames}`,
+                    id: item.id
+                }
+                setStaffList(c => [...c, data])
+            })
+        }).catch((err => {
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+        }))
     }
 
     function handleSubmit(e){
@@ -264,13 +320,16 @@ export const EditReportInfo = ({reportKey, close}) => {
         setLoading(true)
         setError(false)
         const data = {
-            dateReported: e.target[3].value,
+            dateReported: e.target[2].value,
         }
+        console.log(data)
         axios.put(`${apiAddress}/api/reports/${reportKey}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
             setSuccess(true)
         }).catch((err) => {
+            setError(true)
+            setLoading(false)
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -289,20 +348,20 @@ export const EditReportInfo = ({reportKey, close}) => {
                 <Select
                     value={staffSelected}
                     onChange={(e)=>{setStaffSelected(e.target.value)}}
+                    className='fields'
                 >
                 {staffList.map((item) => (
                     <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
                 ))}
-            </Select>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker label='Date reported'/>
-            </LocalizationProvider>
-            <div className='Buttons'>
-                <Button variant='contained' type='submit'>Save</Button>
-                <Button variant='contained' color='error' onClick={close}>Cancel</Button>
-            </div>
+                </Select>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker label='Date reported' disableFuture className='fields'/>
+                </LocalizationProvider>
+                <div className='Buttons'>
+                    <Button variant='contained' type='submit'>Save</Button>
+                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                </div>
             </>)}
-            
         </form>
     )
 }
