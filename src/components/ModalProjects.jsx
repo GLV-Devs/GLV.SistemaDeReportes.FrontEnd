@@ -295,8 +295,10 @@ export const ModalEdit = ({close, projectInfo}) => {
 
     function handleUpdate(e){
         e.preventDefault()
+        let completedDate
         setError(false)
         setLoading(true)
+        if(e.target[10].value == ""){completedDate = null}else{completedDate = convertToISO(e.target[10].value)}
         const data = {
             name: e.target[0].value,
             address: e.target[2].value,
@@ -307,7 +309,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                 value: convertToISO(e.target[7].value),
             },
             completed: {
-                value: convertToISO(e.target[10].value),
+                value: completedDate,
             },
             stateId: {
                 value: Number(e.target[13].value),
@@ -512,18 +514,20 @@ export const ModalAdd = ({close}) => {
         e.preventDefault()
         setError(false)
         setLoading(true)
+        let completedDate
+        if(e.target[10].value == ""){completedDate = null}else{completedDate = convertToISO(e.target[10].value)}
         const data = {
             name: e.target[0].value,
             address: e.target[2].value,
             eta: e.target[4].value,
             started: convertToISO(e.target[7].value),
-            completed: convertToISO(e.target[10].value),
+            completed: completedDate,
             stateId: Number(e.target[13].value),
             siteStateId: Number(e.target[15].value),
             contractorLogoId: null,
             clientLogoId: null,
         }
-        // console.log(data)
+        console.log(data)
         axios.post(`${apiAddress}/api/projects`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){

@@ -18,6 +18,7 @@ const Login = () => {
 
     async function handleSubmit(e){
         e.preventDefault();
+        setErrorList(false)
         setError(false)
         setLoading(true)
         const data = {
