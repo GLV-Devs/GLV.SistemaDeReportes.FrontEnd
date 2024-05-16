@@ -234,7 +234,7 @@ const Personal = () => {
                         <div className='LI' key={item.id}>
                             <h3>{item.names} {item.lastNames}</h3>
                             <div className="Buttons">
-                            <Tooltip title='See info'>
+                                <Tooltip title='See info'>
                                     <Button onClick={() => {setViewModal(true); setSelectedItem({...item, idType: getItem(item.identificationTypeId, idTypeList).symbol}) }}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Edit'>

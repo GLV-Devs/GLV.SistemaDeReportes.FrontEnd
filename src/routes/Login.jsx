@@ -13,6 +13,8 @@ const Login = () => {
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showAddress, setShowAddress] = useState(apiAddress)
+    const [errorList, setErrorList] = useState(false)
+    const [errorName, setErrorName] = useState('')
 
     async function handleSubmit(e){
         e.preventDefault();
@@ -41,6 +43,10 @@ const Login = () => {
             })
         }).catch((err) => {
             if(err){
+                if(err.response.data.dataType == 'ErrorList'){
+                    setErrorList(true)
+                    setErrorName(err.response.data.data[0].defaultMessageES)
+                }
                 console.log(err.response)
                 setLoading(false)
                 setError(true)
@@ -60,6 +66,7 @@ const Login = () => {
                 <TextField disabled={loading} type="text" label='Username'/>
                 <TextField disabled={loading} type="password" label='Password'/>
                 { error && <h3 style={{color: 'red', margin: '0px'}}>An error has occurred</h3> }
+                { errorList && <h3 style={{color: 'red', margin: '0px'}}>{errorName}</h3> }
                 <Button disabled={loading} variant="contained" type="submit">{ loading ? (<CircularProgress size={24}/>):(<>Login</>) }</Button>
             </form>
 
