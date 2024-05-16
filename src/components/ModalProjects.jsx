@@ -257,6 +257,10 @@ export const ModalEdit = ({close, projectInfo}) => {
         console.log(data)
         axios.post(`${apiAddress}/api/projects/involvements`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
+            setStaffList([...staffList, {
+                name: `${response.data.data[0].personNames} ${response.data.data[0].personLastNames}`,
+                role: getItem(response.data.data[0].roleId, rolesList).name,
+            }])
             setLoading(false)
             setStaffSelected('')
             setRoleSelected('')
@@ -280,6 +284,11 @@ export const ModalEdit = ({close, projectInfo}) => {
         }
         axios.post(`${apiAddress}/api/projects/budget`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
+            setBudgetList([...budgetList, {
+                name: getItem(response.data.data[0].productId, productList).name,
+                qtty: response.data.data[0].quantity,
+                unit: getItem(response.data.data[0].productId, productList).unit,
+            }])
             setLoading(false)
             setMaterialSelected('')
             setQttySelected(0)
