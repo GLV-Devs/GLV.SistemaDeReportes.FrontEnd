@@ -29,7 +29,7 @@ export const AddUser = ({close, projectInfo}) => {
             <h1>Add new user</h1>
             <div className="Buttons">
                 <Button variant='contained' type='submit'>save</Button>
-                <Button variant='contained' color='error' onClick={() => close}>Cancel</Button>
+                <Button variant='contained' color='error' onClick={close}>Cancel</Button>
             </div>
         </form>
     )
@@ -58,7 +58,7 @@ export const EditUser = ({close, projectInfo}) => {
         <form className="Modal" onSubmit={handleSubmit}>
             <h1>Edit this user?</h1>
             <div className="Buttons">
-                <Button variant='contained' color='error' onClick={() => close}>Cancel</Button>
+                <Button variant='contained' color='error' onClick={close}>Cancel</Button>
                 <Button variant='contained' type='submit'>save</Button>
             </div>
         </form>
@@ -89,7 +89,7 @@ export const DeleteUser = ({close, projectInfo}) => {
         <form className="Modal" onSubmit={handleSubmit}>
             <h1>Delete this user?</h1>
             <div className="Buttons">
-                <Button variant='contained' color='error' onClick={() => close}>Cancel</Button>
+                <Button variant='contained' color='error' onClick={close}>Cancel</Button>
                 <Button variant='contained' type='submit'>delete</Button>    
             </div>
         </form>

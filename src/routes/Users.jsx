@@ -59,10 +59,10 @@ const Users = () => {
                                 <h3>{item.names} {item.lastNames}</h3>
                                 <div className='Buttons'>
                                     <Tooltip title='Edit user'>
-                                        <Button> <ModeEditIcon/> </Button>
+                                        <Button onClick={() => {setEditModal(true)}}> <ModeEditIcon/> </Button>
                                     </Tooltip>
                                     <Tooltip title='Delete user'>
-                                        <Button color='error'> <PersonOffIcon/> </Button>
+                                        <Button color='error' onClick={() => setDeleteModal(true)}> <PersonOffIcon/> </Button>
                                     </Tooltip>
                                 </div>
                             </> }
@@ -73,7 +73,7 @@ const Users = () => {
                                 </div>
                                 <div className='Buttons'>
                                     <Tooltip title='Add user'>
-                                        <Button> <PersonAddIcon/> </Button>
+                                        <Button onClick={() => setAddModal(true)}> <PersonAddIcon/> </Button>
                                     </Tooltip>
                                 </div>
                             </> }
@@ -82,9 +82,9 @@ const Users = () => {
                 </div>
             }
 
-        { addModal && <AddUser/> }
-        { editModal && <EditUser/> }
-        { deleteModal && <DeleteUser/> }
+            { addModal && <AddUser close={() => setAddModal(false)}/> }
+            { editModal && <EditUser close={() => setEditModal(false)}/> }
+            { deleteModal && <DeleteUser close={() => setDeleteModal(false)}/> }
         </div>
     )
 }
