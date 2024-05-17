@@ -12,6 +12,7 @@ import RoleIcon from '@mui/icons-material/AssignmentInd';
 import ReportLineCategoryIcon from '@mui/icons-material/Article';
 import ProjectStateIcon from '@mui/icons-material/AssignmentTurnedIn';
 import ProjectsIcon from '@mui/icons-material/ElectricalServices';
+import UsersIcon from '@mui/icons-material/AccountCircle';
 import axios from "axios";
 
 const NavBar = () => {
@@ -39,6 +40,9 @@ const NavBar = () => {
             <h4>Control System - {userInfo.names} {userInfo.lastName}</h4>
 
             <div className="Buttons">
+                <Tooltip title='Menu'>
+                    <IconButton size='large' onClick={() => setOpenMenu(true)}> <MenuIcon/> </IconButton>
+                </Tooltip>
                 <Button
                     aria-controls={open ? 'AdminMenu' : undefined}
                     size='small'
@@ -49,9 +53,6 @@ const NavBar = () => {
                 >
                     Log out
                 </Button>
-                <Tooltip title='Menu'>
-                    <IconButton size='large' onClick={() => setOpenMenu(true)}> <MenuIcon/> </IconButton>
-                </Tooltip>
             </div>
             <Drawer open={openMenu} onClose={() => setOpenMenu(false)} anchor='right' sx={{'textAlign': 'start'}}>
                 <Button onClick={() => {navigate('/main/personas'); setOpenMenu(false)}}> {<PeopleIcon/>} Persons</Button>
@@ -62,6 +63,7 @@ const NavBar = () => {
                 <Button onClick={() => {navigate('/main/ManageIdTypes'); setOpenMenu(false)}}> {<IdentificationTypesIcon/>} Identification Type</Button>
                 <Button onClick={() => {navigate('/main/ProjectRoles'); setOpenMenu(false)}}> {<RoleIcon/>} Project Roles</Button>
                 <Button onClick={() => {navigate('/main/reportlinescategories'); setOpenMenu(false)}}> {<ReportLineCategoryIcon/>} Report Line Categories</Button>
+                <Button onClick={() => {navigate('/main/users'); setOpenMenu(false)}}> <UsersIcon/> Users</Button>
             </Drawer>
         </div>
 

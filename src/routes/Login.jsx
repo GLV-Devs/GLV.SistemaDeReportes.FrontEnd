@@ -14,7 +14,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
     const [showAddress, setShowAddress] = useState(apiAddress)
     const [errorList, setErrorList] = useState(false)
-    const [errorName, setErrorName] = useState('')
+    const [errorName, setErrorName] = useState('Credentials are invalid')
 
     async function handleSubmit(e){
         e.preventDefault();
@@ -36,7 +36,7 @@ const Login = () => {
             .then((subResponse) => {
                 if(response.status){
                     setUserInfo(subResponse.data.data[0])
-                    navigate('/main')
+                    navigate('/main/proyectos')
                 }
             }).catch((err) => {
                 setLoading(false)
@@ -46,7 +46,7 @@ const Login = () => {
             if(err){
                 if(err.response.data.dataType == 'ErrorList'){
                     setErrorList(true)
-                    setErrorName(err.response.data.data[0].defaultMessageES)
+                    // setErrorName(err.response.data.data[0].defaultMessageES)
                 }
                 console.log(err.response)
                 setLoading(false)
