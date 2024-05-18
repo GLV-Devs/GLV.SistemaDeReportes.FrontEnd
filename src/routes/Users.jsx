@@ -22,6 +22,7 @@ const Users = () => {
     const [listLoading, setListLoading] = useState(true)
     const [listError, setListError] = useState(false)
     const [list, setList] = useState([])
+    const [selectedItem, setSelectedItem] = useState('')
     const hasUser = false
 
     function getList(){
@@ -29,11 +30,9 @@ const Users = () => {
         setListError(false)
         axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            console.log(response)
             setList(response.data.data)
             setListLoading(false)
         }).catch((err) => {
-            console.log(err.response)
             setListError(true)
             setListLoading(false)
             if(err.response.status == 401){
@@ -59,10 +58,10 @@ const Users = () => {
                                 <h3>{item.names} {item.lastNames}</h3>
                                 <div className='Buttons'>
                                     <Tooltip title='Edit user'>
-                                        <Button onClick={() => {setEditModal(true)}}> <ModeEditIcon/> </Button>
+                                        <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                     </Tooltip>
                                     <Tooltip title='Delete user'>
-                                        <Button color='error' onClick={() => setDeleteModal(true)}> <PersonOffIcon/> </Button>
+                                        <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item)}}> <PersonOffIcon/> </Button>
                                     </Tooltip>
                                 </div>
                             </> }
@@ -73,7 +72,7 @@ const Users = () => {
                                 </div>
                                 <div className='Buttons'>
                                     <Tooltip title='Add user'>
-                                        <Button onClick={() => setAddModal(true)}> <PersonAddIcon/> </Button>
+                                        <Button onClick={() => {setAddModal(true); setSelectedItem(item)}}> <PersonAddIcon/> </Button>
                                     </Tooltip>
                                 </div>
                             </> }
@@ -82,9 +81,9 @@ const Users = () => {
                 </div>
             }
 
-            { addModal && <AddUser close={() => setAddModal(false)}/> }
-            { editModal && <EditUser close={() => setEditModal(false)}/> }
-            { deleteModal && <DeleteUser close={() => setDeleteModal(false)}/> }
+            { addModal && <AddUser close={() => setAddModal(false)} info={selectedItem}/> }
+            { editModal && <EditUser close={() => setEditModal(false)} info={selectedItem}/> }
+            { deleteModal && <DeleteUser close={() => setDeleteModal(false)} info={selectedItem}/> }
         </div>
     )
 }
