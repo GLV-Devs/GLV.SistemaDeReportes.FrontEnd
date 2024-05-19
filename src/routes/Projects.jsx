@@ -62,7 +62,7 @@ const Projects = () => {
                 <Button variant='text' onClick={() => getList()}>Retry</Button>
             </> }
             { !listLoading && !listError && 
-            <>
+            <div>
                 { list.map((item) => (
                     <div key={item.id} className='LI'>
                         <div className='info'>
@@ -82,7 +82,7 @@ const Projects = () => {
                         </div>
                     </div>
                 )) }
-            </> }
+            </div> }
             
 
             { edit && <ModalEdit projectInfo={selectedItem} close={() => {setEdit(false)}}/> }

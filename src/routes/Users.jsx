@@ -4,10 +4,11 @@ import { AppContext } from "../context/AppContext"
 import { apiAddress, accessToken } from "../globalResources"
 import axios from "axios"
 import { CircularProgress, Tooltip, Button } from "@mui/material"
-import { AddUser, EditUser, DeleteUser } from "../components/usersModal"
+import { AddUser, EditUser, DeleteUser, ChangePassword } from "../components/usersModal"
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 const Users = () => {
     
@@ -19,11 +20,12 @@ const Users = () => {
     const [addModal, setAddModal] = useState(false)    
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
+    const [passwordModal, setPasswordModal] = useState(false)
     const [listLoading, setListLoading] = useState(true)
     const [listError, setListError] = useState(false)
     const [list, setList] = useState([])
     const [selectedItem, setSelectedItem] = useState('')
-    const hasUser = false
+    const hasUser = true
 
     function getList(){
         setListLoading(true)
@@ -57,6 +59,9 @@ const Users = () => {
                             { hasUser && <>
                                 <h3>{item.names} {item.lastNames}</h3>
                                 <div className='Buttons'>
+                                    <Tooltip title='Change Password'>
+                                        <Button onClick={() => {setPasswordModal(true); setSelectedItem(item)}}> <LockResetIcon/> </Button>
+                                    </Tooltip>
                                     <Tooltip title='Edit user'>
                                         <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                     </Tooltip>
@@ -84,6 +89,7 @@ const Users = () => {
             { addModal && <AddUser close={() => setAddModal(false)} info={selectedItem}/> }
             { editModal && <EditUser close={() => setEditModal(false)} info={selectedItem}/> }
             { deleteModal && <DeleteUser close={() => setDeleteModal(false)} info={selectedItem}/> }
+            { passwordModal && <ChangePassword close={() => setPasswordModal(false)} info={selectedItem}/> }
         </div>
     )
 }
