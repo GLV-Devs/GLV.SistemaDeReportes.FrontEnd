@@ -2,7 +2,7 @@ import { TextField, Button, Checkbox, FormControlLabel } from "@mui/material"
 import axios from "axios"
 import { accessToken, apiAddress } from "../globalResources"
 import { useNavigate } from "react-router-dom"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { hash } from "../encrypt"
 
 export const AddUser = ({close, info}) => {
@@ -90,35 +90,36 @@ export const AddUser = ({close, info}) => {
 export const EditUser = ({close, info}) => {
 
     const navigate = useNavigate()
+    useEffect(() => {
+        function getAccountInfo(){
+            axios.get(`${apiAddress}/api/account/${info.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((response) => {
+                console.log(response.data.data[0])
+                setUserInfo(response.data.data[0])
+            }).catch((err) => {
+                console.log(err.response)
+                if(err.response.status == 401){
+                    navigate('/Login')
+                }
+            })
+        }
+
+        getAccountInfo()
+    }, [])
+
+    const [userInfo, setUserInfo] = useState({})
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const [success, setSuccess] = useState(false)
+
     const handleSubmit = (e) => {
         e.preventDefault()
         const data = { 
             userName: e.target[0].value,
             email: e.target[2].value,
-            permissions: {
-                value: 0,
-            },
-            names: info.names,
-            lastNames: info.lastNames,
-            dateOfBirth: {
-                value: info.dateOfBirth,
-            },
-            identificationTypeId: {
-                value: info.identificationtypeId,
-            },
-            identificationNumber: {
-                value: info.identificationNumber
-            },
-            driverLicensePhotoId: {
-                value: info.driverLicensePhotoId,
-            },
-            passportPhotoId: {
-                value: info.passportPhotoId,
-            },
-            phoneNumber: info.phoneNumber,
-            managedProjects: null
+            phoneNumber: e.target[4],
         }
-        axios.get(`${apiAddress}/api/`, data, {Headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/account/${info.id}`, data, {Headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
         }).catch((err) => {
@@ -131,11 +132,23 @@ export const EditUser = ({close, info}) => {
 
     return(
         <form className="Modal" onSubmit={handleSubmit}>
-            <h1>Edit this user?</h1>
-            <div className="Buttons">
-                <Button variant='contained' color='error' onClick={close}>Cancel</Button>
-                <Button variant='contained' type='submit'>save</Button>
-            </div>
+            { success ? (
+                <>
+                    <h1>The user has been edited</h1>
+                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                </>
+            ):(
+                <>
+                    <h1>Edit this user?</h1>
+                    <TextField label='username' disabled={loading} defaultValue={userInfo.userName}/>
+                    <TextField label='email' disabled={loading} defaultValue={userInfo.userEmail}/>
+                    <TextField label='Phone' disabled={loading}/>
+                    <div className="Buttons">
+                        <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                        <Button variant='contained' type='submit'>save</Button>
+                    </div>
+                </>
+            ) }
         </form>
     )
 }
@@ -173,17 +186,35 @@ export const DeleteUser = ({close, info}) => {
 
 export const ChangePassword = ({close, info}) => {
 
+    const navigate = useNavigate()
+
     const [pass1, setPass1] = useState('')
     const [pass2, setPass2] = useState('')
-    const {success, setSuccess} = useState(false)
+    const [success, setSuccess] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
 
-    function handleSubmit(){
+    async function handleSubmit(e){
         e.preventDefault()
+        setLoading(true)
+        setError(false)
         const data = {
-            oldPasswordSHA256: hash(e.target[0].value),
+            oldPasswordSHA256: await hash(e.target[0].value),
             newPassword: e.target[2].value
         }
-        console.log(data)
+        axios.put(`${apiAddress}/api/account/password`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            console.log(response)
+            setSuccess(true)
+            setLoading(false)
+        }).catch((err) => {
+            console.log(err.response)
+            setError(true)
+            setLoading(false)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+        })
     }
 
     return(
@@ -195,13 +226,15 @@ export const ChangePassword = ({close, info}) => {
                 </>
             ):(
                 <>
-                    <TextField label='Old password'/>
-                    <TextField label='New password' onChange={(e) => {setPass1(e.target.value)}}/>
-                    <TextField label='Repeat new password' onChange={(e) => {setPass2(e.target.value)}}/>
+                    <h1>Change User Password</h1>
+                    <TextField label='Old password' disabled={loading}/>
+                    <TextField label='New password' onChange={(e) => {setPass1(e.target.value)}} disabled={loading}/>
+                    <TextField label='Repeat new password' onChange={(e) => {setPass2(e.target.value)}} disabled={loading}/>
                     { pass1 != '' && pass1 != pass2 && <h3 style={{color: 'red'}}>The passwords are not the same</h3> }
+                    { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
                     <div className='Buttons'>
                         <Button variant='contained' type='submit' disabled={pass1 != pass2 || pass1 == '' || pass2 == '' || loading}>save</Button>
-                        <Button variant='contained' color='error' onClick={()=>close}>cancel</Button>
+                        <Button variant='contained' color='error' onClick={close} disabled={loading}>cancel</Button>
                     </div>
                 </>
             ) }

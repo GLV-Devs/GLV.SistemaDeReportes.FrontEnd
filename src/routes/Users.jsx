@@ -25,12 +25,12 @@ const Users = () => {
     const [listError, setListError] = useState(false)
     const [list, setList] = useState([])
     const [selectedItem, setSelectedItem] = useState('')
-    const hasUser = true
+    const hasUser = false
 
     function getList(){
         setListLoading(true)
         setListError(false)
-        axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/account`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             setList(response.data.data)
             setListLoading(false)
