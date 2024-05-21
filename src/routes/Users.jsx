@@ -25,13 +25,13 @@ const Users = () => {
     const [listError, setListError] = useState(false)
     const [list, setList] = useState([])
     const [selectedItem, setSelectedItem] = useState('')
-    const hasUser = false
 
     function getList(){
         setListLoading(true)
         setListError(false)
-        axios.get(`${apiAddress}/api/account`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
+            console.log(response)
             setList(response.data.data)
             setListLoading(false)
         }).catch((err) => {
@@ -56,7 +56,7 @@ const Users = () => {
                 <div>
                     { list.map((item) => (
                         <div className="LI" key={item.id}>
-                            { hasUser && <>
+                            { item.userName != null && <>
                                 <h3>{item.names} {item.lastNames}</h3>
                                 <div className='Buttons'>
                                     <Tooltip title='Change Password'>
@@ -70,7 +70,7 @@ const Users = () => {
                                     </Tooltip>
                                 </div>
                             </> }
-                            { !hasUser && <>
+                            { item.userName == null && <>
                                 <div className='info'>
                                     <h3 style={{marginBottom: '0px'}}>{item.names} {item.lastNames}</h3>
                                     <p style={{marginTop: '0px'}}>Has no user</p>

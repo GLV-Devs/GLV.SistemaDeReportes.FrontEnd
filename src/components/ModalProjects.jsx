@@ -752,7 +752,6 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
 
     return(
         <div className='Modal'>
-            <h1>Delete this project?</h1>
             { success ? (
                 <>
                     <h3>The project has been deleted</h3>
@@ -760,6 +759,7 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
                 </>
             ):(
                 <>
+                    <h1>Delete this project?</h1>
                     <div className='Buttons'>
                         <Button variant='contained' onClick={handleDelete} disabled={deleting || !ready}>
                             {deleting ? (<CircularProgress size={24}/>):(<>Delete {count}</>)}

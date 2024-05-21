@@ -34,7 +34,7 @@ const Personal = () => {
     const [viewModal, setViewModal] = useState(false)
     const [passportImage, setPassportImage] = useState('')
     const [identificationToShow, setIdentificationToShow] = useState('')
-    const [count, setCount] = useState(16)
+    const [count, setCount] = useState(20)
     const [deleteKey, setDeleteKey] = useState('')
     const [deleteReady, setDeleteReady] = useState(false)
 
@@ -169,12 +169,8 @@ const Personal = () => {
             IdentificationNumber: {
                 value: IdentificationNumber,
             },
-            DriverLicensePhotoId: {
-                value: DriverLicensePhotoId,
-            },
-            PassportPhotoId: {
-                value: PassportPhotoId,
-            },
+            DriverLicensePhotoId: null,
+            PassportPhotoId: null,
             PhoneNumber: PhoneNumber,
             ManagedProjects: null,
         }
@@ -241,7 +237,7 @@ const Personal = () => {
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item); setIdType(item.identificationTypeId)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
-                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(16); setDeleteReady(false)}}> <DeleteIcon/> </Button>
+                                    <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(20); setDeleteReady(false)}}> <DeleteIcon/> </Button>
                                 </Tooltip>
                             </div>
                         </div>
@@ -328,7 +324,7 @@ const Personal = () => {
                                 <p>Passport photo:</p>
                                 <input type="file" id='passport' disabled={true}/>
                             </div>
-                            <TextField label='Phone' disabled={loading} defaultValue={selectedItem.phoneNumber} className="fields"/>
+                            <TextField label='Phone' disabled={loading} defaultValue={selectedItem.personalPhoneNumber} className="fields"/>
                             {/* <div>
                                 <InputLabel id='ManagedProjects'>managed Projects</InputLabel>
                                 <Select label='ManagedProjects' className="Select">

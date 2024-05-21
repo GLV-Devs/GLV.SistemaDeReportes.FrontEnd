@@ -1,4 +1,4 @@
-import { TextField, Button, Checkbox, FormControlLabel } from "@mui/material"
+import { TextField, Button, Checkbox, FormControlLabel, CircularProgress } from "@mui/material"
 import axios from "axios"
 import { accessToken, apiAddress } from "../globalResources"
 import { useNavigate } from "react-router-dom"
@@ -156,30 +156,80 @@ export const EditUser = ({close, info}) => {
 export const DeleteUser = ({close, info}) => {
 
     const navigate = useNavigate()
+    const [deleting, setDeleting] = useState(false)
+    const [error, setError] = useState(false)
+    const [success, setSuccess] = useState(false)
+    const [ready, setReady] = useState(false)
+    const [count, setCount] = useState(20)
+    const [deleteKey, setDeleteKey] = useState('')
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        const data = { 
+    useEffect(() => {
+        getDeleteKey()
+    }, [])
 
+    useEffect(() => {
+        const decrease = setInterval(() => {
+            if(count > 0){
+                setCount(count -1)
+            }else if(count == 0){
+                setReady(true)
+            }
+        }, 1000)
+        return () => clearInterval(decrease)
+    }, [count])
+
+    async function getDeleteKey(){
+        try{
+            const response = await axios.delete(`${apiAddress}/api/account/${info.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            setDeleteKey(response.data.data[0])
+            console.log(response.data.data[0])            
+        }catch(err){
+            console.log(err)
         }
-        axios.get(`${apiAddress}/api/`, data, {Headers: {'Authorization': `Session ${accessToken}`}})
+
+    }
+
+    async function handleDelete(e){
+        e.preventDefault()
+        setDeleting(true)
+        axios.delete(`${apiAddress}/api/account/?token=${deleteKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
+            if(response.status == 200){
+                setDeleting(false)
+                setError(false)
+                setReady(false)
+                setSuccess(true)
+            }
         }).catch((err) => {
-            console.log(err.response)
+            setError(true)
+            setDeleting(false)
             if(err.response.status == 401){
                 navigate('/Login')
             }
+            console.log(err.response)
         })
     }
 
     return(
-        <form className="Modal" onSubmit={handleSubmit}>
-            <h1>Delete this user?</h1>
-            <div className="Buttons">
-                <Button variant='contained' color='error' onClick={close}>Cancel</Button>
-                <Button variant='contained' type='submit'>delete</Button>    
-            </div>
+        <form className="Modal" onSubmit={handleDelete}>
+            { success ? (
+                <>
+                    <h1>The user has been deleted</h1>
+                    <Button variant='contained' color='error' onClick={close}>close</Button>
+                </>
+            ):(
+                <>
+                    <h1>Delete this user?</h1>
+                    <div className="Buttons">
+                        <Button variant='contained' type='submit' disabled={deleting || !ready}>
+                            {deleting ? (<CircularProgress size={24}/>):(<>Delete {count}</>)}
+                        </Button>
+                        <Button variant='contained' color='error' onClick={close} disabled={deleting}>Cancel</Button>
+                    </div>     
+                    { error && <h3 style={{'color': 'red'}}>An error has ocurred</h3> }
+                </>
+            ) }
         </form>
     )
 }
