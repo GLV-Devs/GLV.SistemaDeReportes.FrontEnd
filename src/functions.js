@@ -29,3 +29,10 @@ export function getIdTypeName(id, list){
         }
     })
 }
+
+export function capitalize(raw){
+    let firstLetter = raw.charAt(0)
+    let capitalLetter = firstLetter.toUpperCase()
+    let capitalizedWord = `${capitalLetter}${raw.slice(1)}`
+    return capitalizedWord
+}

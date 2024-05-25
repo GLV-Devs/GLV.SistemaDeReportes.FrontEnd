@@ -373,7 +373,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                 </div>
             ):(
                 <form className="Modal" onSubmit={handleUpdate}>
-                    <h1>Add Project</h1>
+                    <h1>Edit Project</h1>
                     <TextField label='Name' className='fields' disabled={loading} defaultValue={projectInfo.name}/>
                     <TextField label='Address' className='fields' disabled={loading} defaultValue={projectInfo.address}/>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -799,6 +799,7 @@ export const ExportModal = ({projectId, close}) => {
             link.setAttribute('download','ticket.pdf')
             document.body.appendChild(link)
             link.click()
+            setSuccess(true)
         })).catch(error=>{
             setError(true)
             console.log(error)

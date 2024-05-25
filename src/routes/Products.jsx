@@ -6,6 +6,7 @@ import { useState, useEffect, useContext } from "react";
 import { apiAddress, accessToken } from "../globalResources";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { capitalize } from "../functions";
 
 const Products = () => {
 
@@ -20,6 +21,7 @@ const Products = () => {
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
+    const [showList, setShowList] = useState(productList)
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -106,8 +108,10 @@ const Products = () => {
                 setListError(false)
                 if(response.data.data == null){
                     setProductList([{name: '', id: ""}])
+                    setShowList([{name: '', id: ""}])
                 }else{
                     setProductList(response.data.data)
+                    setShowList(response.data.data)
                 }
             }
         })
@@ -121,6 +125,22 @@ const Products = () => {
         })
     }
 
+    const handleSearch = (e) => {
+        const results = []
+        if (e.target.value == ''){
+            setShowList(productList)
+        }else{
+            productList.forEach(item => {
+                if(item.name.includes(e.target.value)){
+                    results.push(item)
+                }else if(item.name.includes(capitalize(e.target.value))){
+                    results.push(item)
+                }
+            })
+            setShowList(results)
+        }
+    }
+
     return(
         <div className='Products'>
             <h1>Products</h1>
@@ -132,11 +152,12 @@ const Products = () => {
             </> }
             { !listLoading && !listError && 
                 <>
+                    <TextField label='Search' onChange={handleSearch}/>
                     <table>
                         <th>Name</th>
                         <th>Unit.</th>
                         <th>Options</th>
-                        {productList.map((item) => (
+                        {showList.map((item) => (
                             <tr key={item.id}>
                                 <td>{item.name}</td>
                                 <td>{item.unit}</td>
