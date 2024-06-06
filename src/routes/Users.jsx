@@ -86,10 +86,10 @@ const Users = () => {
                 </div>
             }
 
-            { addModal && <AddUser close={() => setAddModal(false)} info={selectedItem}/> }
-            { editModal && <EditUser close={() => setEditModal(false)} info={selectedItem}/> }
-            { deleteModal && <DeleteUser close={() => setDeleteModal(false)} info={selectedItem}/> }
-            { passwordModal && <ChangePassword close={() => setPasswordModal(false)} info={selectedItem}/> }
+            { addModal && <AddUser close={() => setAddModal(false)} info={selectedItem} reload={getList}/> }
+            { editModal && <EditUser close={() => setEditModal(false)} info={selectedItem} reload={getList}/> }
+            { deleteModal && <DeleteUser close={() => setDeleteModal(false)} info={selectedItem} reload={getList}/> }
+            { passwordModal && <ChangePassword close={() => setPasswordModal(false)} info={selectedItem} reload={getList}/> }
         </div>
     )
 }

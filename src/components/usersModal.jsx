@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from 'react'
 import { hash } from "../encrypt"
 
-export const AddUser = ({close, info}) => {
+export const AddUser = ({close, info, reload}) => {
 
     const navigate = useNavigate()
     // console.log(info)
@@ -58,14 +58,14 @@ export const AddUser = ({close, info}) => {
 
     return(
         <form className="Modal" onSubmit={handleSubmit}>
-            <h1>Add new user</h1>
             { success ? (
                 <>
                     <h1>The user has been created</h1>
-                    <Button variant='contained' color='error' onClick={close}>Close</Button>
+                    <Button variant='contained' color='error' onClick={() => {close(); reload()}}>Close</Button>
                 </>
             ):(
                 <>
+                    <h1>Add new user</h1>
                     <TextField label='Username' className='fields' disabled={loading}/>
                     <TextField type='email' label='Email' className='fields' disabled={loading}/>
                     <TextField label='Password' type='Password' onChange={(e) => setPass1(e.target.value)} className='fields' disabled={loading}/>
@@ -87,25 +87,39 @@ export const AddUser = ({close, info}) => {
     )
 }
 
-export const EditUser = ({close, info}) => {
+export const EditUser = ({close, info, reload}) => {
+
+    console.log(info)
 
     const navigate = useNavigate()
-    useEffect(() => {
-        function getAccountInfo(){
-            axios.get(`${apiAddress}/api/account/${info.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
-            .then((response) => {
-                console.log(response.data.data[0])
-                setUserInfo(response.data.data[0])
-            }).catch((err) => {
-                console.log(err.response)
-                if(err.response.status == 401){
-                    navigate('/Login')
-                }
-            })
-        }
+    // useEffect(() => {
+    //     function getAccountInfo(){
+    //         axios.get(`${apiAddress}/api/account/${info.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
+    //         .then((response) => {
+    //             console.log(response.data.data[0])
+    //             setUserInfo(response.data.data[0])
+    //         }).catch((err) => {
+    //             console.log(err.response)
+    //             if(err.response.status == 401){
+    //                 navigate('/Login')
+    //             }
+    //         })
+    //     }
 
-        getAccountInfo()
-    }, [])
+    //     getAccountInfo()
+    // }, [])
+
+    function formatPermissions(permissionBoolean){
+        let cadena = ''
+        for(let i = 0; i < permissionBoolean.length; i++){
+            if(permissionBoolean[i] == true){
+                cadena = cadena + 1
+            }else if (permissionBoolean[i] == false){
+                cadena = cadena + 0
+            }
+        }
+        return(parseInt(cadena, 2))
+    }
 
     const [userInfo, setUserInfo] = useState({})
     const [loading, setLoading] = useState(false)
@@ -114,15 +128,39 @@ export const EditUser = ({close, info}) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        setLoading(true)
         const data = { 
             userName: e.target[0].value,
             email: e.target[2].value,
-            phoneNumber: e.target[4],
+            phoneNumber: e.target[4].value,
         }
-        axios.get(`${apiAddress}/api/account/${info.id}`, data, {Headers: {'Authorization': `Session ${accessToken}`}})
+
+        const permissionsBoolean = [
+            e.target[6].checked,
+            e.target[7].checked,
+            e.target[8].checked,
+            e.target[9].checked,
+            e.target[10].checked,
+            e.target[11].checked,
+        ]
+        
+        axios.put(`${apiAddress}/api/account/${info.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
+            axios.put(`${apiAddress}/api/account/${info.id}/permissions`, {permissions: formatPermissions(permissionsBoolean)}, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((response) => {
+                console.log(response)
+                setLoading(false)
+                setSuccess(true)
+            }).catch((err) => {
+                setError(true)
+                console.log(err.response)
+                if(err.response.status == 401){
+                    navigate('/Login')
+                }
+            })
         }).catch((err) => {
+            setError(true)
             console.log(err.response)
             if(err.response.status == 401){
                 navigate('/Login')
@@ -135,17 +173,27 @@ export const EditUser = ({close, info}) => {
             { success ? (
                 <>
                     <h1>The user has been edited</h1>
-                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                    <Button variant='contained' color='error' onClick={() => {close(); reload()}}>close</Button>
                 </>
             ):(
                 <>
                     <h1>Edit this user?</h1>
-                    <TextField label='username' disabled={loading} defaultValue={userInfo.userName}/>
-                    <TextField label='email' disabled={loading} defaultValue={userInfo.userEmail}/>
-                    <TextField label='Phone' disabled={loading}/>
+                    <TextField label='username' disabled={loading} defaultValue={info.userName}/>
+                    <TextField label='email' disabled={loading} defaultValue={info.userEmail}/>
+                    <TextField label='Phone' disabled={loading} defaultValue={info.personalPhoneNumber}/>
+                    <h3>Permissions</h3>
+                    <div className='Permissions'>
+                        <FormControlLabel control={<Checkbox/>} label='Manage reports' disabled={loading}/>
+                        <FormControlLabel control={<Checkbox/>} label='Manage Products' disabled={loading}/>
+                        <FormControlLabel control={<Checkbox/>} label='See Projects' disabled={loading}/>
+                        <FormControlLabel control={<Checkbox/>} label='Manage Projects' disabled={loading}/>
+                        <FormControlLabel control={<Checkbox/>} label='See persons' disabled={loading}/>
+                        <FormControlLabel control={<Checkbox/>} label='Manage Persons' disabled={loading}/>
+                    </div>
+                    { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
                     <div className="Buttons">
-                        <Button variant='contained' color='error' onClick={close}>Cancel</Button>
-                        <Button variant='contained' type='submit'>save</Button>
+                        <Button variant='contained' color='error' onClick={close} disabled={loading}>Cancel</Button>
+                        <Button variant='contained' type='submit' disabled={loading}>save</Button>
                     </div>
                 </>
             ) }
@@ -153,7 +201,7 @@ export const EditUser = ({close, info}) => {
     )
 }
 
-export const DeleteUser = ({close, info}) => {
+export const DeleteUser = ({close, info, reload}) => {
 
     const navigate = useNavigate()
     const [deleting, setDeleting] = useState(false)
@@ -164,6 +212,7 @@ export const DeleteUser = ({close, info}) => {
     const [deleteKey, setDeleteKey] = useState('')
 
     useEffect(() => {
+        console.log(info)
         getDeleteKey()
     }, [])
 
@@ -182,7 +231,7 @@ export const DeleteUser = ({close, info}) => {
         try{
             const response = await axios.delete(`${apiAddress}/api/account/${info.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
             setDeleteKey(response.data.data[0])
-            console.log(response.data.data[0])            
+            console.log(response)            
         }catch(err){
             console.log(err)
         }
@@ -216,7 +265,7 @@ export const DeleteUser = ({close, info}) => {
             { success ? (
                 <>
                     <h1>The user has been deleted</h1>
-                    <Button variant='contained' color='error' onClick={close}>close</Button>
+                    <Button variant='contained' color='error' onClick={() => {close(); reload()}}>close</Button>
                 </>
             ):(
                 <>
@@ -234,7 +283,7 @@ export const DeleteUser = ({close, info}) => {
     )
 }
 
-export const ChangePassword = ({close, info}) => {
+export const ChangePassword = ({close, info, reload}) => {
 
     const navigate = useNavigate()
 
@@ -272,7 +321,7 @@ export const ChangePassword = ({close, info}) => {
             { success ? (
                 <>
                     <h1>The password has been changed</h1>
-                    <Button variant='contained' color='red' onClick={()=>close}>close</Button>
+                    <Button variant='contained' color='red' onClick={() => {close(); reload()}}>close</Button>
                 </>
             ):(
                 <>

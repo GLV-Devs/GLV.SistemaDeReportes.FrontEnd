@@ -27,7 +27,7 @@ const SiteStates = () => {
         const data = {
             name: e.target[0].value
         }
-        axios.post(`${apiAddress}/api/sitestate`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.post(`${apiAddress}/api/sites/state`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -45,7 +45,7 @@ const SiteStates = () => {
     async function handleDelete(){
         setError(false)
         setLoading(true)
-        axios.delete(`${apiAddress}/api/sitestate/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.delete(`${apiAddress}/api/sites/state/${selectedItem}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)
@@ -71,7 +71,7 @@ const SiteStates = () => {
         const data = {
             name: name,
         }
-        axios.put(`${apiAddress}/api/sitestate/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/sites/state/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
                 setSuccess(true)

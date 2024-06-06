@@ -44,10 +44,10 @@ const Login = () => {
             })
         }).catch((err) => {
             if(err){
-                if(err.response.data.dataType == 'ErrorList'){
-                    setErrorList(true)
-                    // setErrorName(err.response.data.data[0].defaultMessageES)
-                }
+                // if(err.response.data.dataType == 'ErrorList'){
+                //     setErrorList(true)
+                // }
+                console.log(err)
                 console.log(err.response)
                 setLoading(false)
                 setError(true)

@@ -3,6 +3,7 @@ import axios from "axios";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useState, useContext, useEffect } from "react";
 import { apiAddress, accessToken } from "../globalResources";
 import { AppContext } from "../context/AppContext";
@@ -32,6 +33,7 @@ const Personal = () => {
     const [idType, setIdType] = useState(0)
     const [selectedItem, setSelectedItem] = useState(0)
     const [viewModal, setViewModal] = useState(false)
+    const [assistanceModal, setAssistanceModal] = useState(false)
     const [passportImage, setPassportImage] = useState('')
     const [identificationToShow, setIdentificationToShow] = useState('')
     const [count, setCount] = useState(20)
@@ -235,6 +237,9 @@ const Personal = () => {
                                 </Tooltip>
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item); setIdType(item.identificationTypeId)}}> <ModeEditIcon/> </Button>
+                                </Tooltip>
+                                <Tooltip title='consult assistance'>
+                                    <Button onClick={() => {setAssistanceModal(true); setSelectedItem(item) }}> <CalendarMonthIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
                                     <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(20); setDeleteReady(false)}}> <DeleteIcon/> </Button>

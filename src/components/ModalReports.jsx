@@ -37,6 +37,16 @@ export const ViewReport = ({reportKey, close}) => {
                 }
             }
         }
+
+        function getStaffList(){
+            axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((response) => {
+                console.log(response)
+            }).catch((err) => {
+                console.log(err.response)
+            })
+        }
+        getStaffList()
         getInfo()
         getLines()
     },[])
@@ -59,6 +69,22 @@ export const ViewReport = ({reportKey, close}) => {
         }).catch((err) => {
             console.log(err.response)
             setAdding(false)
+        })
+    }
+
+    function saveAttendance(){
+        setAdding(true)
+        const inputNote = document.getElementById('note')
+        const data = {
+            reportId: reportKey,
+            notas: note.value,
+            person: selectedAssistance,
+        }
+        axios.post(`${apiAddress}/api/reports/attendance`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            console.log(response)
+        }).catch((err) => {
+            console.log(err.response)
         })
     }
 
@@ -110,6 +136,7 @@ export const ViewReport = ({reportKey, close}) => {
 
     //controlled form
     const [selectedCategory, setSelectedCategory] = useState(0)
+    const [selectedAssistance, setSelectedAssistance] = useState (0)
     //controlled form
 
     const [selected, setSelected] = useState(0)
@@ -122,6 +149,7 @@ export const ViewReport = ({reportKey, close}) => {
     const [deleting, setDeleting] = useState(false)
     const [adding, setAdding] = useState(false)
     const [modalEditLine, setModalEditLine] = useState(false)
+    const [staffList, setStaffList] = useState([])
     let lastNames
 
     return(
@@ -177,6 +205,22 @@ export const ViewReport = ({reportKey, close}) => {
                         </Select>
                         <Tooltip title='Add report line'>
                             <IconButton size='large' onClick={() => saveLine()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={adding}> {adding ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
+                        </Tooltip>
+                    </div>
+                    <div className='NewAttendance'>
+                        <Select
+                            onChange={(e) => {setSelectedAssistance(e.target.value)}}
+                            value={selectedAssistance}
+                            sx={{width: '150px', position: 'relative', right: '30px'}}
+                            disabled={adding}
+                        >
+                            {staffList.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem/>
+                            ))}
+                        </Select>
+                        <TextField label='Notes' multiline id='note' sx={{width: '56%'}} disabled={adding}/>
+                        <Tooltip title='Add Attendance'>
+                            <IconButton size='large' onClick={() => saveAttendance()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={adding}> {adding ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
                         </Tooltip>
                     </div>
                     <Button variant='contained' color='warning' onClick={() => {setModalDeleteReport(true)}}>Delete Report</Button>
