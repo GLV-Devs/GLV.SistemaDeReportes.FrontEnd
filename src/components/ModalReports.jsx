@@ -167,7 +167,17 @@ export const ViewReport = ({reportKey, close}) => {
     const [modalEditLine, setModalEditLine] = useState(false)
     const [staffList, setStaffList] = useState([])
     const [attendanceList, setAttendanceList] = useState([])
+    const [editAttendanceModal, setEditAttendanceModal] = useState(false)
     let lastNames
+
+    function deleteAttendance(personId){
+        axios.delete(`${apiAddress}/api/reports/attendance/${reportKey}/${personId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((response) => {
+            getAttendance()
+        }).catch((err) => {
+            console.log(err.response)
+        })
+    }
 
     return(
         <div className='Modal full'>
@@ -238,7 +248,7 @@ export const ViewReport = ({reportKey, close}) => {
                                 <td className='cat'>{item.notes}</td>
                                 <td className='options'>
                                     <Tooltip title='Delete'>
-                                        <IconButton > <DeleteIcon/> </IconButton>
+                                        <IconButton onClick={() => deleteAttendance(item.personId)}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Edit'>    
                                         <IconButton > <ModeEditIcon/> </IconButton>

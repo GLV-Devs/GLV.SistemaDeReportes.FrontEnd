@@ -13,6 +13,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { getItem } from '../functions'
 import dayjs from "dayjs";
+import {Attendance} from '../components/Attendance'
 
 const Personal = () => {
 
@@ -33,6 +34,7 @@ const Personal = () => {
     const [idType, setIdType] = useState(0)
     const [selectedItem, setSelectedItem] = useState(0)
     const [viewModal, setViewModal] = useState(false)
+    const [attendanceModal, setAttendanceModal] = useState(false)
     const [assistanceModal, setAssistanceModal] = useState(false)
     const [passportImage, setPassportImage] = useState('')
     const [identificationToShow, setIdentificationToShow] = useState('')
@@ -239,7 +241,7 @@ const Personal = () => {
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item); setIdType(item.identificationTypeId)}}> <ModeEditIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='consult assistance'>
-                                    <Button onClick={() => {setAssistanceModal(true); setSelectedItem(item) }}> <CalendarMonthIcon/> </Button>
+                                    <Button onClick={() => {setAttendanceModal(true); setSelectedItem(item) }}> <CalendarMonthIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Delete'>
                                     <Button color='error' onClick={() => {setDeleteModal(true); setSelectedItem(item.id); getDeleteKey(); setCount(20); setDeleteReady(false)}}> <DeleteIcon/> </Button>
@@ -249,6 +251,8 @@ const Personal = () => {
                     ))}
                 </div>
             }
+
+            { attendanceModal && <Attendance personKey={selectedItem.id} close={ () => (setAttendanceModal(false))} personName={selectedItem.names}/> }
 
             { addModal && 
                 <form className="Modal" onSubmit={handleSubmit}>

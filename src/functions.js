@@ -1,3 +1,6 @@
+import axios from 'axios'
+import { apiAddress, accessToken } from './globalResources'
+
 export function convertToISO(originalDate){
     const dateParts = originalDate.split(' ');
     const date = dateParts[0];
@@ -41,4 +44,14 @@ export function capitalize(raw){
     let capitalLetter = firstLetter.toUpperCase()
     let capitalizedWord = `${capitalLetter}${raw.slice(1)}`
     return capitalizedWord
+}
+
+export function getReportInfo(reportId){
+    axios.get(`${apiAddress}/api/reports/${reportId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+    .then((response) => {
+        return response.data.data
+        console.log(response)
+    }).catch((err) => {
+        console.log(err.response)
+    })
 }
