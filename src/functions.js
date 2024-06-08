@@ -30,6 +30,12 @@ export function getIdTypeName(id, list){
     })
 }
 
+export function getFullPersonName(id, list){
+    let response = list.find((item) =>  item.id == id)
+    console.log(response)
+    return response
+}
+
 export function capitalize(raw){
     let firstLetter = raw.charAt(0)
     let capitalLetter = firstLetter.toUpperCase()

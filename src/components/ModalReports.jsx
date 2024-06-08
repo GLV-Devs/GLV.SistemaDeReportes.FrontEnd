@@ -11,6 +11,7 @@ import { AppContext } from '../context/AppContext'
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import AttachmentIcon from '@mui/icons-material/Attachment';
+import {getFullPersonName} from '../functions'
 
 export const ViewReport = ({reportKey, close}) => {
 
@@ -42,14 +43,27 @@ export const ViewReport = ({reportKey, close}) => {
             axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
             .then((response) => {
                 console.log(response)
+                setStaffList(response.data.data)
             }).catch((err) => {
                 console.log(err.response)
             })
         }
+
+        getAttendance()
         getStaffList()
         getInfo()
         getLines()
     },[])
+
+    function getAttendance(){
+            axios.get(`${apiAddress}/api/reports/attendance/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((response) => {
+                console.log(response)
+                setAttendanceList(response.data.data)
+            }).catch((err) => {
+                console.log(err.response)
+            })
+        }
 
     function saveLine(){
         setAdding(true)
@@ -77,12 +91,14 @@ export const ViewReport = ({reportKey, close}) => {
         const inputNote = document.getElementById('note')
         const data = {
             reportId: reportKey,
-            notas: note.value,
-            person: selectedAssistance,
+            notes: note.value,
+            personId: selectedAssistance,
         }
+        console.log(data)
         axios.post(`${apiAddress}/api/reports/attendance`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            console.log(response)
+            setLoading(false)
+            getAttendance()
         }).catch((err) => {
             console.log(err.response)
         })
@@ -150,6 +166,7 @@ export const ViewReport = ({reportKey, close}) => {
     const [adding, setAdding] = useState(false)
     const [modalEditLine, setModalEditLine] = useState(false)
     const [staffList, setStaffList] = useState([])
+    const [attendanceList, setAttendanceList] = useState([])
     let lastNames
 
     return(
@@ -165,6 +182,8 @@ export const ViewReport = ({reportKey, close}) => {
                 <>
                     <h3>Reported by: {info.reportedBy}</h3>
                     <h3>Date reported: {info.dateReported}</h3>
+
+                    <h2>Report lines</h2>
                     <table>
                         <th>Description</th>
                         <th>Category</th>
@@ -207,7 +226,29 @@ export const ViewReport = ({reportKey, close}) => {
                             <IconButton size='large' onClick={() => saveLine()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={adding}> {adding ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
                         </Tooltip>
                     </div>
-                    <div className='NewAttendance'>
+
+                    <h2>Attendance</h2>
+                    <table>
+                        <th>Person</th>
+                        <th>notes</th>
+                        <th>options</th>
+                        {attendanceList.map((item) => (
+                            <tr>
+                                <td className='desc' disabled><p>{getFullPersonName(item.personId, staffList).names} {getFullPersonName(item.personId, staffList).lastNames }</p></td>
+                                <td className='cat'>{item.notes}</td>
+                                <td className='options'>
+                                    <Tooltip title='Delete'>
+                                        <IconButton > <DeleteIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Edit'>    
+                                        <IconButton > <ModeEditIcon/> </IconButton>
+                                    </Tooltip>
+                                </td>
+                            </tr>
+                        ))}
+                    </table>
+
+                    <div className='NewLine'>
                         <Select
                             onChange={(e) => {setSelectedAssistance(e.target.value)}}
                             value={selectedAssistance}
@@ -215,7 +256,7 @@ export const ViewReport = ({reportKey, close}) => {
                             disabled={adding}
                         >
                             {staffList.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem/>
+                                <MenuItem value={item.id} key={item.id}>{item.names} {item.lastNames}</MenuItem>
                             ))}
                         </Select>
                         <TextField label='Notes' multiline id='note' sx={{width: '56%'}} disabled={adding}/>
