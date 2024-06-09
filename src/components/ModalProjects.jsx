@@ -657,7 +657,7 @@ export const ModalAdd = ({close}) => {
                     <TextField label='Name' className='fields' disabled={loading}/>
                     <TextField label='Address' className='fields' disabled={loading}/>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker label='Estimated Time' format="DD/MM/YYYY" className='fields' disabled={loading}/>
+                        <DatePicker label='Estimated Time' format="MM/DD/YYYY" className='fields' disabled={loading}/>
                     </LocalizationProvider>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker label='Started' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading}/>

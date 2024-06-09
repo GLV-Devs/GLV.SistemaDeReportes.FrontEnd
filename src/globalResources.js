@@ -1,5 +1,5 @@
 // export let apiAddress = 'https://sistemadereportesservidor.azurewebsites.net'
-export let apiAddress = 'https://c33gwdjh-7239.use2.devtunnels.ms'
+export let apiAddress = 'https://k2krd0rn-7239.use2.devtunnels.ms'
 
 export function ChangeApiAddress(newAddress){
     console.log(`La Direccion antigua es: ${apiAddress}`)

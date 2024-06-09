@@ -2,7 +2,7 @@ import axios from "axios"
 import { useEffect } from "react"
 import { useState } from "react"
 import { apiAddress, accessToken } from '../globalResources'
-import { CircularProgress, Button } from "@mui/material"
+import { CircularProgress, Button, TextField } from "@mui/material"
 import { useNavigate } from 'react-router-dom'
 import { getReportInfo } from '../functions'
 
@@ -70,18 +70,23 @@ export const Attendance = ({personKey, close, personName}) => {
     )
 }
 
-export const EditAttendance = ({close, note, reportKey, personKey}) => {
+export const EditAttendance = ({close, note, reportKey, personKey, reload}) => {
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const [success, setSuccess] = useState(false)
 
-    function edit(){
+    function edit(e){
+        e.preventDefault()
         setError(false)
         setLoading(true)
-        axios.put(`${apiAddress}/api/reports/attendance/${reportKey}/${personKey}`, data, {headers: {'Authorization': `Session ${apiAddress}`}})
+        const data = {
+            notes: e.target[0].value
+        }
+        axios.put(`${apiAddress}/api/reports/attendance/${reportKey}/${personKey}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             setSuccess(true)
+            setLoading(false)
             console.log(response)
         }).catch((err) => {
             console.log(err.response)
@@ -91,23 +96,22 @@ export const EditAttendance = ({close, note, reportKey, personKey}) => {
     }
 
     return(
-        <div className='Modal'>
+        <form className='Modal' onSubmit={edit}>
             { success ? (
                 <>
                     <h1>Attendance edited</h1>
-                    <Button variant='contained' color='error'>close</Button>
+                    <Button variant='contained' color='error' onClick={() => {close(); reload()}}>close</Button>
                 </>
             ):(
                 <>
                     <h1>Edit this attendance?</h1>
-                    <TextField label='Note' multiline disabled={loading} />
+                    <TextField label='Note' multiline defaultValue={note} disabled={loading}/>
                     <div className='Buttons'>
-                        <Button variant='contained' color='error'>close</Button>
-                        <Button variant='contained'>save</Button>
+                        <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
+                        <Button variant='contained' type='submit' disabled={loading}>save</Button>
                     </div>         
                 </>
             ) }
-        }
-        </div>
+        </form>
     )
 }

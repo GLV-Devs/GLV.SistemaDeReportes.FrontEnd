@@ -12,6 +12,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import AttachmentIcon from '@mui/icons-material/Attachment';
 import {getFullPersonName} from '../functions'
+import {EditAttendance} from './Attendance'
 
 export const ViewReport = ({reportKey, close}) => {
 
@@ -66,7 +67,7 @@ export const ViewReport = ({reportKey, close}) => {
         }
 
     function saveLine(){
-        setAdding(true)
+        setLoading(true)
         const inputLine = document.getElementById('line')
         const data = {
             "reportId": reportKey,
@@ -77,17 +78,17 @@ export const ViewReport = ({reportKey, close}) => {
         .then((response) => {
             if(response.status == 201){
                 getLines()
-                setAdding(false)
+                setLoading(false)
                 inputLine.value = ''
             }
         }).catch((err) => {
             console.log(err.response)
-            setAdding(false)
+            setLoading(false)
         })
     }
 
     function saveAttendance(){
-        setAdding(true)
+        setLoading(true)
         const inputNote = document.getElementById('note')
         const data = {
             reportId: reportKey,
@@ -233,7 +234,7 @@ export const ViewReport = ({reportKey, close}) => {
                             ))}
                         </Select>
                         <Tooltip title='Add report line'>
-                            <IconButton size='large' onClick={() => saveLine()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={adding}> {adding ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
+                            <IconButton size='large' onClick={() => saveLine()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={loading}> {loading ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
                         </Tooltip>
                     </div>
 
@@ -251,7 +252,7 @@ export const ViewReport = ({reportKey, close}) => {
                                         <IconButton onClick={() => deleteAttendance(item.personId)}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Edit'>    
-                                        <IconButton > <ModeEditIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelected(item); setEditAttendanceModal(true)}}> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                             </tr>
@@ -271,7 +272,7 @@ export const ViewReport = ({reportKey, close}) => {
                         </Select>
                         <TextField label='Notes' multiline id='note' sx={{width: '56%'}} disabled={adding}/>
                         <Tooltip title='Add Attendance'>
-                            <IconButton size='large' onClick={() => saveAttendance()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={adding}> {adding ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
+                            <IconButton size='large' onClick={() => saveAttendance()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={loading}> {loading ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
                         </Tooltip>
                     </div>
                     <Button variant='contained' color='warning' onClick={() => {setModalDeleteReport(true)}}>Delete Report</Button>
@@ -299,6 +300,7 @@ export const ViewReport = ({reportKey, close}) => {
             </div> }
 
             { modalEditLine && <EditReportLine close={() => setModalEditLine(false)} reportLineInfo={selected}/> }
+            { editAttendanceModal && <EditAttendance close={() => setEditAttendanceModal(false)} note={selected.notes} reportKey={selected.report.id} personKey={selected.personId} reload={getAttendance}/> }
         </div>
     )
 }
