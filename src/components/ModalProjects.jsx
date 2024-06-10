@@ -23,14 +23,16 @@ export const ModalView = ({projectId, close, updateList}) => {
 
     const {userInfo, productList, projectStateList, siteStateList, rolesList } = useContext(AppContext)
     const navigate = useNavigate()
+    let statusVar = getItem(projectId.stateId, projectStateList) ? (getItem(projectId.stateId, projectStateList).name):('Loading...')
+    let siteStateVar = getItem(projectId.siteStateId, siteStateList) ? (getItem(projectId.siteStateId, siteStateList).name):('Loading...')
     const [info, setInfo] = useState({
         name: projectId.name,
         address: projectId.address,
         completed: new Date(projectId.completed),
         started: new Date(projectId.started),
         eta: projectId.eta,
-        state: getItem(projectId.stateId, projectStateList).name,
-        siteState: getItem(projectId.siteStateId, siteStateList).name,
+        state: statusVar,
+        siteState: siteStateVar,
     })
     const [budgets, setBudgets] = useState([])
     const [involvedPeople, setInvolvedPeople] = useState([])
@@ -41,6 +43,35 @@ export const ModalView = ({projectId, close, updateList}) => {
     const [loadingReports, setLoadingReports] = useState(true)
     const [addingReport, setAddingReport] = useState(false)
     const [deleteConfirmation, setDeleteConfirmation] = useState(false)
+    const [allReady, setAllReady] = useState(false)
+
+    useEffect(() => {
+        function update(){
+            if(siteStateList == []){
+                // console.log('actualice')
+                setInfo(i => ({
+                    ...info,
+                    // state: getItem(projectId.stateId, projectStateList).name,
+                    siteState: getItem(projectId.siteStateId, siteStateList).name
+                }))
+            }
+        }
+        update()
+    })
+
+    useEffect(() => {
+        function update(){
+            if(projectStateList == []){
+                // console.log('actualice')
+                setInfo(i => ({
+                    ...info,
+                    state: getItem(projectId.stateId, projectStateList).name,
+                    // siteState: getItem(projectId.siteStateId, siteStateList).name
+                }))
+            }
+        }
+        update()
+    })
 
     function addNewReport(){
         setAddingReport(true)
