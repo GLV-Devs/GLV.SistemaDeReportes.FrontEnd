@@ -5,9 +5,11 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { apiAddress, accessToken } from "../globalResources";
+import { useNavigate } from "react-router-dom";
 
 const ProjectRoles = () => {
 
+    const navigate = useNavigate()
     const {rolesList, setRolesList} = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -159,14 +161,14 @@ const ProjectRoles = () => {
 
             { editModal && 
                 <form className="Modal" onSubmit={handleUpdate}>
-                    <h1>Edit Project Role</h1>
                     {success ? (
                         <>
                             <h1>Edited Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setError(false); getList()}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setError(false); getList(); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
+                            <h1>Edit Project Role</h1>
                             <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>

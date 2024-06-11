@@ -5,9 +5,11 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { apiAddress, accessToken } from "../globalResources";
+import { useNavigate } from "react-router-dom";
 
 const ReportLinesCategory = () => {
 
+    const navigate = useNavigate()
     const {reportLineCategoryList, setReportLineCategoryList} = useContext(AppContext)
     const [addModal, setAddModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -66,10 +68,11 @@ const ReportLinesCategory = () => {
         let name
         if(e.target[0].value == ''){
             name = null
-        }else{ name = e.target[0].vaue }
+        }else{ name = e.target[0].value }
         const data = {
             name: name,
         }
+        console.log(data)
         axios.put(`${apiAddress}/api/reports/lines/categories/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             if(response.status){
@@ -139,7 +142,6 @@ const ReportLinesCategory = () => {
 
             { addModal && 
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Add New Report line category</h1>
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
@@ -147,6 +149,7 @@ const ReportLinesCategory = () => {
                         </>
                     ):(
                         <>
+                            <h1>Add New Report line category</h1>
                             <TextField label='Name' disabled={loading}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
@@ -159,14 +162,14 @@ const ReportLinesCategory = () => {
 
             { editModal && 
                 <form className="Modal" onSubmit={handleUpdate}>
-                    <h1>Edit Report line category</h1>
                     {success ? (
                         <>
                             <h1>Edited Successfully</h1>
-                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setError(false); getList()}}>close</Button>
+                            <Button variant="contained" color='error' onClick={() => {setEditModal(false); setSuccess(false); setSelectedItem(0); setError(false); getList(); setLoading(false)}}>close</Button>
                         </>
                     ):(
                         <>
+                            <h1>Edit Report line category</h1>
                             <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
