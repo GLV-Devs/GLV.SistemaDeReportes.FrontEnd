@@ -13,6 +13,9 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import AttachmentIcon from '@mui/icons-material/Attachment';
 import {getFullPersonName} from '../functions'
 import {EditAttendance} from './Attendance'
+import ImageIcon from '@mui/icons-material/Image';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { ImagesModal, FilesModal } from './AtachmentsModal'
 
 export const ViewReport = ({reportKey, close}) => {
 
@@ -169,6 +172,8 @@ export const ViewReport = ({reportKey, close}) => {
     const [staffList, setStaffList] = useState([])
     const [attendanceList, setAttendanceList] = useState([])
     const [editAttendanceModal, setEditAttendanceModal] = useState(false)
+    const [imagesModal, setImagesModal] = useState(false)
+    const [filesModal, setFilesModal] = useState(false)
     let lastNames
 
     function deleteAttendance(personId){
@@ -198,20 +203,26 @@ export const ViewReport = ({reportKey, close}) => {
                     <table>
                         <th>Description</th>
                         <th>Category</th>
+                        <th>Atachments</th>
                         <th>options</th>
                         {linesList.map((item) => (
                             <tr>
                                 <td className='desc' disabled><p>{item.description}</p></td>
                                 <td className='cat'>{item.category}</td>
                                 <td className='options'>
+                                    <Tooltip title='Files'>
+                                        <IconButton onClick={() => {setSelected(item);setFilesModal(true)}}> <InsertDriveFileIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Images'>
+                                        <IconButton onClick={() => {setSelected(item);setImagesModal(true)}}> <ImageIcon/> </IconButton>
+                                    </Tooltip>
+                                </td>
+                                <td className='options'>
                                     <Tooltip title='Delete'>
                                         <IconButton onClick={()=>{setSelected(item.id); setModalDelete(true)}}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Edit'>    
                                         <IconButton onClick={()=>{setModalEditLine(true); setSelected(item)}}> <ModeEditIcon/> </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title='Add atachment'>
-                                        <IconButton disabled> <AttachmentIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                             </tr>
@@ -299,6 +310,8 @@ export const ViewReport = ({reportKey, close}) => {
             </div>
             </div> }
 
+            { imagesModal && <ImagesModal close={() => setImagesModal(false)} reportLineKey={selected}/> }
+            { filesModal && <FilesModal close={() => setFilesModal(false)} reportLineKey={selected}/> }
             { modalEditLine && <EditReportLine close={() => setModalEditLine(false)} reportLineInfo={selected}/> }
             { editAttendanceModal && <EditAttendance close={() => setEditAttendanceModal(false)} note={selected.notes} reportKey={selected.report.id} personKey={selected.personId} reload={getAttendance}/> }
         </div>
