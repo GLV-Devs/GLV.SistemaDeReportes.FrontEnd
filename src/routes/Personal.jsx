@@ -235,7 +235,7 @@ const Personal = () => {
                             <h3>{item.names} {item.lastNames}</h3>
                             <div className="Buttons">
                                 <Tooltip title='See info'>
-                                    <Button onClick={() => {setViewModal(true); setSelectedItem({...item, idType: getItem(item.identificationTypeId, idTypeList).symbol}) }}> <VisibilityIcon/> </Button>
+                                    <Button onClick={() => {setViewModal(true); setSelectedItem({...item, idType: getItem(item.identificationTypeId, idTypeList).symbol}); console.log(item) }}> <VisibilityIcon/> </Button>
                                 </Tooltip>
                                 <Tooltip title='Edit'>
                                     <Button onClick={() => {setEditModal(true); setSelectedItem(item); setIdType(item.identificationTypeId)}}> <ModeEditIcon/> </Button>
@@ -256,7 +256,6 @@ const Personal = () => {
 
             { addModal && 
                 <form className="Modal" onSubmit={handleSubmit}>
-                    <h1>Add New Person</h1>
                     {success ? (
                         <>
                             <h1>Added Successfully</h1>
@@ -264,19 +263,20 @@ const Personal = () => {
                         </>
                     ):(
                         <>
-                            <TextField label='Names' type="text" className="fields"/>
-                            <TextField label='Lastnames' className="fields"/>
+                            <h1>Add New Person</h1>
+                            <TextField label='Names' type="text" className="fields" required/>
+                            <TextField label='Lastnames' className="fields" required/>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker label='Date of birth' format="YYYY/MM/DD" disableFuture className="fields"/>
+                                <DatePicker label='Date of birth' format="YYYY/MM/DD" disableFuture className="fields" required/>
                             </LocalizationProvider>
                             <div className="fields">
-                                <InputLabel id='idType'>Identification</InputLabel>
-                                <Select label='Identificacion' value={idType} onChange={(e) => setIdType(e.target.value)} sx={{width: '30%'}}>
+                                <InputLabel id='idType' required>Identification</InputLabel>
+                                <Select label='Identificacion' value={idType} onChange={(e) => setIdType(e.target.value)} sx={{width: '30%'}} required>
                                     {idTypeList.map((item) => (
                                         <MenuItem value={item.id} key={item.id}>{item.symbol}</MenuItem>
                                     ))}
                                 </Select>
-                                <TextField type="text" sx={{width: '70%'}}/>
+                                <TextField type="text" sx={{width: '70%'}} required/>
                             </div>
                             <div className="fields file">
                                 <p>Driver licence photo:</p>
@@ -286,10 +286,10 @@ const Personal = () => {
                                 <p>Passport photo:</p>
                                 <input type="file" accept="image/*" id='PassportPhoto' disabled={true}/>
                             </div>
-                            <TextField label='Phone' className="fields"/>
+                            <TextField label='Phone' className="fields" required/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
-                                <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
+                                <Button variant="contained" type='submit' disabled={loading || idType == ''}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
                                 <Button variant="contained" color='error' disabled={loading} onClick={() => {setAddModal(false); setError(false)}}>cancel</Button>
                             </div>
                         </>)}
