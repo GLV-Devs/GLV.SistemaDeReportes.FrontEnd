@@ -21,6 +21,9 @@
     box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
     margin: 10px;
 
+    @media(orientation: portrait){
+        width: 80vw;
+    }
     .Buttons{
         display: flex;
         align-items: center;
@@ -238,6 +241,10 @@ body{
     box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
     padding-bottom: 25px;
 
+    @media(orientation: portrait){
+        width: 90vw;
+    }
+
     .NewLine{
         margin-top: 30px;
         display: flex;
@@ -360,26 +367,47 @@ body{
     box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
     border-radius: 15px;
 
+    @media(orientation: portrait){
+        width: 90vw;
+    }
+
     .content{
         display: flex;
         justify-content: space-between;
         width: 100%;
         height: 90%;
 
+        @media(orientation: portrait){
+            flex-direction: column;
+        }
+
         .divider{
             width: 1px;
             height: 90%;
             background-color: black;
             align-self: center;
+
+            @media(orientation: portrait){
+                width: 90%;
+                height: 1px;
+            }
         }
 
         .left{
             @include subModal();
-            width: 40%
+            width: 40%;
+
+            @media(orientation: portrait){
+                width: 100%;
+            }
         }
 
         .right{
             @include subModal();
+
+            @media(orientation: portrait){
+                width: 100%;
+            }
         }
     }
 
@@ -443,6 +471,10 @@ border-spacing: 0;
                 width: 500px;
                 margin: 0px;
                 color: black;
+
+                @media(orientation: portrait){
+                    width: 70%;
+                }
             }
         }
     }

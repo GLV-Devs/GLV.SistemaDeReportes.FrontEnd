@@ -19,55 +19,78 @@ import { ImagesModal, FilesModal } from './AtachmentsModal'
 
 export const ViewReport = ({reportKey, close}) => {
 
-    console.log(reportKey)
     const navigate = useNavigate()
 
     useEffect(() => {
-        async function getInfo(){
-            try{
-                const response = await axios.get(`${apiAddress}/api/reports/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-                const dateReported = new Date(response.data.data[0].dateReported)
-                if(response.data.data[0].reporterUser.lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].reporterUser.lastNames}
-                setInfo({
-                    dateReported: `${dateReported.getMonth() + 1}/${dateReported.getDate()}/${dateReported.getFullYear()}`,
-                    reportedBy: `${response.data.data[0].reporterUser.names} ${lastNames}`
-                })
-                if(response.status == 200){
-                    setLoading(false)
-                }
-            }catch(err){
-                console.log(err)
-                if(err.response.status == 401){
-                    navigate('/Login')
-                }
+        getInfo()
+    }, [])
+
+    async function getInfo(){
+        try{
+            //aqui pedimos nombre de quien reporta y la fecha
+            let lastNames
+            const response1 = await axios.get(`${apiAddress}/api/reports/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            const dateReported = new Date(response1.data.data[0].dateReported)
+            if(response1.data.data[0].reporterUser.lastNames == null){lastNames = ''}else{lastNames = response1.data.data[0].reporterUser.lastNames}
+            setInfo({
+                dateReported: `${dateReported.getMonth() + 1}/${dateReported.getDate()}/${dateReported.getFullYear()}`,
+                reportedBy: `${response1.data.data[0].reporterUser.names} ${lastNames}`
+            })
+
+            //aqui pedimos la lista del staff para mostrar en el select de agregar asistencias
+            const response2 = await axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
+            setStaffList(response2.data.data)
+
+            //Aqui pedimos las asistencias, la funcion esta afuera porque debe renovarse
+            getAttendance()
+            //Aqui pedimos las lineas de reporte, la funcion esta afuera porque debe renovarse
+            getLines()
+        }catch(err){
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    async function getAttendance(){
+        try{
+            const response = await axios.get(`${apiAddress}/api/reports/attendance/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            setAttendanceList(response.data.data)
+        }catch(err){
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('Login')
             }
         }
+    }
 
-        function getStaffList(){
-            axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
-            .then((response) => {
-                console.log(response)
-                setStaffList(response.data.data)
-            }).catch((err) => {
-                console.log(err.response)
+    async function getLines(){
+        try{
+            let temp = []
+            const response = await axios.get(`${apiAddress}/api/reports/lines/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            response.data.data.map(async(item) => {
+            console.log(item)
+            axios.get(`${apiAddress}/api/reports/lines/categories/${item.categoryId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((res2) => {
+                temp = [...temp, {
+                    description: item.description,
+                    category: res2.data.data[0].name,
+                    // categoryId: res2.data.data[0].id,
+                    id: item.id
+                }]
+                setLinesList(temp)
             })
-        }
-
-        getAttendance()
-        getStaffList()
-        getInfo()
-        getLines()
-    },[])
-
-    function getAttendance(){
-            axios.get(`${apiAddress}/api/reports/attendance/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-            .then((response) => {
-                console.log(response)
-                setAttendanceList(response.data.data)
-            }).catch((err) => {
-                console.log(err.response)
             })
+        }catch(err){
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
         }
+    }
 
     function saveLine(){
         setLoading(true)
@@ -79,11 +102,9 @@ export const ViewReport = ({reportKey, close}) => {
         }
         axios.post(`${apiAddress}/api/reports/lines`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
-            if(response.status == 201){
-                getLines()
-                setLoading(false)
-                inputLine.value = ''
-            }
+            getLines()
+            setLoading(false)
+            inputLine.value = ''
         }).catch((err) => {
             console.log(err.response)
             setLoading(false)
@@ -108,27 +129,9 @@ export const ViewReport = ({reportKey, close}) => {
         })
     }
 
-    function getLines(){
-        let temp = []
-        axios.get(`${apiAddress}/api/reports/lines/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((response) => {
-            response.data.data.map(async(item) => {
-                axios.get(`${apiAddress}/api/reports/lines/categories/${item.categoryId}`, {headers: {'Authorization': `Session ${accessToken}`}})
-                .then((res2) => {
-                    temp = [...temp, {
-                        description: item.description,
-                        category: res2.data.data[0].name,
-                        categoryId: res2.data.data[0].id,
-                        id: item.id
-                    }]
-                    setLinesList(temp)
-                })
-            })
-        })
-    }
-
     function deleteLine(){
         setDeleting(true)
+        console.log(selected)
         axios.delete(`${apiAddress}/api/reports/lines/${selected}`, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
@@ -136,7 +139,11 @@ export const ViewReport = ({reportKey, close}) => {
             setModalDelete(false)
             getLines()
         }).catch((err) => {
-            console.log(err)
+            setDeleting(false)
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
         })
     }
 
@@ -211,10 +218,10 @@ export const ViewReport = ({reportKey, close}) => {
                                 <td className='cat'>{item.category}</td>
                                 <td className='options'>
                                     <Tooltip title='Files'>
-                                        <IconButton onClick={() => {setSelected(item);setFilesModal(true)}}> <InsertDriveFileIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelected(item.id);setFilesModal(true)}}> <InsertDriveFileIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Images'>
-                                        <IconButton onClick={() => {setSelected(item);setImagesModal(true)}}> <ImageIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelected(item.id);setImagesModal(true)}}> <ImageIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                                 <td className='options'>

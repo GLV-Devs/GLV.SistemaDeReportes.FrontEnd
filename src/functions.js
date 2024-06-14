@@ -35,7 +35,6 @@ export function getIdTypeName(id, list){
 
 export function getFullPersonName(id, list){
     let response = list.find((item) =>  item.id == id)
-    console.log(response)
     return response
 }
 
