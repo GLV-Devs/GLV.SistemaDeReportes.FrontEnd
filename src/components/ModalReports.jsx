@@ -69,6 +69,7 @@ export const ViewReport = ({reportKey, close}) => {
 
     async function getLines(){
         try{
+            console.log('holasss')
             let temp = []
             const response = await axios.get(`${apiAddress}/api/reports/lines/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
             response.data.data.map(async(item) => {
@@ -79,7 +80,8 @@ export const ViewReport = ({reportKey, close}) => {
                     description: item.description,
                     category: res2.data.data[0].name,
                     // categoryId: res2.data.data[0].id,
-                    id: item.id
+                    id: item.id,
+                    files: item.files,
                 }]
                 setLinesList(temp)
             })
@@ -129,7 +131,7 @@ export const ViewReport = ({reportKey, close}) => {
         })
     }
 
-    function deleteLine(){
+    const deleteLine = () => {
         setDeleting(true)
         console.log(selected)
         axios.delete(`${apiAddress}/api/reports/lines/${selected}`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -221,7 +223,7 @@ export const ViewReport = ({reportKey, close}) => {
                                         <IconButton onClick={() => {setSelected(item.id);setFilesModal(true)}}> <InsertDriveFileIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Images'>
-                                        <IconButton onClick={() => {setSelected(item.id);setImagesModal(true)}}> <ImageIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelected(item);setImagesModal(true)}}> <ImageIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                                 <td className='options'>
@@ -304,7 +306,7 @@ export const ViewReport = ({reportKey, close}) => {
                 <h1>Delete this report line?</h1>
                 <div className='Buttons'>
                     <Button variant='contained' onClick={()=>setModalDelete(false)} disabled={deleting}>close</Button>
-                    <Button variant='contained' color='error' onClick={() => deleteLine()} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
+                    <Button variant='contained' color='error' onClick={deleteLine} disabled={deleting}>{deleting ? (<CircularProgress size={24}/>):(<>Delete</>)}</Button>
                 </div>
             </div> }
 
@@ -317,8 +319,8 @@ export const ViewReport = ({reportKey, close}) => {
             </div>
             </div> }
 
-            { imagesModal && <ImagesModal close={() => setImagesModal(false)} reportLineKey={selected}/> }
-            { filesModal && <FilesModal close={() => setFilesModal(false)} reportLineKey={selected}/> }
+            { imagesModal && <ImagesModal close={() => setImagesModal(false)} reportLineInfo={selected} update={getLines}/> }
+            { filesModal && <FilesModal close={() => setFilesModal(false)} reportLineInfo={selected}/> }
             { modalEditLine && <EditReportLine close={() => setModalEditLine(false)} reportLineInfo={selected}/> }
             { editAttendanceModal && <EditAttendance close={() => setEditAttendanceModal(false)} note={selected.notes} reportKey={selected.report.id} personKey={selected.personId} reload={getAttendance}/> }
         </div>
