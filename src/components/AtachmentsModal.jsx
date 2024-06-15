@@ -36,6 +36,9 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 		axios.delete(`${apiAddress}/data/images/report/${imgKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
 		.then((response) => {
 			setImagesList(imagesList.filter(key => key.key != imgKey ))
+		}).catch((err) => {
+			console.log(err.response)
+			setImagesList(imagesList.filter(key => key.key != imgKey ))
 		})
 	}
 
@@ -49,8 +52,8 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 				</Tooltip>
 			</form>
 			{ imagesList.map((item) => (
-				<div style={{border: '1px solid black', width: '95%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '25px', overflow: 'hidden'}}>
-					<img key={item.key} src={`${apiAddress}/data/images/${item.key}`} style={{width: '90%'}}/>
+				<div style={{border: '1px solid black', width: '95%', display: 'inline-flex', minHeight: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: '25px', overflow: 'hidden'}}>
+					<img key={item.key} src={`${apiAddress}/data/images/${item.key}`} style={{width: '90%', height: 'auto'}}/>
 					<IconButton onClick={() => deleteImage(item.key)} size='large'> <DeleteIcon/> </IconButton>
 				</div>
 			)) }
