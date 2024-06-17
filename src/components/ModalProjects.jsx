@@ -21,6 +21,8 @@ export const ModalView = ({projectId, close, updateList}) => {
 
     useEffect(() => { getReportList(); getBudgets(); getInvolvedPeople() },[])
 
+    console.log(projectId)
+
     const {userInfo, productList, projectStateList, siteStateList, rolesList } = useContext(AppContext)
     const navigate = useNavigate()
     let statusVar = getItem(projectId.stateId, projectStateList) ? (getItem(projectId.stateId, projectStateList).name):('Loading...')
@@ -33,6 +35,7 @@ export const ModalView = ({projectId, close, updateList}) => {
         eta: projectId.eta,
         state: statusVar,
         siteState: siteStateVar,
+        id: projectId.id,
     })
     const [budgets, setBudgets] = useState([])
     const [involvedPeople, setInvolvedPeople] = useState([])
@@ -228,7 +231,6 @@ export const ModalView = ({projectId, close, updateList}) => {
 
 export const ModalEdit = ({close, projectInfo}) => {
 
-    console.log(projectInfo)
     useEffect(() => {getStaffList()}, [])
     const navigate = useNavigate()
 
@@ -246,7 +248,9 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [budgetList, setBudgetList] = useState([])
     const [staffListSelect, setStaffListSelect] = useState([])
 
-    useEffect(() => {
+    useEffect(() => { updateLists() }, [])
+
+    function updateLists(){
         let tempBudgets = []
         let tempStaff = []
         projectInfo.budgets.map((item) => {
@@ -254,6 +258,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                 name: getItem(item.productId, productList).name,
                 qtty: item.quantity,
                 unit: getItem(item.productId, productList).unit,
+                productId: item.productId,
             }
             tempBudgets = [...tempBudgets, data]
             setBudgetList(tempBudgets)
@@ -263,11 +268,12 @@ export const ModalEdit = ({close, projectInfo}) => {
             const data = {
                 name: `${item.personNames} ${item.personLastNames}`,
                 role: getItem(item.roleId, rolesList).name,
+                id: item.personId,
             }
             tempStaff = [...tempStaff, data]
             setStaffList(tempStaff)
         })
-    }, [])
+    }
 
     const handleStatus = (e) => {
         setStatus(e.target.value)
@@ -291,10 +297,10 @@ export const ModalEdit = ({close, projectInfo}) => {
             setStaffList([...staffList, {
                 name: `${response.data.data[0].personNames} ${response.data.data[0].personLastNames}`,
                 role: getItem(response.data.data[0].roleId, rolesList).name,
+                id: response.data.data[0].personId
             }])
             setLoading(false)
             setStaffSelected('')
-            setRoleSelected('')
         }).catch((err) => {
             setError(true)
             setLoading(false)
@@ -319,6 +325,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                 name: getItem(response.data.data[0].productId, productList).name,
                 qtty: response.data.data[0].quantity,
                 unit: getItem(response.data.data[0].productId, productList).unit,
+                productId: response.data.data[0].productId,
             }])
             setLoading(false)
             setMaterialSelected('')
@@ -326,7 +333,7 @@ export const ModalEdit = ({close, projectInfo}) => {
         }).catch((err) => {
             setError(true)
             setLoading(false)
-            console.log(err.response.data)
+            console.log(err.response)
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -343,7 +350,7 @@ export const ModalEdit = ({close, projectInfo}) => {
             name: e.target[0].value,
             address: e.target[2].value,
             eta: {
-                value: e.target[4].value,
+                value: `${e.target[4].value[6] + e.target[4].value[7] + e.target[4].value[8] + e.target[4].value[9]}-${e.target[4].value[3] + e.target[4].value[4]}-${e.target[4].value[0] + e.target[4].value[1]}`,
             },
             started: {
                 value: convertToISO(e.target[7].value),
@@ -392,6 +399,26 @@ export const ModalEdit = ({close, projectInfo}) => {
             if(err.response.status == 401){
                 navigate('/Login')
             }
+        })
+    }
+
+    function deleteStaff(staffId){
+        axios.delete(`${apiAddress}/api/projects/involvements/${projectInfo.id}/${staffId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            setStaffList(staffList.filter(key => key.id != staffId))
+        }).catch((err) => {
+            setError(true)
+            console.log(err.response)
+        })
+    }
+
+    function deleteBudget(budgetId){
+        axios.delete(`${apiAddress}/api/projects/budget/${projectInfo.id}/${budgetId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            setBudgetList(budgetList.filter(key => key.productId != budgetId))
+        }).catch((err) => {
+            setError(true)
+            console.log(err.response)
         })
     }
 
@@ -466,7 +493,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                                         <IconButton> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Delete'>
-                                        <IconButton> <DeleteIcon/> </IconButton>
+                                        <IconButton onClick={() => deleteStaff(item.id)}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                             </tr>
@@ -503,7 +530,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                                         <IconButton> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Delete'>
-                                        <IconButton> <DeleteIcon/> </IconButton>
+                                        <IconButton onClick={() => deleteBudget(item.productId)}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                             </tr>
@@ -559,7 +586,7 @@ export const ModalAdd = ({close}) => {
         const data = {
             name: e.target[0].value,
             address: e.target[2].value,
-            eta: e.target[4].value,
+            eta: `${e.target[4].value[6] + e.target[4].value[7] + e.target[4].value[8] + e.target[4].value[9]}-${e.target[4].value[0] + e.target[4].value[1]}-${e.target[4].value[3] + e.target[4].value[4]}`,
             started: convertToISO(e.target[7].value),
             completed: completedDate,
             stateId: Number(e.target[13].value),
