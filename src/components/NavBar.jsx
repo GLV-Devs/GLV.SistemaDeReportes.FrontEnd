@@ -37,7 +37,12 @@ const NavBar = () => {
 
     return(
         <div className="NavBar">
-            <h4>Control System - {userInfo.names} {userInfo.lastName}</h4>
+            <>
+                <h4>Control System - {userInfo.names} {userInfo.lastName}</h4>
+                <Tooltip title='My profile'>
+                    <IconButton onClick={() => navigate('/main/profile')}> <UsersIcon/> </IconButton>
+                </Tooltip>
+            </>
 
             <div className="Buttons">
                 <Tooltip title='Menu'>

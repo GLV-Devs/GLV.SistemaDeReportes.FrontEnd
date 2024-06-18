@@ -247,6 +247,9 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [siteState, setSiteState] = useState(projectInfo.siteStateId)
     const [budgetList, setBudgetList] = useState([])
     const [staffListSelect, setStaffListSelect] = useState([])
+    const [staffEditModal, setStaffEditModal] = useState(false)
+    const [budgetEditModal, setBudgetEditModal] = useState(false)
+    const [selectedItem, setSelectedItem] = useState('')
 
     useEffect(() => { updateLists() }, [])
 
@@ -527,7 +530,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                                 <td>{item.qtty} {item.unit}</td>
                                 <td style={{textAlign: 'center', width: '20%'}}>
                                     <Tooltip title='Edit'>
-                                        <IconButton> <ModeEditIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelectedItem(item); setBudgetEditModal(true); console.log(item)}}> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Delete'>
                                         <IconButton onClick={() => deleteBudget(item.productId)}> <DeleteIcon/> </IconButton>
@@ -541,6 +544,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>
                         <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
                     </div>
+                    { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id}/> }
                 </form>
             ) }
         </>
@@ -884,5 +888,115 @@ export const ExportModal = ({projectId, close}) => {
                 <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
             </div>
         </form>
+    )
+}
+
+const EditBudgetModal = ({close, info, update, projectId}) => {
+
+    const [success, setSuccess] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+
+    function handleUpdate(){
+        const qttyInput = document.getElementById('qttyInput')
+        setLoading(true)
+        setError(false)
+        const data = {
+            quantity: {
+                value: Number(qttyInput.value)
+            }
+        }
+        console.log(data)
+        axios.put(`${apiAddress}/api/projects/budget/${projectId}/${info.productId}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            setSuccess(true)
+        }).catch((err) => {
+            setError(true)
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+        }).finally(() => {
+            setLoading(false)
+        })
+    }
+
+    return(
+        <div className='Modal' onSubmit={handleUpdate}>
+            { success ? (
+                <>
+                    <h1>Edit Successfull</h1>
+                    <Button variant='contained' color='error' onClick={() => {close(); update()}}>close</Button>
+                </>
+            ):(
+                <>
+                    <h1>Edit budget</h1>
+                    <TextField label='Quantity' defaultValue={info.qtty} type='number' disabled={loading} id='qttyInput'/>
+                    { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
+                    <div className='Buttons'>
+                        <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
+                        <Button variant='contained' onClick={handleUpdate} disabled={loading}>{ loading ? (<CircularProgress size={24}/>):(<>save</>)}</Button>
+                    </div>    
+                </>
+            ) }
+        </div>
+    )
+}
+
+const EditInvolvementModal = ({close, info, update, projectId}) => {
+
+    console.log(info)
+
+    const [success, setSuccess] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const { rolesList } = useContext(AppContext)
+    const [staffSelected, setStaffSelected] = (0)
+
+    function handleUpdate(){
+        const qttyInput = document.getElementById('qttyInput')
+        setLoading(true)
+        setError(false)
+        const data = {
+            roleId: {
+                value: Number(qttyInput.value)
+            }
+        }
+        console.log(data)
+        axios.put(`${apiAddress}/projects/budget/${projectId}/${info.productId}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            setSuccess(true)
+        }).catch((err) => {
+            setError(true)
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+        }).finally(() => {
+            setLoading(false)
+        })
+    }
+
+    return(
+        <div className='Modal' onSubmit={handleUpdate}>
+            { success ? (
+                <>
+                    <h1>Edit Successfull</h1>
+                    <Button variant='contained' color='error' onClick={() => {close(); update()}}>close</Button>
+                </>
+            ):(
+                <>
+                    <h1>Edit budget</h1>
+                    <Select label='Staff' className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)} disabled={loading}>
+                        {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
+                    </Select>
+                    { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
+                    <div className='Buttons'>
+                        <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
+                        <Button variant='contained' onClick={handleUpdate} disabled={loading}>save</Button>
+                    </div>    
+                </>
+            ) }
+        </div>
     )
 }

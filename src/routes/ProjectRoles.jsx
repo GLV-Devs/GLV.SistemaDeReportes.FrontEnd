@@ -26,7 +26,8 @@ const ProjectRoles = () => {
         setError(false)
         setLoading(true)
         const data = {
-            name: e.target[0].value
+            name: e.target[0].value,
+            level: Number(e.target[2].value)
         }
         axios.post(`${apiAddress}/api/project/roles`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
@@ -71,6 +72,9 @@ const ProjectRoles = () => {
         }else{ name = e.target[0].value }
         const data = {
             name: name,
+            level: {
+                value: Number(e.target[2].value)
+            }
         }
         axios.put(`${apiAddress}/api/project/roles/${selectedItem.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
@@ -150,6 +154,7 @@ const ProjectRoles = () => {
                     ):(
                         <>
                             <TextField label='Name' disabled={loading}/>
+                            <TextField label='Level' disabled={loading}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
@@ -170,6 +175,7 @@ const ProjectRoles = () => {
                         <>
                             <h1>Edit Project Role</h1>
                             <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
+                            <TextField label='Name' disabled={loading} defaultValue={selectedItem.level.value}/>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
