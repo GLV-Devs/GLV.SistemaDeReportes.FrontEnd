@@ -154,7 +154,9 @@ const ProjectRoles = () => {
                     ):(
                         <>
                             <TextField label='Name' disabled={loading}/>
-                            <TextField label='Level' disabled={loading}/>
+                            <Tooltip title='Higher levels mean more authority, this is only for the purpose of controlling PDF exports'>
+                                <TextField type="number" label='Level' disabled={loading}/>
+                            </Tooltip>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>
@@ -175,7 +177,9 @@ const ProjectRoles = () => {
                         <>
                             <h1>Edit Project Role</h1>
                             <TextField label='Name' disabled={loading} defaultValue={selectedItem.name}/>
-                            <TextField label='Name' disabled={loading} defaultValue={selectedItem.level.value}/>
+                            <Tooltip title='Higher levels mean more authority, this is only for the purpose of controlling PDF exports'>
+                                <TextField type='number' label='Level' disabled={loading} defaultValue={selectedItem.level.value}/>
+                            </Tooltip>
                             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                             <div className='Buttons'>
                                 <Button variant="contained" type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>save</>)}</Button>

@@ -247,13 +247,13 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [siteState, setSiteState] = useState(projectInfo.siteStateId)
     const [budgetList, setBudgetList] = useState([])
     const [staffListSelect, setStaffListSelect] = useState([])
-    const [staffEditModal, setStaffEditModal] = useState(false)
+    const [involvementEditModal, setInvolvementEditModal] = useState(false)
     const [budgetEditModal, setBudgetEditModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState('')
 
-    useEffect(() => { updateLists() }, [])
+    useEffect(() => { getLists() }, [])
 
-    function updateLists(){
+    const getLists = () => {
         let tempBudgets = []
         let tempStaff = []
         projectInfo.budgets.map((item) => {
@@ -272,6 +272,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                 name: `${item.personNames} ${item.personLastNames}`,
                 role: getItem(item.roleId, rolesList).name,
                 id: item.personId,
+                roleId: item.roleId,
             }
             tempStaff = [...tempStaff, data]
             setStaffList(tempStaff)
@@ -493,7 +494,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                                 <td>{item.role}</td>
                                 <td style={{textAlign: 'center', width: '20%'}}>
                                     <Tooltip title='Edit'>
-                                        <IconButton> <ModeEditIcon/> </IconButton>
+                                        <IconButton onClick={() => {setInvolvementEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Delete'>
                                         <IconButton onClick={() => deleteStaff(item.id)}> <DeleteIcon/> </IconButton>
@@ -544,7 +545,8 @@ export const ModalEdit = ({close, projectInfo}) => {
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>
                         <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
                     </div>
-                    { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id}/> }
+                    { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id} /> }
+                    { involvementEditModal && <EditInvolvementModal close={() => setInvolvementEditModal(false)} info={selectedItem} projectId={projectInfo.id} /> }
                 </form>
             ) }
         </>
@@ -951,7 +953,7 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const { rolesList } = useContext(AppContext)
-    const [staffSelected, setStaffSelected] = (0)
+    const [roleSelected, setRoleSelected] = useState(info.roleId)
 
     function handleUpdate(){
         const qttyInput = document.getElementById('qttyInput')
@@ -959,11 +961,11 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
         setError(false)
         const data = {
             roleId: {
-                value: Number(qttyInput.value)
+                value: Number(roleSelected)
             }
         }
         console.log(data)
-        axios.put(`${apiAddress}/projects/budget/${projectId}/${info.productId}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/projects/involvements/${projectId}/${info.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((res) => {
             setSuccess(true)
         }).catch((err) => {
@@ -986,9 +988,9 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
                 </>
             ):(
                 <>
-                    <h1>Edit budget</h1>
-                    <Select label='Staff' className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)} disabled={loading}>
-                        {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
+                    <h1>Edit involvement</h1>
+                    <Select value={roleSelected} label='Role' className="select" id='RoleSelector' onChange={(e) => setRoleSelected(e.target.value)} disabled={loading}>
+                        {rolesList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
                     </Select>
                     { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
                     <div className='Buttons'>
