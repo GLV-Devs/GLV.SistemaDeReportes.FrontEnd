@@ -189,6 +189,14 @@ body{
             }
         }
 
+        .Profile{
+            @include pages();
+
+            h3{
+                margin: 0px
+            }
+        }
+
         .ReportLinesCategories{
             @include pages();
 

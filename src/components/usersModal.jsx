@@ -283,7 +283,7 @@ export const DeleteUser = ({close, info, reload}) => {
     )
 }
 
-export const ChangePassword = ({close, info, reload}) => {
+export const ChangePassword = ({close, reload}) => {
 
     const navigate = useNavigate()
 

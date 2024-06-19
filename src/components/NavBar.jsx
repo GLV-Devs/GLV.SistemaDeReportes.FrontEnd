@@ -37,12 +37,12 @@ const NavBar = () => {
 
     return(
         <div className="NavBar">
-            <>
+            <div style={{display: 'flex'}}>
                 <h4>Control System - {userInfo.names} {userInfo.lastName}</h4>
                 <Tooltip title='My profile'>
                     <IconButton onClick={() => navigate('/main/profile')}> <UsersIcon/> </IconButton>
                 </Tooltip>
-            </>
+            </div>
 
             <div className="Buttons">
                 <Tooltip title='Menu'>
