@@ -279,6 +279,44 @@ export const ModalEdit = ({close, projectInfo}) => {
         })
     }
 
+    const updateInvolvements = () => {
+        let temp = []
+        axios.get(`${apiAddress}/api/projects/involvements/${projectInfo.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            res.data.data.map((item) => {
+                const data = {
+                    name: `${item.personNames} ${item.personLastNames}`,
+                    role: getItem(item.roleId, rolesList).name,
+                    id: item.personId,
+                    roleId: item.roleId,
+                }
+                temp = [...temp, data]
+                setStaffList(temp)
+            })
+        }).catch((err) => {
+            console.log(err.response)
+        })
+    }
+
+    const updateBudgets = () => {
+        let temp = []
+        axios.get(`${apiAddress}/api/projects/budget/${projectInfo.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            res.data.data.map((item) => {
+                const data ={ 
+                    name: getItem(item.productId, productList).name,
+                    qtty: item.quantity,
+                    unit: getItem(item.productId, productList).unit,
+                    productId: item.productId,
+                }
+                temp = [...temp, data]
+                setBudgetList(temp)
+            })
+        }).catch((err) => {
+            console.log(err.response)
+        })
+    }
+
     const handleStatus = (e) => {
         setStatus(e.target.value)
     }
@@ -531,7 +569,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                                 <td>{item.qtty} {item.unit}</td>
                                 <td style={{textAlign: 'center', width: '20%'}}>
                                     <Tooltip title='Edit'>
-                                        <IconButton onClick={() => {setSelectedItem(item); setBudgetEditModal(true); console.log(item)}}> <ModeEditIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelectedItem(item); setBudgetEditModal(true)}}> <ModeEditIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Delete'>
                                         <IconButton onClick={() => deleteBudget(item.productId)}> <DeleteIcon/> </IconButton>
@@ -545,8 +583,8 @@ export const ModalEdit = ({close, projectInfo}) => {
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>
                         <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
                     </div>
-                    { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id} /> }
-                    { involvementEditModal && <EditInvolvementModal close={() => setInvolvementEditModal(false)} info={selectedItem} projectId={projectInfo.id} /> }
+                    { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id} update={() => updateBudgets()}/> }
+                    { involvementEditModal && <EditInvolvementModal close={() => setInvolvementEditModal(false)} info={selectedItem} projectId={projectInfo.id} update={() => updateInvolvements()}/> }
                 </form>
             ) }
         </>
@@ -895,11 +933,13 @@ export const ExportModal = ({projectId, close}) => {
 
 const EditBudgetModal = ({close, info, update, projectId}) => {
 
+    const navigate = useNavigate()
     const [success, setSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+    const qttyInput = document.getElementById('qttyInput')
 
-    function handleUpdate(){
+    function handleUpdate(){    
         const qttyInput = document.getElementById('qttyInput')
         setLoading(true)
         setError(false)
@@ -908,7 +948,6 @@ const EditBudgetModal = ({close, info, update, projectId}) => {
                 value: Number(qttyInput.value)
             }
         }
-        console.log(data)
         axios.put(`${apiAddress}/api/projects/budget/${projectId}/${info.productId}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((res) => {
             setSuccess(true)
@@ -947,8 +986,6 @@ const EditBudgetModal = ({close, info, update, projectId}) => {
 
 const EditInvolvementModal = ({close, info, update, projectId}) => {
 
-    console.log(info)
-
     const [success, setSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
@@ -964,7 +1001,6 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
                 value: Number(roleSelected)
             }
         }
-        console.log(data)
         axios.put(`${apiAddress}/api/projects/involvements/${projectId}/${info.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((res) => {
             setSuccess(true)
