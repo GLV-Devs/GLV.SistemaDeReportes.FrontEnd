@@ -4,6 +4,7 @@ import { accessToken, apiAddress } from "../globalResources"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from 'react'
 import { hash } from "../encrypt"
+import { message } from "antd";
 
 export const AddUser = ({close, info, reload}) => {
 
@@ -16,6 +17,7 @@ export const AddUser = ({close, info, reload}) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -50,6 +52,9 @@ export const AddUser = ({close, info, reload}) => {
             console.log(err.response)
             setError(true)
             setLoading(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -58,6 +63,7 @@ export const AddUser = ({close, info, reload}) => {
 
     return(
         <form className="Modal" onSubmit={handleSubmit}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>The user has been created</h1>
@@ -90,7 +96,7 @@ export const AddUser = ({close, info, reload}) => {
 export const EditUser = ({close, info, reload}) => {
 
     console.log(info)
-
+    const [messageApi, contextHolder] = message.useMessage();
     const navigate = useNavigate()
     // useEffect(() => {
     //     function getAccountInfo(){
@@ -155,6 +161,9 @@ export const EditUser = ({close, info, reload}) => {
             }).catch((err) => {
                 setError(true)
                 console.log(err.response)
+                if(err.response.data.dataType == 'ErrorList'){
+                    messageApi.error(err.response.data.data[0].defaultMessageES);
+                }
                 if(err.response.status == 401){
                     navigate('/Login')
                 }
@@ -162,6 +171,9 @@ export const EditUser = ({close, info, reload}) => {
         }).catch((err) => {
             setError(true)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -170,6 +182,7 @@ export const EditUser = ({close, info, reload}) => {
 
     return(
         <form className="Modal" onSubmit={handleSubmit}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>The user has been edited</h1>
@@ -210,6 +223,7 @@ export const DeleteUser = ({close, info, reload}) => {
     const [ready, setReady] = useState(false)
     const [count, setCount] = useState(20)
     const [deleteKey, setDeleteKey] = useState('')
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         console.log(info)
@@ -233,6 +247,9 @@ export const DeleteUser = ({close, info, reload}) => {
             setDeleteKey(response.data.data[0])
             console.log(response)            
         }catch(err){
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             console.log(err)
         }
 
@@ -253,6 +270,9 @@ export const DeleteUser = ({close, info, reload}) => {
         }).catch((err) => {
             setError(true)
             setDeleting(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -262,6 +282,7 @@ export const DeleteUser = ({close, info, reload}) => {
 
     return(
         <form className="Modal" onSubmit={handleDelete}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>The user has been deleted</h1>
@@ -292,6 +313,7 @@ export const ChangePassword = ({close, reload}) => {
     const [success, setSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -310,6 +332,9 @@ export const ChangePassword = ({close, reload}) => {
             console.log(err.response)
             setError(true)
             setLoading(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -318,6 +343,7 @@ export const ChangePassword = ({close, reload}) => {
 
     return(
         <form className='Modal' onSubmit={handleSubmit}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>The password has been changed</h1>

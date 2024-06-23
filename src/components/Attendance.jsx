@@ -5,10 +5,12 @@ import { apiAddress, accessToken } from '../globalResources'
 import { CircularProgress, Button, TextField } from "@mui/material"
 import { useNavigate } from 'react-router-dom'
 import { getReportInfo } from '../functions'
+import { message } from "antd";
 
 export const Attendance = ({personKey, close, personName}) => {
 
     const navigate = useNavigate()
+    const [messageApi, contextHolder] = message.useMessage();
 
     function getInfo(){
         setError(false)
@@ -22,6 +24,10 @@ export const Attendance = ({personKey, close, personName}) => {
             setError(true)
             setLoading(false)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
+            
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -37,6 +43,7 @@ export const Attendance = ({personKey, close, personName}) => {
 
     return(
         <div className="Modal ">
+            {contextHolder}
             <h1>{personName}'s Attendance</h1>
             { loading ? (
                 <CircularProgress/>
@@ -75,6 +82,7 @@ export const EditAttendance = ({close, note, reportKey, personKey, reload}) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     function edit(e){
         e.preventDefault()
@@ -89,6 +97,9 @@ export const EditAttendance = ({close, note, reportKey, personKey, reload}) => {
             setLoading(false)
             console.log(response)
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }            
             console.log(err.response)
             setError(true)
             setLoading(false)
@@ -97,6 +108,7 @@ export const EditAttendance = ({close, note, reportKey, personKey, reload}) => {
 
     return(
         <form className='Modal' onSubmit={edit}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>Attendance edited</h1>

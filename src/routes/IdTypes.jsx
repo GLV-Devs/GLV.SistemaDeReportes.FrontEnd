@@ -6,6 +6,7 @@ import { useState, useEffect, useContext } from "react";
 import { apiAddress, accessToken } from "../globalResources";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import { message } from "antd";
 
 const IdTypes = () => {
 
@@ -20,6 +21,7 @@ const IdTypes = () => {
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -42,6 +44,9 @@ const IdTypes = () => {
             setLoading(false)
             setError(true)
             console.log(err.response.data)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -60,6 +65,9 @@ const IdTypes = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -97,6 +105,9 @@ const IdTypes = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -122,6 +133,9 @@ const IdTypes = () => {
             setListError(true)
             setListLoadin(false)
             console.log(err)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -130,6 +144,7 @@ const IdTypes = () => {
 
     return(
         <div className='IdTypes'>
+            {contextHolder}
             <h1>ID Types Manager</h1>
             <Button variant='contained' onClick={() => setAddModal(true)}>new id Type</Button>
             { listLoading && <CircularProgress/> }

@@ -9,6 +9,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import { message } from "antd";
 
 const Users = () => {
     
@@ -25,6 +26,7 @@ const Users = () => {
     const [listError, setListError] = useState(false)
     const [list, setList] = useState([])
     const [selectedItem, setSelectedItem] = useState('')
+    const [messageApi, contextHolder] = message.useMessage();
 
     function getList(){
         setListLoading(true)
@@ -37,6 +39,9 @@ const Users = () => {
         }).catch((err) => {
             setListError(true)
             setListLoading(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -45,6 +50,7 @@ const Users = () => {
     
     return(
         <div className='Users'>
+            {contextHolder}
             <h1>Users</h1>
             { listLoading && <CircularProgress/> }
             { listError && <>

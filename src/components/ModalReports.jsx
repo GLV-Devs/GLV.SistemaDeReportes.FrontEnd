@@ -16,10 +16,12 @@ import {EditAttendance} from './Attendance'
 import ImageIcon from '@mui/icons-material/Image';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { ImagesModal, FilesModal } from './AtachmentsModal'
+import { message } from "antd";
 
 export const ViewReport = ({reportKey, close}) => {
 
     const navigate = useNavigate()
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         getInfo()
@@ -47,6 +49,9 @@ export const ViewReport = ({reportKey, close}) => {
             getLines()
         }catch(err){
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -61,6 +66,9 @@ export const ViewReport = ({reportKey, close}) => {
             setAttendanceList(response.data.data)
         }catch(err){
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('Login')
             }
@@ -88,6 +96,9 @@ export const ViewReport = ({reportKey, close}) => {
             })
         }catch(err){
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -108,6 +119,9 @@ export const ViewReport = ({reportKey, close}) => {
             setLoading(false)
             inputLine.value = ''
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             console.log(err.response)
             setLoading(false)
         })
@@ -127,6 +141,9 @@ export const ViewReport = ({reportKey, close}) => {
             setLoading(false)
             getAttendance()
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             console.log(err.response)
         })
     }
@@ -143,6 +160,9 @@ export const ViewReport = ({reportKey, close}) => {
         }).catch((err) => {
             setDeleting(false)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -159,6 +179,9 @@ export const ViewReport = ({reportKey, close}) => {
             setModalDeleteReport(false);
             ()=>{close}
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             console.log(err.response)
         })
     }
@@ -190,12 +213,16 @@ export const ViewReport = ({reportKey, close}) => {
         .then((response) => {
             getAttendance()
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             console.log(err.response)
         })
     }
 
     return(
         <div className='Modal full'>
+            {contextHolder}
             <h1>Report info</h1>
             { loading ? (
                 <>
@@ -332,6 +359,7 @@ export const AddAtachments = ({close, lineId}) => {
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     function upload(){
         setLoading(true)
@@ -343,6 +371,9 @@ export const AddAtachments = ({close, lineId}) => {
             setLoading(false)
             setSuccess(true)
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             console.log(err.response)
             setError(true)
         })
@@ -350,6 +381,7 @@ export const AddAtachments = ({close, lineId}) => {
 
     return(
         <div className="Modal">
+            {contextHolder}
             <h1>select the files you want to upload</h1>
             <input type='file' multiple disabled={loading}/>
             { success && <h3 style={{color: 'green'}}>The files have been uploaded, if you want to upload more you can do so</h3> }
@@ -371,9 +403,11 @@ export const EditReportLine = ({close, reportLineInfo}) => {
     const {reportLineCategoryList} = useContext(AppContext)
     const [success, setSuccess] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState(reportLineInfo.categoryId)
+    const [messageApi, contextHolder] = message.useMessage();
 
     return(
         <div className="Modal">
+            {contextHolder}
             <h1>Edit this report?</h1>
             { success ? (
                 <>
@@ -404,6 +438,8 @@ export const EditReportLine = ({close, reportLineInfo}) => {
 
 export const EditReportInfo = ({reportInfo, close}) => {
 
+    console.log(reportInfo)
+
     useEffect(() => {
         getStaffList()
     },[])
@@ -414,6 +450,7 @@ export const EditReportInfo = ({reportInfo, close}) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     function getStaffList(){
         axios.get(`${apiAddress}/api/person`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -428,6 +465,9 @@ export const EditReportInfo = ({reportInfo, close}) => {
                 setStaffList(c => [...c, data])
             })
         }).catch((err => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -439,24 +479,32 @@ export const EditReportInfo = ({reportInfo, close}) => {
         setLoading(true)
         setError(false)
         const data = {
-            dateReported: e.target[2].value,
+            dateReported: {
+                value: e.target[2].value,
+            }   
         }
         console.log(data)
-        axios.put(`${apiAddress}/api/reports/${reportKey}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        axios.put(`${apiAddress}/api/reports/${reportInfo.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         .then((response) => {
             console.log(response)
             setSuccess(true)
         }).catch((err) => {
             setError(true)
-            setLoading(false)
+            console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
+        }).finally(() => {
+            setLoading(false)
         })
     }
 
     return(
         <form className="Modal" onSubmit={handleSubmit}>
+            {contextHolder}
             <h1>Edit this report</h1>
             {success ? (
                 <>
@@ -468,17 +516,19 @@ export const EditReportInfo = ({reportInfo, close}) => {
                     value={staffSelected}
                     onChange={(e)=>{setStaffSelected(e.target.value)}}
                     className='fields'
+                    disabled={loading}
                 >
                 {staffList.map((item) => (
                     <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
                 ))}
                 </Select>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker label='Date reported' disableFuture className='fields'/>
+                    <DatePicker label='Date reported' disableFuture className='fields' disabled={loading}/>
                 </LocalizationProvider>
+                { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
                 <div className='Buttons'>
-                    <Button variant='contained' type='submit'>Save</Button>
-                    <Button variant='contained' color='error' onClick={close}>Cancel</Button>
+                    <Button variant='contained' type='submit' disabled={loading}>{ loading ? (<CircularProgress size={24}/>):(<>save</>) }</Button>
+                    <Button variant='contained' color='error' onClick={close} disabled={loading}>Cancel</Button>
                 </div>
             </>)}
         </form>

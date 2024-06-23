@@ -7,6 +7,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import axios from "axios";
 import { apiAddress, accessToken } from "../globalResources";
 import { useNavigate } from "react-router-dom";
+import { message } from "antd";
 
 const Projects = () => {
 
@@ -25,6 +26,7 @@ const Projects = () => {
     const [listLoading, setListLoading] = useState(false)
     const [selectedItem, setSelectedItem] = useState('')
     const [exportReport, setExportReport] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function getList(){
         setListError(false)
@@ -46,6 +48,9 @@ const Projects = () => {
             setListError(true)
             setListLoading(false)
             console.log(err)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -54,6 +59,7 @@ const Projects = () => {
 
     return(
         <div className="Projects">
+            {contextHolder}
             <h1>Project List</h1>
             <Button variant="contained" onClick={() => {setAdd(true)}}>Add Project</Button>
             { listLoading && <CircularProgress/> }

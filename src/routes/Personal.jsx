@@ -14,6 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { getItem } from '../functions'
 import dayjs from "dayjs";
 import {Attendance} from '../components/Attendance'
+import { message } from "antd";
 
 const Personal = () => {
 
@@ -41,6 +42,7 @@ const Personal = () => {
     const [count, setCount] = useState(20)
     const [deleteKey, setDeleteKey] = useState('')
     const [deleteReady, setDeleteReady] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         const decrease = setInterval(() => {
@@ -97,6 +99,9 @@ const Personal = () => {
             setLoading(false)
             setError(true)
             console.log(err.response.data)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -115,6 +120,9 @@ const Personal = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -188,6 +196,9 @@ const Personal = () => {
             console.log(err.response)
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -213,6 +224,9 @@ const Personal = () => {
             setListError(true)
             setListLoadin(false)
             console.log(err)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -221,6 +235,7 @@ const Personal = () => {
 
     return(
         <div className='Personal'>
+            {contextHolder}
             <h1>Person Manager</h1>
             <Button variant='contained' onClick={() => setAddModal(true)}>new Person</Button>
             { listLoading && <CircularProgress/> }

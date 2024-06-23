@@ -5,6 +5,7 @@ import { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { apiAddress, ChangeApiAddress, setAccessToken } from '../globalResources'
 import { hash } from '../encrypt'
+import { message } from "antd";
 
 const Login = () => {
 
@@ -15,6 +16,7 @@ const Login = () => {
     const [showAddress, setShowAddress] = useState(apiAddress)
     const [errorList, setErrorList] = useState(false)
     const [errorName, setErrorName] = useState('Credentials are invalid')
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function handleSubmit(e){
         e.preventDefault();
@@ -44,9 +46,9 @@ const Login = () => {
             })
         }).catch((err) => {
             if(err){
-                // if(err.response.data.dataType == 'ErrorList'){
-                //     setErrorList(true)
-                // }
+                if(err.response.data.dataType == 'ErrorList'){
+                    messageApi.error(err.response.data.data[0].defaultMessageES);
+                }
                 console.log(err)
                 console.log(err.response)
                 setLoading(false)
@@ -62,6 +64,7 @@ const Login = () => {
     }
     return(
         <div className="Login">
+            {contextHolder}
             <form onSubmit={handleSubmit}>
                 <h1>Login</h1>
                 <TextField disabled={loading} type="text" label='Username'/>

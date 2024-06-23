@@ -6,6 +6,7 @@ import { useState, useEffect, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { apiAddress, accessToken } from "../globalResources";
 import { useNavigate } from "react-router-dom";
+import { message } from "antd";
 
 const ReportLinesCategory = () => {
 
@@ -20,6 +21,7 @@ const ReportLinesCategory = () => {
     const [listError, setListError] = useState(false)
     const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -37,6 +39,9 @@ const ReportLinesCategory = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -55,6 +60,9 @@ const ReportLinesCategory = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -82,6 +90,9 @@ const ReportLinesCategory = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -107,6 +118,9 @@ const ReportLinesCategory = () => {
             setListError(true)
             setListLoadin(false)
             console.log(err)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -115,6 +129,7 @@ const ReportLinesCategory = () => {
 
     return(
         <div className='ReportLinesCategories'>
+            {contextHolder}
             <h1>Report Lines categories Manager</h1>
             <Button variant='contained' onClick={() => setAddModal(true)}>new report line category</Button>
             { listLoading && <CircularProgress/> }

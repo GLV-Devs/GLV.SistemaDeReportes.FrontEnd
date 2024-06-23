@@ -7,6 +7,7 @@ import { apiAddress, accessToken } from "../globalResources";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { capitalize } from "../functions";
+import { message } from "antd";
 
 const Products = () => {
 
@@ -22,6 +23,7 @@ const Products = () => {
     const [listLoading, setListLoadin] = useState(false)
     const [selectedItem, setSelectedItem] = useState(0)
     const [showList, setShowList] = useState(productList)
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function handleSubmit(e){
         e.preventDefault()
@@ -41,6 +43,9 @@ const Products = () => {
             setLoading(false)
             setError(true)
             console.log(err.response.data)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -59,6 +64,9 @@ const Products = () => {
         .catch((err) => {
             setLoading(false)
             setError(true)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -92,6 +100,9 @@ const Products = () => {
             setLoading(false)
             setError(true)
             console.log(err.response.data)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -119,6 +130,9 @@ const Products = () => {
             setListError(true)
             setListLoadin(false)
             console.log(err)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -150,6 +164,7 @@ const Products = () => {
 
     return(
         <div className='Products'>
+            {contextHolder}
             <h1>Products</h1>
             <Button variant='contained' onClick={() => setAddModal(true)}>new product</Button>
             { listLoading && <CircularProgress/> }

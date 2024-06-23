@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { convertToISO, getRoleName, getItem } from "../functions";
 import { ViewReport, EditReportInfo } from "./ModalReports";
 import dayjs from "dayjs";
+import { message } from "antd";
 
 export const ModalView = ({projectId, close, updateList}) => {
 
@@ -47,6 +48,7 @@ export const ModalView = ({projectId, close, updateList}) => {
     const [addingReport, setAddingReport] = useState(false)
     const [deleteConfirmation, setDeleteConfirmation] = useState(false)
     const [allReady, setAllReady] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         function update(){
@@ -101,6 +103,9 @@ export const ModalView = ({projectId, close, updateList}) => {
         }).catch((err) => {
             console.log(err)
             setAddingReport(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -155,6 +160,7 @@ export const ModalView = ({projectId, close, updateList}) => {
 
     return(
         <div className='ModalDual'>
+            {contextHolder}
             <div className='content'>
                 <div className='left'>
                     <h1>Info</h1>
@@ -250,6 +256,7 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [involvementEditModal, setInvolvementEditModal] = useState(false)
     const [budgetEditModal, setBudgetEditModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState('')
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => { getLists() }, [])
 
@@ -295,6 +302,9 @@ export const ModalEdit = ({close, projectInfo}) => {
             })
         }).catch((err) => {
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
         })
     }
 
@@ -314,6 +324,9 @@ export const ModalEdit = ({close, projectInfo}) => {
             })
         }).catch((err) => {
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
         })
     }
 
@@ -347,6 +360,9 @@ export const ModalEdit = ({close, projectInfo}) => {
             setError(true)
             setLoading(false)
             console.log(err.response.data)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -376,6 +392,9 @@ export const ModalEdit = ({close, projectInfo}) => {
             setError(true)
             setLoading(false)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -420,6 +439,9 @@ export const ModalEdit = ({close, projectInfo}) => {
             console.log(err.response)
             setError(true)
             setLoading(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/login')
             }
@@ -438,6 +460,9 @@ export const ModalEdit = ({close, projectInfo}) => {
                 setStaffListSelect(response.data.data)
             }
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -451,6 +476,9 @@ export const ModalEdit = ({close, projectInfo}) => {
         }).catch((err) => {
             setError(true)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
         })
     }
 
@@ -461,11 +489,15 @@ export const ModalEdit = ({close, projectInfo}) => {
         }).catch((err) => {
             setError(true)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
         })
     }
 
     return(
         <>
+            {contextHolder}
             { success ? (
                 <div className="Modal">
                     <h1>Project edited</h1>
@@ -578,6 +610,38 @@ export const ModalEdit = ({close, projectInfo}) => {
                             </tr>
                         ))}
                     </table>
+
+                    <div className='userSelectField fields' >
+                        <Select label='Staff' className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)} disabled={loading}>
+                            {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
+                        </Select>
+                        <Select className="select" id='RoleSelector' onChange={(e) => setRoleSelected(e.target.value)} disabled={loading}>
+                            {rolesList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
+                        </Select>
+                        <Tooltip title='Add staff'>
+                            <Fab color='info' onClick={addStaff} disabled={loading}><AddIcon/></Fab>
+                        </Tooltip>
+                    </div>
+                    <table>
+                        <tr>
+                            <th>User</th>
+                            <th>Options</th>
+                        </tr>
+                            {budgetList.map((item) => (
+                            <tr>
+                                <td>{item.name}</td>
+                                <td style={{textAlign: 'center', width: '20%'}}>
+                                    <Tooltip title='Edit'>
+                                        <IconButton onClick={() => {setSelectedItem(item); setBudgetEditModal(true)}}> <ModeEditIcon/> </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title='Delete'>
+                                        <IconButton onClick={() => deleteBudget(item.productId)}> <DeleteIcon/> </IconButton>
+                                    </Tooltip>
+                                </td>
+                            </tr>
+                        ))}
+                    </table>
+
                         {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                     <div className='Buttons'>
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>
@@ -612,6 +676,7 @@ export const ModalAdd = ({close}) => {
     const [rolesList, setRolesList] = useState([])
     const [siteStateList, setSiteStateList] = useState([])
     const [siteState, setSiteState] = useState('')
+    const [messageApi, contextHolder] = message.useMessage();
 
     const handleStatus = (e) => {
         setStatus(e.target.value)
@@ -649,6 +714,9 @@ export const ModalAdd = ({close}) => {
             console.log(err.response)
             setError(true)
             setLoading(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/login')
             }
@@ -667,6 +735,9 @@ export const ModalAdd = ({close}) => {
                 setStaffList(response.data.data)
             }
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -686,6 +757,9 @@ export const ModalAdd = ({close}) => {
                 }
             }
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -704,6 +778,9 @@ export const ModalAdd = ({close}) => {
                 }
             }
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -722,6 +799,9 @@ export const ModalAdd = ({close}) => {
                 }
             }
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -740,6 +820,9 @@ export const ModalAdd = ({close}) => {
                 }
             }
         }).catch((err) => {
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -748,6 +831,7 @@ export const ModalAdd = ({close}) => {
 
     return(
         <>
+            {contextHolder}
             { success ? (
                 <div className="Modal">
                     <h1>Project added</h1>
@@ -810,6 +894,7 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
     const [ready, setReady] = useState(false)
     const [count, setCount] = useState(20)
     const [deleteKey, setDeleteKey] = useState('')
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         getDeleteKey()
@@ -845,6 +930,9 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
         }).catch((err) => {
             setError(true)
             setDeleting(false)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -854,6 +942,7 @@ export const DeleteModal = ({closeAll, projectKey, close, updateList}) => {
 
     return(
         <div className='Modal'>
+            {contextHolder}
             { success ? (
                 <>
                     <h3>The project has been deleted</h3>
@@ -880,6 +969,7 @@ export const ExportModal = ({projectId, close}) => {
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [messageApi, contextHolder] = message.useMessage();
 
     async function getGeneralReport(e){
         e.preventDefault()
@@ -903,6 +993,9 @@ export const ExportModal = ({projectId, close}) => {
             link.click()
             setSuccess(true)
         })).catch(error=>{
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             setError(true)
             console.log(error)
         })
@@ -912,6 +1005,7 @@ export const ExportModal = ({projectId, close}) => {
 
     return(
         <form className="Modal" onSubmit={getGeneralReport}>
+            {contextHolder}
             <h1>Export general report</h1>
             <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -938,6 +1032,7 @@ const EditBudgetModal = ({close, info, update, projectId}) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const qttyInput = document.getElementById('qttyInput')
+    const [messageApi, contextHolder] = message.useMessage();
 
     function handleUpdate(){    
         const qttyInput = document.getElementById('qttyInput')
@@ -954,6 +1049,9 @@ const EditBudgetModal = ({close, info, update, projectId}) => {
         }).catch((err) => {
             setError(true)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -964,6 +1062,7 @@ const EditBudgetModal = ({close, info, update, projectId}) => {
 
     return(
         <div className='Modal' onSubmit={handleUpdate}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>Edit Successfull</h1>
@@ -991,6 +1090,7 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
     const [error, setError] = useState(false)
     const { rolesList } = useContext(AppContext)
     const [roleSelected, setRoleSelected] = useState(info.roleId)
+    const [messageApi, contextHolder] = message.useMessage();
 
     function handleUpdate(){
         const qttyInput = document.getElementById('qttyInput')
@@ -1007,6 +1107,9 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
         }).catch((err) => {
             setError(true)
             console.log(err.response)
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
             if(err.response.status == 401){
                 navigate('/Login')
             }
@@ -1017,6 +1120,7 @@ const EditInvolvementModal = ({close, info, update, projectId}) => {
 
     return(
         <div className='Modal' onSubmit={handleUpdate}>
+            {contextHolder}
             { success ? (
                 <>
                     <h1>Edit Successfull</h1>

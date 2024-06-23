@@ -7,6 +7,8 @@ import { EditUser, ChangePassword } from "../components/usersModal"
 import UsersIcon from '@mui/icons-material/AccountCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import { getItem } from '../functions';
+import { message } from "antd";
+
 
 const Profile = () => {
 
@@ -19,6 +21,7 @@ const Profile = () => {
 	const [userEmail, setUserEmail] = useState('none')
 	const [personalPhoneNumber, setPersonalPhoneNumber] = useState('none')
 	const [userPhoneNumber, setUserPhoneNumber] = useState('none')
+	const [messageApi, contextHolder] = message.useMessage();
 
 	useEffect(() => {
 		if(userInfo.identificationTypeId != null){
