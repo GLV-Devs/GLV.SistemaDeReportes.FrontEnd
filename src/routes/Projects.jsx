@@ -1,5 +1,5 @@
 import { ModalAdd, ModalEdit, ModalView, ExportModal } from "../components/ModalProjects";
-import { Button, Tooltip, CircularProgress } from "@mui/material";
+import { Button, Tooltip, CircularProgress, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -27,6 +27,7 @@ const Projects = () => {
     const [selectedItem, setSelectedItem] = useState('')
     const [exportReport, setExportReport] = useState(false)
     const [messageApi, contextHolder] = message.useMessage();
+    const [showList, setShowList] = useState([])
 
     async function getList(){
         setListError(false)
@@ -39,8 +40,10 @@ const Projects = () => {
                 setListError(false)
                 if(response.data.data == null){
                     setList([{name: '', id: ""}])
+                    setShowList([{name: '', id: ""}])
                 }else{
                     setList(response.data.data)
+                    setShowList(response.data.data)
                 }
             }
         })
@@ -57,6 +60,20 @@ const Projects = () => {
         })
     }
 
+    const handleSearch = (e) => {
+        const results = []
+        if (e.target.value == ''){
+            setShowList(list)
+        }else{
+            list.forEach(item => {
+                if(item.name.toLowerCase().includes(e.target.value.toLowerCase())){
+                    results.push(item)
+                }
+            })
+            setShowList(results)
+        }
+    }
+
     return(
         <div className="Projects">
             {contextHolder}
@@ -67,9 +84,12 @@ const Projects = () => {
                 <h3 style={{margin: '0px', color: 'red'}}>An error has ocurred</h3>
                 <Button variant='text' onClick={() => getList()}>Retry</Button>
             </> }
+            {/* <div className="SearchBar"> */}
+            <TextField label='Search' onChange={handleSearch}/>
+                {/* </div> */}
             { !listLoading && !listError && 
             <div>
-                { list.map((item) => (
+                { showList.map((item) => (
                     <div key={item.id} className='LI'>
                         <div className='info'>
                             <h3>{item.name}</h3>

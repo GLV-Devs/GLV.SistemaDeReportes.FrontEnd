@@ -145,15 +145,6 @@ const Products = () => {
             setShowList(productList)
         }else{
             productList.forEach(item => {
-                // if(item.name.includes(e.target.value)){
-                //     results.push(item)
-                // }else if(item.name.includes(capitalize(e.target.value))){
-                //     results.push(item)
-                // }else if(item.name.includes(e.target.value.toUpperCase())){
-                //     results.push(item)
-                // }else if(item.name.toLowerCase().includes(e.target.value.toLowerCase())){
-                //     results.push(item)
-                // }
                 if(item.name.toLowerCase().includes(e.target.value.toLowerCase())){
                     results.push(item)
                 }
