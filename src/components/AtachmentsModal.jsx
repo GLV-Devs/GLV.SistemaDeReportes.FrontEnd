@@ -20,8 +20,7 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 		const files = Array.from(imageInput.files)
 
 		const uploadPromises = files.map((item) => {
-			return axios.post(`${apiAddress}/data/images/report/${reportLineInfo.id}`, item, {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'image/png'}})
-
+			return axios.post(`${apiAddress}/data/images/report/${reportLineInfo.id}`, item, {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'image'}})
 		})
 		Promise.all(uploadPromises)
 		.then((response) => {
@@ -56,7 +55,7 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 			<form onSubmit={uploadImage}>
 				<input type='file' id='imageInput' disabled={uploading} multiple/>
 				<Tooltip title='Upload'>
-					<IconButton variant='contained' size='large' type='submit' disabled={uploading}> {uploading ? (<CircularProgress/>):(<UploadIcon/>)} </IconButton>
+					<IconButton variant='contained' size='large' type='submit' disabled={uploading}> {uploading ? (<CircularProgress size={24}/>):(<UploadIcon/>)} </IconButton>
 				</Tooltip>
 			</form>
 			{ imagesList.map((item) => (
@@ -65,43 +64,46 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 					<IconButton onClick={() => deleteImage(item.key)} size='large'> <DeleteIcon/> </IconButton>
 				</div>
 			)) }
-			<Button variant='contained' color='error' onClick={close}>close</Button>
+			<Button variant='contained' color='error' onClick={close} disabled={uploading}>close</Button>
 		</div>
 	)
 }
 
-export const FilesModal = ({close}) => {
+export const FilesModal = ({close, reportLineInfo, update}) => {
 
-	useEffect(() => { getImages() })
+	const navigate = useNavigate()
 
-	function getFiles(){
-		axios.get(`${apiAddress}/data/files/report/${reportLineKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
-		.then((response) => {
-			console.log(response)
-		})
-	}
+	const [uploading, setUploading] = useState(false)
 
-	function uploadFiles(e){
+	const handleUpload = (e) => {
 		e.preventDefault()
-		const imageInput = document.getElementById('fileInput')
-		axios.post(`${apiAddress}/data/files/report/${reportLineKey}`, imageInput.files[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'image/png'}})
-		.then((response) => {
-			console.log(response)
+		setUploading(true)
+		const fileName = document.getElementById('inputName')
+		const file = document.getElementById('fileInput')
+		axios.post(`${apiAddress}/data/files/report/${reportLineInfo.id}/${fileName.value}`, file[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'application/file'}})
+		.then((res) => {
+			console.log(res)
 		}).catch((err) => {
 			console.log(err.response)
+			if(err.response.status == 401){
+				navigate('/Login')
+			}
+		}).finally(() => {
+			setUploading(false)
 		})
 	}
 
 	return(
 		<div className='Modal'>
 			<h1>Report line files</h1>
-			<form onSubmit={uploadFiles}>
-				<input type='file' id='fileInput'/>
+			<form onSubmit={handleUpload} className='uploadFile'>
+				<TextField label="File's name" disabled={uploading} id='inputName'/>
+				<input type='file' id='fileInput' disabled={uploading}/>
 				<Tooltip title='Upload'>
-					<IconButton variant='contained' size='large' type='submit'> <UploadIcon/> </IconButton>
+					<IconButton variant='contained' size='large' type='submit' disabled={uploading}>{uploading ? (<CircularProgress size={24}/>):(<UploadIcon/>)} </IconButton>
 				</Tooltip>
 			</form>
-			<Button variant='contained' color='error' onClick={close}>close</Button>
+			<Button variant='contained' color='error' onClick={close} disabled={uploading}>close</Button>
 		</div>
 	)
 }

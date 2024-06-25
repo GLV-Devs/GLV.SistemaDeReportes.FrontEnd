@@ -22,8 +22,6 @@ export const ModalView = ({projectId, close, updateList}) => {
 
     useEffect(() => { getReportList(); getBudgets(); getInvolvedPeople() },[])
 
-    console.log(projectId)
-
     const {userInfo, productList, projectStateList, siteStateList, rolesList } = useContext(AppContext)
     const navigate = useNavigate()
     let statusVar = getItem(projectId.stateId, projectStateList) ? (getItem(projectId.stateId, projectStateList).name):('Loading...')
@@ -50,37 +48,48 @@ export const ModalView = ({projectId, close, updateList}) => {
     const [allReady, setAllReady] = useState(false)
     const [messageApi, contextHolder] = message.useMessage();
 
-    useEffect(() => {
-        function update(){
-            if(siteStateList == []){
-                // console.log('actualice')
-                setInfo(i => ({
-                    ...info,
-                    // state: getItem(projectId.stateId, projectStateList).name,
-                    siteState: getItem(projectId.siteStateId, siteStateList).name
-                }))
-            }
-        }
-        update()
-    })
-
-    useEffect(() => {
-        function update(){
-            if(projectStateList == []){
-                // console.log('actualice')
-                setInfo(i => ({
-                    ...info,
-                    state: getItem(projectId.stateId, projectStateList).name,
-                    // siteState: getItem(projectId.siteStateId, siteStateList).name
-                }))
-            }
-        }
-        update()
-    })
+    function updateInfo(){
+        axios.get(`${apiAddress}/api/projects/${projectId.id}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            setInfo({
+                name: res.data.data[0].name,
+                address: res.data.data[0].address,
+                completed: new Date(res.data.data[0].completed),
+                started: new Date(res.data.data[0].started),
+                eta: res.data.data[0].eta,
+                state: getItem(res.data.data[0].stateId, projectStateList) ? (getItem(res.data.data[0].stateId, projectStateList).name):('Loading...'),
+                siteState: getItem(res.data.data[0].siteStateId, siteStateList) ? (getItem(res.data.data[0].siteStateId, siteStateList).name):('Loading...'),
+                id: res.data.data[0].id,
+            })
+                setLoadingReports(true)
+                let temp = []
+                res.data.data[0].reports.map(async(item) => {
+                    let lastNames
+                    const date = new Date(item.dateReported)
+                    axios.get(`${apiAddress}/api/person/${item.reporterUserId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+                    .then((response) => {
+                        if(response.data.data[0].lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].lastNames}
+                        const reporterUser = response.data.data[0].names + lastNames
+                        temp = [...temp, {
+                            reporterUser: reporterUser,
+                            dateReported: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
+                            id: item.id
+                        }]
+                        setReportList(temp)
+                    }).catch((err) => {
+                        console.log(err.response)
+                        if(err.response.status == 401){
+                            navigate('/Login')
+                        }
+                    }).finally(() => {
+                        setLoadingReports(false)
+                    })
+                })
+        })
+    }
 
     function addNewReport(){
         setAddingReport(true)
-        console.log(projectId.id)
         const date = new Date()
         const data = {
             "reporterUserId": userInfo.id,
@@ -153,6 +162,11 @@ export const ModalView = ({projectId, close, updateList}) => {
                     id: item.id
                 }]
                 setReportList(temp)
+            }).catch((err) => {
+                console.log(err.response)
+                if(err.response.status == 401){
+                    navigate('/Login')
+                }
             })
         })
         setLoadingReports(false)
@@ -230,7 +244,7 @@ export const ModalView = ({projectId, close, updateList}) => {
 
             { deleteConfirmation && <DeleteModal close={ () => setDeleteConfirmation(false) } projectKey={info.id} closeAll={close} updateList={updateList}/> }
             { seeReportModal && <ViewReport close={() => {setSeeReportModal(false)}} reportKey={selectedReport}/> }
-            { editReportModal && <EditReportInfo close={() => setEditReportModal(false)} reportInfo={selectedReport}/> }
+            { editReportModal && <EditReportInfo close={() => setEditReportModal(false)} reportInfo={selectedReport} update={updateInfo}/> }
         </div>
     )
 }

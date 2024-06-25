@@ -17,6 +17,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { ImagesModal, FilesModal } from './AtachmentsModal'
 import { message } from "antd";
+import dayjs from 'dayjs';
 
 export const ViewReport = ({reportKey, close}) => {
 
@@ -77,11 +78,9 @@ export const ViewReport = ({reportKey, close}) => {
 
     async function getLines(){
         try{
-            console.log('holasss')
             let temp = []
             const response = await axios.get(`${apiAddress}/api/reports/lines/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
             response.data.data.map(async(item) => {
-            console.log(item)
             axios.get(`${apiAddress}/api/reports/lines/categories/${item.categoryId}`, {headers: {'Authorization': `Session ${accessToken}`}})
             .then((res2) => {
                 temp = [...temp, {
@@ -247,7 +246,7 @@ export const ViewReport = ({reportKey, close}) => {
                                 <td className='cat'>{item.category}</td>
                                 <td className='options'>
                                     <Tooltip title='Files'>
-                                        <IconButton onClick={() => {setSelected(item.id);setFilesModal(true)}}> <InsertDriveFileIcon/> </IconButton>
+                                        <IconButton onClick={() => {setSelected(item);setFilesModal(true)}}> <InsertDriveFileIcon/> </IconButton>
                                     </Tooltip>
                                     <Tooltip title='Images'>
                                         <IconButton onClick={() => {setSelected(item);setImagesModal(true)}}> <ImageIcon/> </IconButton>
@@ -436,7 +435,7 @@ export const EditReportLine = ({close, reportLineInfo}) => {
     )
 }
 
-export const EditReportInfo = ({reportInfo, close}) => {
+export const EditReportInfo = ({reportInfo, close, update}) => {
 
     console.log(reportInfo)
 
@@ -480,7 +479,7 @@ export const EditReportInfo = ({reportInfo, close}) => {
         setError(false)
         const data = {
             dateReported: {
-                value: e.target[2].value,
+                value: e.target[0].value,
             }   
         }
         console.log(data)
@@ -505,25 +504,15 @@ export const EditReportInfo = ({reportInfo, close}) => {
     return(
         <form className="Modal" onSubmit={handleSubmit}>
             {contextHolder}
-            <h1>Edit this report</h1>
             {success ? (
                 <>
                     <h1>Changes saved</h1>
-                    <Button variant='contained' color='error' onClick={close}>close</Button>
+                    <Button variant='contained' color='error' onClick={() => {close(); update()}}>close</Button>
                 </>
             ):(<>
-                <Select
-                    value={staffSelected}
-                    onChange={(e)=>{setStaffSelected(e.target.value)}}
-                    className='fields'
-                    disabled={loading}
-                >
-                {staffList.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
-                ))}
-                </Select>
+                <h1>Edit this report</h1>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker label='Date reported' disableFuture className='fields' disabled={loading}/>
+                    <DatePicker label='Date reported' disableFuture className='fields' disabled={loading} defaultValue={dayjs(reportInfo.dateReported)}/>
                 </LocalizationProvider>
                 { error && <h3 style={{color: 'red'}}>An error has ocurred</h3> }
                 <div className='Buttons'>
