@@ -5,10 +5,26 @@ import UploadIcon from '@mui/icons-material/Upload';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 
 export const ImagesModal = ({close, reportLineInfo, update}) => {
 
-	const [imagesList, setImagesList] = useState(reportLineInfo.files)
+	useEffect(() => {
+		function filter(){
+			let temp = []
+			reportLineInfo.files.map((item) => {
+				console.log(item)
+				if(item.fileCategory == 'Image'){
+					temp.push(item)
+				}
+			})
+			setImagesList(temp)
+		}
+
+		filter()
+	},[])
+
+	const [imagesList, setImagesList] = useState([])
 	const [uploading, setUploading] = useState(false)
 
 	const navigate = useNavigate()
@@ -71,9 +87,27 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 
 export const FilesModal = ({close, reportLineInfo, update}) => {
 
+	console.log(reportLineInfo)
+
+	useEffect(() => {
+		function filter(){
+			let temp = []
+			reportLineInfo.files.map((item) => {
+				console.log(item)
+				if(item.fileCategory == 'File'){
+					temp.push(item)
+				}
+			})
+			setShowList(temp)
+		}
+
+		filter()
+	},[])
+
 	const navigate = useNavigate()
 
 	const [uploading, setUploading] = useState(false)
+	const [showList, setShowList] = useState([])
 
 	const handleUpload = (e) => {
 		e.preventDefault()
@@ -83,6 +117,7 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 		axios.post(`${apiAddress}/data/files/report/${reportLineInfo.id}/${fileName.value}`, file[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'application/file'}})
 		.then((res) => {
 			console.log(res)
+			setShowList([...showList, res.data.data[0]])
 		}).catch((err) => {
 			console.log(err.response)
 			if(err.response.status == 401){
@@ -91,6 +126,14 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 		}).finally(() => {
 			setUploading(false)
 		})
+	}
+
+	function handleDelete(){
+		console.log('borrado')
+	}
+
+	function handleDownload(){
+		console.log('descargado')
 	}
 
 	return(
@@ -103,6 +146,15 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 					<IconButton variant='contained' size='large' type='submit' disabled={uploading}>{uploading ? (<CircularProgress size={24}/>):(<UploadIcon/>)} </IconButton>
 				</Tooltip>
 			</form>
+			{ showList.map((item) => (
+				<div style={{border: '1px solid black', width: 'calc(95% - 30px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '25px', padding: '0px 15px'}}>
+					<h4 style={{width: '85%', textAlign: 'start'}}>{item.fileData}</h4>
+					<div className='Buttons' style={{width: '15%', display: 'flex', alignItems: 'center'}}>
+						<IconButton onClick={() => handleDelete(item.key)} size='large'> <DeleteIcon/> </IconButton>
+						<IconButton onClick={() => handleDownload(item.key)} size='large'> <DownloadIcon/> </IconButton>
+					</div>
+				</div>
+			)) }
 			<Button variant='contained' color='error' onClick={close} disabled={uploading}>close</Button>
 		</div>
 	)
