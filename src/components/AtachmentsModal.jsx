@@ -61,7 +61,6 @@ export const ImagesModal = ({close, reportLineInfo, update}) => {
 			setImagesList(imagesList.filter(key => key.key != imgKey ))
 		}).catch((err) => {
 			console.log(err.response)
-			setImagesList(imagesList.filter(key => key.key != imgKey ))
 		})
 	}
 
@@ -128,8 +127,13 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 		})
 	}
 
-	function handleDelete(){
-		console.log('borrado')
+	function handleDelete(reportKey){
+		axios.delete(`${apiAddress}/data/files/report/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+		.then((response) => {
+			setShowList(showList.filter(key => key.key != reportKey ))
+		}).catch((err) => {
+			console.log(err.response)
+		})
 	}
 
 	function handleDownload(){
