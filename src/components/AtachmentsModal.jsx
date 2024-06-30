@@ -93,7 +93,7 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 			let temp = []
 			reportLineInfo.files.map((item) => {
 				console.log(item)
-				if(item.fileCategory == 'File'){
+				if(item.fileCategory != 'Image'){
 					temp.push(item)
 				}
 			})
@@ -113,7 +113,7 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 		setUploading(true)
 		const fileName = document.getElementById('inputName')
 		const file = document.getElementById('fileInput')
-		axios.post(`${apiAddress}/data/files/report/${reportLineInfo.id}/${fileName.value}`, file[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': 'application/file'}})
+		axios.post(`${apiAddress}/data/files/report/${reportLineInfo.id}/${fileName.value}`, file.files[0], {headers: {'Authorization': `Session ${accessToken}`, 'Content-Type': file.files[0].type}})
 		.then((res) => {
 			console.log(res)
 			setShowList([...showList, res.data.data[0]])
@@ -127,17 +127,30 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 		})
 	}
 
-	function handleDelete(reportKey){
-		axios.delete(`${apiAddress}/data/files/report/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+	function handleDelete(fileKey){
+		axios.delete(`${apiAddress}/data/files/report/${fileKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
 		.then((response) => {
-			setShowList(showList.filter(key => key.key != reportKey ))
+			setShowList(showList.filter(key => key.key != fileKey ))
 		}).catch((err) => {
 			console.log(err.response)
 		})
 	}
 
-	function handleDownload(){
-		console.log('descargado')
+	function handleDownload(fileKey, fileExt){
+		axios.get(`${apiAddress}/data/files/${fileKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+		.then((res) => {
+			console.log(res)
+			const url = window.URL.createObjectURL(new Blob([res.data]))
+            const link = document.createElement('a')
+            link.href=url
+			const ext = fileExt.split('/')
+            link.setAttribute('download', `file.${ext[1]}`)
+            document.body.appendChild(link)
+            link.click()
+		}).catch((err) => {
+			console.log(err)
+			console.log(err.response)
+		})
 	}
 
 	return(
@@ -152,10 +165,10 @@ export const FilesModal = ({close, reportLineInfo, update}) => {
 			</form>
 			{ showList.map((item) => (
 				<div style={{border: '1px solid black', width: 'calc(95% - 30px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '25px', padding: '0px 15px'}}>
-					<h4 style={{width: '85%', textAlign: 'start'}}>{item.fileData}</h4>
+					<h4 style={{width: '85%', textAlign: 'start'}}>{item.description}</h4>
 					<div className='Buttons' style={{width: '15%', display: 'flex', alignItems: 'center'}}>
 						<IconButton onClick={() => handleDelete(item.key)} size='large'> <DeleteIcon/> </IconButton>
-						<IconButton onClick={() => handleDownload(item.key)} size='large'> <DownloadIcon/> </IconButton>
+						<IconButton onClick={() => handleDownload(item.key, item.fileData)} size='large'> <DownloadIcon/> </IconButton>
 					</div>
 				</div>
 			)) }

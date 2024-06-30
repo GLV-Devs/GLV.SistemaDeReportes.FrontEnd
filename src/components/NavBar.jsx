@@ -14,6 +14,7 @@ import ProjectStateIcon from '@mui/icons-material/AssignmentTurnedIn';
 import ProjectsIcon from '@mui/icons-material/ElectricalServices';
 import UsersIcon from '@mui/icons-material/AccountCircle';
 import axios from "axios";
+import ArtTrackIcon from '@mui/icons-material/ArtTrack';
 
 const NavBar = () => {
 
@@ -69,6 +70,7 @@ const NavBar = () => {
                 <Button onClick={() => {navigate('/main/ProjectRoles'); setOpenMenu(false)}}> {<RoleIcon/>} Project Roles</Button>
                 <Button onClick={() => {navigate('/main/reportlinescategories'); setOpenMenu(false)}}> {<ReportLineCategoryIcon/>} Report Line Categories</Button>
                 <Button onClick={() => {navigate('/main/users'); setOpenMenu(false)}}> <UsersIcon/> Users</Button>
+                <Button onClick={() => {navigate('/main/logos'); setOpenMenu(false)}}> <ArtTrackIcon/> Logos</Button>
             </Drawer>
         </div>
 

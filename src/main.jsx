@@ -17,6 +17,7 @@ import AppContextProvider from './context/AppContextProvider'
 import ReportLinesCategory from './routes/ReportLineCategory'
 import Users from './routes/Users'
 import Profile from './routes/Profile'
+import Logos from './routes/Logos'
 
 const router = createBrowserRouter([
   {
@@ -54,13 +55,16 @@ const router = createBrowserRouter([
           element: <ProjectStates/>,
         },{
           path: '/main/reportlinescategories',
-          element: <ReportLinesCategory/>
+          element: <ReportLinesCategory/>,
         },{
           path: '/main/users',
-          element: <Users/>
+          element: <Users/>,
         },{
           path: '/main/profile',
-          element: <Profile/>
+          element: <Profile/>,
+        },{
+          path: '/main/logos',
+          element: <Logos/>,
         }]
       }
     ],
