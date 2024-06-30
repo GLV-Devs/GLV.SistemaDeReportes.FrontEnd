@@ -212,6 +212,33 @@ body{
                 @include LI();
             }
         }
+
+        .Logos{
+            @include pages();
+
+            .logoListBox{
+
+                .logoBox{
+    
+                    img{
+                        width: 250px;
+                    }
+
+                    border: 1px solid black;
+                    border-radius: 25px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
+
+                display: flex;
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
     }
 }
 
