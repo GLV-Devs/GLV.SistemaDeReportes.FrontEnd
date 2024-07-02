@@ -11,6 +11,7 @@ const AppContextProvider = ({children}) => {
     const [reportLineCategoryList, setReportLineCategoryList] = useState([])
     const [projectStateList, setProjectStateList] = useState([])
     const [siteStateList, setSiteStateList] = useState([])
+    const [logoKeys, setLogoKeys] = useState([])
 
     return(
     <AppContext.Provider value={{
@@ -30,6 +31,8 @@ const AppContextProvider = ({children}) => {
         setProjectStateList,
         siteStateList,
         setSiteStateList,
+        logoKeys,
+        setLogoKeys,
     }}
     >
         {children}

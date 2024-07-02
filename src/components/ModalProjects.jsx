@@ -17,6 +17,8 @@ import { convertToISO, getRoleName, getItem } from "../functions";
 import { ViewReport, EditReportInfo } from "./ModalReports";
 import dayjs from "dayjs";
 import { message } from "antd";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { AssignLogo } from "./ModalLogos";
 
 export const ModalView = ({projectId, close, updateList}) => {
 
@@ -254,6 +256,10 @@ export const ModalEdit = ({close, projectInfo}) => {
     useEffect(() => {getStaffList()}, [])
     const navigate = useNavigate()
 
+    console.log(projectInfo)
+
+    const [contractorLogo, setContractorLogo] = useState(projectInfo.contractorLogoId)
+    const [clientLogo, setClientLogo] = useState(projectInfo.clientLogoId)
     const { productList, projectStateList, rolesList, siteStateList } = useContext(AppContext)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
@@ -271,6 +277,8 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [budgetEditModal, setBudgetEditModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState('')
     const [messageApi, contextHolder] = message.useMessage();
+    const [clientLogoSelector, setClientLogoSelector] = useState(false)
+    const [contractorLogoSelector, setContractorLogoSelector] = useState(false)
 
     useEffect(() => { getLists() }, [])
 
@@ -439,8 +447,8 @@ export const ModalEdit = ({close, projectInfo}) => {
             siteStateId: {
                 value: Number(e.target[15].value),
             },
-            contractorLogoId: null,
-            clientLogoId: null,
+            contractorLogoId: contractorLogo,
+            clientLogoId: clientLogo,
         }
         console.log(data)
         axios.put(`${apiAddress}/api/projects/${projectInfo.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -518,7 +526,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <Button variant='contained' color='error' onClick={close}>close</Button>
                 </div>
             ):(
-                <form className="Modal" onSubmit={handleUpdate}>
+                <form className="Modal EditProjectModal" onSubmit={handleUpdate}>
                     <h1>Edit Project</h1>
                     <TextField label='Name' className='fields' disabled={loading} defaultValue={projectInfo.name}/>
                     <TextField label='Address' className='fields' disabled={loading} defaultValue={projectInfo.address}/>
@@ -656,13 +664,30 @@ export const ModalEdit = ({close, projectInfo}) => {
                         ))}
                     </table>
 
+                    <h3>Logos</h3>
+                    <div className="logos">
+                        <div className="logoBox">
+                            <p>Contractor logo</p>
+                            { contractorLogo == null ? (<AddCircleIcon/>):(<img scr={`${apiAddress}/data/logos/${contractorLogo}`}/>) }
+                            <Button variant='contained' onClick={() => setContractorLogoSelector(true)} disabled={loading}>select</Button>
+                        </div>
+                        <div className="logoBox">
+                            <p>Client logo</p>
+                            { clientLogo == null ? (<AddCircleIcon/>):(<img scr={`${apiAddress}/data/logos/${clientLogo}`}/>) }
+                            <Button variant='contained' onClick={() => setClientLogoSelector(true)} disabled={loading}>select</Button>
+                        </div>
+                    </div>
+
                         {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
                     <div className='Buttons'>
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>
                         <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
+                        <Button onClick={() => console.log(`${apiAddress}/data/logos/${contractorLogo}`)}>log</Button>
                     </div>
                     { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id} update={() => updateBudgets()}/> }
                     { involvementEditModal && <EditInvolvementModal close={() => setInvolvementEditModal(false)} info={selectedItem} projectId={projectInfo.id} update={() => updateInvolvements()}/> }
+                    { clientLogoSelector && <AssignLogo close={() => setClientLogoSelector(false)} selection={setClientLogo}/> }
+                    { contractorLogoSelector && <AssignLogo close={() => setContractorLogoSelector(false)} selection={setContractorLogo}/> }
                 </form>
             ) }
         </>

@@ -10,24 +10,28 @@ const Logos = () => {
 
     useEffect(() => {getList()}, [])
     const navigate = useNavigate()
+    const {logoKeys, setLogoKeys} = useContext(AppContext)
 
     function getList(){
-        axios.get(`${apiAddress}/data/logos`, {headers: {'Authorization': `Session ${accessToken}`}})
-        .then((res) => {
-            setShowList(res.data.data)
-            console.log(res)
-        }).catch((err) => {
-            console.log(err.response)
-            if(err.response.status == 401){
-                navigate('/Login')
-            }
-        }).finally(() => {
+        if(logoKeys == []){
+            axios.get(`${apiAddress}/data/logos`, {headers: {'Authorization': `Session ${accessToken}`}})
+            .then((res) => {
+                setLogoKeys(res.data.data)
+                console.log(res)
+            }).catch((err) => {
+                console.log(err.response)
+                if(err.response.status == 401){
+                    navigate('/Login')
+                }
+            }).finally(() => {
+                setListLoading(false)
+            })
+        }else{
             setListLoading(false)
-        })
+        }
     }
 
     const [listLoading, setListLoading] = useState(true)
-    const [showList, setShowList] = useState([])
     const [addLogoModal, setAddLogoModal] = useState(false)
 
     return(
@@ -39,7 +43,7 @@ const Logos = () => {
             ):(
                 <>
                     <div className="logoListBox">
-                        { showList.map((item) => (
+                        { logoKeys.map((item) => (
                             <div className="logoBox">
                                 <img src={`${apiAddress}/data/logos/${item.key}`}/>
                             </div>

@@ -387,6 +387,47 @@ body{
     margin: 0px;
 }
 
+.EditProjectModal{
+    .logos{
+        display: flex;
+        gap: 50px;
+
+        .logoBox{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            // border: 1px solid black;
+            // border-radius: 10px;
+        }
+    }
+}
+
+.ModalSelectLogo{
+    .logoListBox{
+
+        .logoBox{
+
+            img{
+                width: 250px;
+            }
+
+            border: 1px solid black;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
 .ModalDual{
     z-index: 15;
     width: 80vw;
