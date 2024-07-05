@@ -668,12 +668,12 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <div className="logos">
                         <div className="logoBox">
                             <p>Contractor logo</p>
-                            { contractorLogo == null ? (<AddCircleIcon/>):(<img scr={`${apiAddress}/data/logos/${contractorLogo}`}/>) }
+                            { contractorLogo == null ? (<AddCircleIcon className="predet"/>):(<img src={`${apiAddress}/data/logos/${contractorLogo}`} key={contractorLogo}/>) }
                             <Button variant='contained' onClick={() => setContractorLogoSelector(true)} disabled={loading}>select</Button>
                         </div>
                         <div className="logoBox">
                             <p>Client logo</p>
-                            { clientLogo == null ? (<AddCircleIcon/>):(<img scr={`${apiAddress}/data/logos/${clientLogo}`}/>) }
+                            { clientLogo == null ? (<AddCircleIcon className="predet"/>):(<img src={`${apiAddress}/data/logos/${clientLogo}`} key={clientLogo}/>) }
                             <Button variant='contained' onClick={() => setClientLogoSelector(true)} disabled={loading}>select</Button>
                         </div>
                     </div>
@@ -682,7 +682,6 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <div className='Buttons'>
                         <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>Save</>)}</Button>
                         <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
-                        <Button onClick={() => console.log(`${apiAddress}/data/logos/${contractorLogo}`)}>log</Button>
                     </div>
                     { budgetEditModal && <EditBudgetModal close={() => setBudgetEditModal(false)} info={selectedItem} projectId={projectInfo.id} update={() => updateBudgets()}/> }
                     { involvementEditModal && <EditInvolvementModal close={() => setInvolvementEditModal(false)} info={selectedItem} projectId={projectInfo.id} update={() => updateInvolvements()}/> }
