@@ -182,7 +182,11 @@ export const ModalView = ({projectId, close, updateList}) => {
                     <h1>Info</h1>
                     <h3>Name: <span>{info.name}</span></h3>
                     <h3>Address: <span>{info.address}</span></h3>
-                    <h3>Completed: <span>{info.completed.toDateString()} - {info.completed.toLocaleTimeString()}</span></h3>
+                    { projectId.completed == null ? (
+                        <h3>Completed: <span>Not completed</span></h3>
+                    ):(
+                        <h3>Completed: <span>{info.completed.toDateString()} - {info.completed.toLocaleTimeString()}</span></h3>
+                    ) }
                     <h3>Started: <span>{info.started.toDateString()} - {info.started.toLocaleTimeString()}</span></h3>
                     <h3>Estimated Time: <span>{info.eta}</span></h3>
                     <h3>Project status: <span>{info.state}</span></h3>
@@ -428,6 +432,7 @@ export const ModalEdit = ({close, projectInfo}) => {
         let completedDate
         setError(false)
         setLoading(true)
+        console.log(e.target[10].value)
         if(e.target[10].value == ""){completedDate = null}else{completedDate = convertToISO(e.target[10].value)}
         const data = {
             name: e.target[0].value,
@@ -447,8 +452,12 @@ export const ModalEdit = ({close, projectInfo}) => {
             siteStateId: {
                 value: Number(e.target[15].value),
             },
-            contractorLogoId: contractorLogo,
-            clientLogoId: clientLogo,
+            contractorLogoId: {
+                value: contractorLogo,
+            },
+            clientLogoId: {
+                value: clientLogo,
+            }
         }
         console.log(data)
         axios.put(`${apiAddress}/api/projects/${projectInfo.id}`, data, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -516,7 +525,7 @@ export const ModalEdit = ({close, projectInfo}) => {
             }
         })
     }
-
+    console.log(projectInfo.completed == null)
     return(
         <>
             {contextHolder}
@@ -536,9 +545,16 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker label='Started' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading} defaultValue={dayjs(projectInfo.started)}/>
                     </LocalizationProvider>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker label='Completed' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading} defaultValue={dayjs(projectInfo.completed)}/>
-                    </LocalizationProvider>
+                    { projectInfo.completed == null ? (
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker label='Completed' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading}/>
+                        </LocalizationProvider>
+                    ):(
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker label='Completed' format="MM/DD/YYYY hh:mm a" className='fields' disabled={loading} defaultValue={dayjs(projectInfo.completed)}/>
+                        </LocalizationProvider>
+                    ) }
+
                     <div className="Select fields">
                         <p style={{width: '35%'}}>Project status:</p>
                         <Select
