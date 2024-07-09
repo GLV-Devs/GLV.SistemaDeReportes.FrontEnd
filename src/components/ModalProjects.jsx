@@ -283,6 +283,7 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [clientLogoSelector, setClientLogoSelector] = useState(false)
     const [contractorLogoSelector, setContractorLogoSelector] = useState(false)
+    const [userSelected, setUserSelected] = useState('')
 
     useEffect(() => { getLists() }, [])
 
@@ -525,7 +526,23 @@ export const ModalEdit = ({close, projectInfo}) => {
             }
         })
     }
-    console.log(projectInfo.completed == null)
+
+    function addUser(){
+        setLoading(true)
+        axios.post(`${apiAddress}/api/projects/${projectInfo.id}/access/${userSelected}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            console.log(res)
+        }).catch((err) => {
+            console.log(err.response)
+            setError(true)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+        }).finally(() => {
+            setLoading(false)
+        })
+    }
+
     return(
         <>
             {contextHolder}
@@ -650,14 +667,11 @@ export const ModalEdit = ({close, projectInfo}) => {
                     </table>
 
                     <div className='userSelectField fields' >
-                        <Select label='Staff' className="select" id='StaffSelector' onChange={(e) => setStaffSelected(e.target.value)} disabled={loading}>
+                        <Select label='User' className="select" id='StaffSelector' onChange={(e) => setUserSelected(e.target.value)} disabled={loading}>
                             {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
                         </Select>
-                        <Select className="select" id='RoleSelector' onChange={(e) => setRoleSelected(e.target.value)} disabled={loading}>
-                            {rolesList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
-                        </Select>
-                        <Tooltip title='Add staff'>
-                            <Fab color='info' onClick={addStaff} disabled={loading}><AddIcon/></Fab>
+                        <Tooltip title='Give user acces'>
+                            <Fab color='info' onClick={addUser} disabled={loading}><AddIcon/></Fab>
                         </Tooltip>
                     </div>
                     <table>

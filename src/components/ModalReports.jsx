@@ -28,6 +28,8 @@ export const ViewReport = ({reportKey, close}) => {
         getInfo()
     }, [])
 
+    const { productList } = useContext(AppContext)
+
     async function getInfo(){
         try{
             //aqui pedimos nombre de quien reporta y la fecha
@@ -188,6 +190,7 @@ export const ViewReport = ({reportKey, close}) => {
     //controlled form
     const [selectedCategory, setSelectedCategory] = useState(0)
     const [selectedAssistance, setSelectedAssistance] = useState (0)
+    const [selectedProduct, setSelectedProduct] = useState(0)
     //controlled form
 
     const [selected, setSelected] = useState(0)
@@ -206,6 +209,7 @@ export const ViewReport = ({reportKey, close}) => {
     const [imagesModal, setImagesModal] = useState(false)
     const [filesModal, setFilesModal] = useState(false)
     let lastNames
+    const [usedMaterialsList, setUsedMaterialsList] = useState([])
 
     function deleteAttendance(personId){
         axios.delete(`${apiAddress}/api/reports/attendance/${reportKey}/${personId}`, {headers: {'Authorization': `Session ${accessToken}`}})
@@ -314,6 +318,41 @@ export const ViewReport = ({reportKey, close}) => {
                         >
                             {staffList.map((item) => (
                                 <MenuItem value={item.id} key={item.id}>{item.names} {item.lastNames}</MenuItem>
+                            ))}
+                        </Select>
+                        <TextField label='Notes' multiline id='note' sx={{width: '56%'}} disabled={adding}/>
+                        <Tooltip title='Add Attendance'>
+                            <IconButton size='large' onClick={() => saveAttendance()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={loading}> {loading ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
+                        </Tooltip>
+                    </div>
+
+                    <h2>Used Materials</h2>
+                    <table>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Options</th>
+                        {usedMaterialsList.map((item) => (
+                            <tr>
+                                <td className='desc' disabled><p>{getFullPersonName(item.personId, staffList).names} {getFullPersonName(item.personId, staffList).lastNames }</p></td>
+                                <td className='cat'>{item.notes}</td>
+                                <td className='options'>
+                                    <Tooltip title='Delete'>
+                                        <IconButton onClick={() => deleteAttendance(item.personId)}> <DeleteIcon/> </IconButton>
+                                    </Tooltip>
+                                </td>
+                            </tr>
+                        ))}
+                    </table>
+
+                    <div className='NewLine'>
+                        <Select
+                            onChange={(e) => {setSelectedProduct(e.target.value)}}
+                            value={selectedProduct}
+                            sx={{width: '150px', position: 'relative', right: '30px'}}
+                            disabled={adding}
+                        >
+                            {productList.map((item) => (
+                                <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>
                             ))}
                         </Select>
                         <TextField label='Notes' multiline id='note' sx={{width: '56%'}} disabled={adding}/>
