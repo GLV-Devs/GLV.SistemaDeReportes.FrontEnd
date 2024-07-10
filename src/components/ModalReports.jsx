@@ -50,6 +50,8 @@ export const ViewReport = ({reportKey, close}) => {
             getAttendance()
             //Aqui pedimos las lineas de reporte, la funcion esta afuera porque debe renovarse
             getLines()
+            //Aqui pedimos todos los materiales que se han usado en este reporte
+            getUsedMaterial()
         }catch(err){
             console.log(err.response)
             if(err.response.data.dataType == 'ErrorList'){
@@ -74,6 +76,22 @@ export const ViewReport = ({reportKey, close}) => {
             }
             if(err.response.status == 401){
                 navigate('Login')
+            }
+        }
+    }
+
+    async function getUsedMaterial(){
+        try{
+            const response = await axios.get(`${apiAddress}/api/reports/products/${reportKey}`, {headers: {'Authorization': `Session ${accessToken}`}})
+            setUsedMaterialsList(response.data.data)
+            console.log(response)
+        }catch{
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
             }
         }
     }
@@ -146,6 +164,32 @@ export const ViewReport = ({reportKey, close}) => {
                 messageApi.error(err.response.data.data[0].defaultMessageES);
             }
             console.log(err.response)
+        })
+    }
+
+    function saveUsedMaterial(){
+        setLoading(true)
+        const qttySelector = document.getElementById('qttySelector')
+        const data = {
+            reportId: reportKey,
+            productId: selectedProduct,
+            quantity: qttySelector.value
+        }
+        console.log(data)
+        axios.post(`${apiAddress}/api/reports/products`, data, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            console.log(res)
+            getUsedMaterial()
+        }).catch((err) => {
+            console.log(err.response)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
+            if(err.response.data.dataType == 'ErrorList'){
+                messageApi.error(err.response.data.data[0].defaultMessageES);
+            }
+        }).finally(() => {
+            setLoading(false)
         })
     }
 
@@ -333,8 +377,8 @@ export const ViewReport = ({reportKey, close}) => {
                         <th>Options</th>
                         {usedMaterialsList.map((item) => (
                             <tr>
-                                <td className='desc' disabled><p>{getFullPersonName(item.personId, staffList).names} {getFullPersonName(item.personId, staffList).lastNames }</p></td>
-                                <td className='cat'>{item.notes}</td>
+                                <td className='desc' disabled><p>{item.product.name}</p></td>
+                                <td className='cat'>{item.quantity} {item.product.unit}</td>
                                 <td className='options'>
                                     <Tooltip title='Delete'>
                                         <IconButton onClick={() => deleteAttendance(item.personId)}> <DeleteIcon/> </IconButton>
@@ -355,9 +399,9 @@ export const ViewReport = ({reportKey, close}) => {
                                 <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>
                             ))}
                         </Select>
-                        <TextField label='Notes' multiline id='note' sx={{width: '56%'}} disabled={adding}/>
+                        <TextField label='Quantity' type='number' id='qttySelector' sx={{width: '56%'}} disabled={adding}/>
                         <Tooltip title='Add Attendance'>
-                            <IconButton size='large' onClick={() => saveAttendance()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={loading}> {loading ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
+                            <IconButton size='large' onClick={() => saveUsedMaterial()} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}} disabled={loading}> {loading ? (<CircularProgress/>):(<AddIcon sx={{color: 'white'}}/>)} </IconButton>
                         </Tooltip>
                     </div>
                     <Button variant='contained' color='warning' onClick={() => {setModalDeleteReport(true)}}>Delete Report</Button>
