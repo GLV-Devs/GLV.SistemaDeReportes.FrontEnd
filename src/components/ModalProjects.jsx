@@ -284,12 +284,15 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [clientLogoSelector, setClientLogoSelector] = useState(false)
     const [contractorLogoSelector, setContractorLogoSelector] = useState(false)
     const [userSelected, setUserSelected] = useState('')
+    const [usersWithAccessList, setUsersWithAccessList] = useState([])
+    const [usersList, setUsersList] = useState([])
 
     useEffect(() => { getLists() }, [])
 
     const getLists = () => {
         let tempBudgets = []
         let tempStaff = []
+        let tempUsers = []
         projectInfo.budgets.map((item) => {
             const data = {
                 name: getItem(item.productId, productList).name,
@@ -310,6 +313,14 @@ export const ModalEdit = ({close, projectInfo}) => {
             }
             tempStaff = [...tempStaff, data]
             setStaffList(tempStaff)
+        })
+
+        projectInfo.usersWithAccess.map((item) => {
+            const data = {
+                id: item.id
+            }
+            tempUsers = [...tempUsers, data]
+            setUsersWithAccessList(tempUsers)
         })
     }
 
@@ -665,9 +676,9 @@ export const ModalEdit = ({close, projectInfo}) => {
                             </tr>
                         ))}
                     </table>
-
-                    <div className='userSelectField fields' >
-                        <Select label='User' className="select" id='StaffSelector' onChange={(e) => setUserSelected(e.target.value)} disabled={loading}>
+                    <p style={{position: 'relative', right: '25%'}}>Users with access:</p>
+                    <div className='materialSelect fields' >
+                        <Select label='User' sx={{width: '90%'}} id='StaffSelector' onChange={(e) => setUserSelected(e.target.value)} disabled={loading}>
                             {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
                         </Select>
                         <Tooltip title='Give user acces'>
@@ -679,7 +690,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <th>User</th>
                             <th>Options</th>
                         </tr>
-                            {budgetList.map((item) => (
+                            {usersWithAccessList.map((item) => (
                             <tr>
                                 <td>{item.name}</td>
                                 <td style={{textAlign: 'center', width: '20%'}}>
