@@ -65,9 +65,9 @@ const Users = () => {
                             { item.userName != null && <>
                                 <h3>{item.names} {item.lastNames}</h3>
                                 <div className='Buttons'>
-                                    <Tooltip title='Change Password'>
+                                    {/*<Tooltip title='Change Password'>
                                         <Button onClick={() => {setPasswordModal(true); setSelectedItem(item)}}> <LockResetIcon/> </Button>
-                                    </Tooltip>
+                                    </Tooltip>*/}
                                     <Tooltip title='Edit user'>
                                         <Button onClick={() => {setEditModal(true); setSelectedItem(item)}}> <ModeEditIcon/> </Button>
                                     </Tooltip>

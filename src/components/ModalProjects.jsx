@@ -286,6 +286,7 @@ export const ModalEdit = ({close, projectInfo}) => {
     const [userSelected, setUserSelected] = useState('')
     const [usersWithAccessList, setUsersWithAccessList] = useState([])
     const [usersList, setUsersList] = useState([])
+    const [userListSelect, setUserListSelect] = useState([])
 
     useEffect(() => { getLists() }, [])
 
@@ -317,7 +318,8 @@ export const ModalEdit = ({close, projectInfo}) => {
 
         projectInfo.usersWithAccess.map((item) => {
             const data = {
-                id: item.id
+                id: item.id,
+                name: `${item.names} ${item.lastNames}`
             }
             tempUsers = [...tempUsers, data]
             setUsersWithAccessList(tempUsers)
@@ -501,6 +503,9 @@ export const ModalEdit = ({close, projectInfo}) => {
                     setStaffList([{name: ''}])
                 }
                 setStaffListSelect(response.data.data)
+                let tempStaff = response.data.data
+                let tempUsers = tempStaff.filter((item) => item.userName != null)
+                setUserListSelect(tempUsers)
             }
         }).catch((err) => {
             if(err.response.data.dataType == 'ErrorList'){
@@ -548,6 +553,24 @@ export const ModalEdit = ({close, projectInfo}) => {
             setError(true)
             if(err.response.status == 401){
                 navigate('/Login')
+            }
+        }).finally(() => {
+            setLoading(false)
+        })
+    }
+
+    function revokeAccess(userId){
+        setLoading(true)
+        axios.delete(`${apiAddress}/api/projects/${projectInfo.id}/access/${userId}`, {headers: {'Authorization': `Session ${accessToken}`}})
+        .then((res) => {
+            console.log(res)
+            let temp = usersWithAccessList
+            let newList = temp.filter((item) => item.id != userId)
+            setUsersWithAccessList(newList)
+        }).catch((err) => {
+            console.log(err.response)
+            if(err.response.status == 401){
+                naviagte('/Login')
             }
         }).finally(() => {
             setLoading(false)
@@ -615,7 +638,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                             {rolesList.map((item) => <MenuItem value={item.id}>{item.name}</MenuItem> )}
                         </Select>
                         <Tooltip title='Add staff'>
-                            <Fab color='info' onClick={addStaff} disabled={loading}><AddIcon/></Fab>
+                            <IconButton color='info' onClick={addStaff} disabled={loading} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}}><AddIcon sx={{color: 'white'}}/></IconButton>
                         </Tooltip>
                     </div>
                     <table>
@@ -652,7 +675,7 @@ export const ModalEdit = ({close, projectInfo}) => {
                             onChange={(e) => setQttySelected(e.target.value)}
                         />
                         <Tooltip title='Add material'>
-                            <Fab color='info' onClick={addBudget} disabled={loading}><AddIcon/></Fab>
+                            <IconButton color='info' onClick={addBudget} disabled={loading} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}}><AddIcon sx={{color: 'white'}}/></IconButton>
                         </Tooltip>
                     </div>
                     <table>
@@ -679,10 +702,10 @@ export const ModalEdit = ({close, projectInfo}) => {
                     <p style={{position: 'relative', right: '25%'}}>Users with access:</p>
                     <div className='materialSelect fields' >
                         <Select label='User' sx={{width: '90%'}} id='StaffSelector' onChange={(e) => setUserSelected(e.target.value)} disabled={loading}>
-                            {staffListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
+                            {userListSelect.map((item) => <MenuItem value={item.id}>{item.names} {item.lastNames}</MenuItem> )}
                         </Select>
                         <Tooltip title='Give user acces'>
-                            <Fab color='info' onClick={addUser} disabled={loading}><AddIcon/></Fab>
+                            <IconButton color='info' onClick={addUser} disabled={loading} sx={{position: 'relative', left: '5px', backgroundColor: 'rgb(2, 136, 209)'}}><AddIcon sx={{color: 'white'}}/></IconButton>
                         </Tooltip>
                     </div>
                     <table>
@@ -694,11 +717,8 @@ export const ModalEdit = ({close, projectInfo}) => {
                             <tr>
                                 <td>{item.name}</td>
                                 <td style={{textAlign: 'center', width: '20%'}}>
-                                    <Tooltip title='Edit'>
-                                        <IconButton onClick={() => {setSelectedItem(item); setBudgetEditModal(true)}}> <ModeEditIcon/> </IconButton>
-                                    </Tooltip>
                                     <Tooltip title='Delete'>
-                                        <IconButton onClick={() => deleteBudget(item.productId)}> <DeleteIcon/> </IconButton>
+                                        <IconButton onClick={() => revokeAccess(item.id)}> <DeleteIcon/> </IconButton>
                                     </Tooltip>
                                 </td>
                             </tr>
