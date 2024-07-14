@@ -21,6 +21,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { AssignLogo } from "./ModalLogos";
 
 export const ModalView = ({projectId, close, updateList}) => {
+    console.log(projectId)
 
     useEffect(() => { getReportList(); getBudgets(); getInvolvedPeople() },[])
 
@@ -153,14 +154,15 @@ export const ModalView = ({projectId, close, updateList}) => {
         let temp = []
         projectId.reports.map(async(item) => {
             let lastNames
-            const date = new Date(item.dateReported)
+            const date = item.dateReported
+            console.log(item.dateReported)
             axios.get(`${apiAddress}/api/person/${item.reporterUserId}`, {headers: {'Authorization': `Session ${accessToken}`}})
             .then((response) => {
                 if(response.data.data[0].lastNames == null){lastNames = ''}else{lastNames = response.data.data[0].lastNames}
                 const reporterUser = response.data.data[0].names + lastNames
                 temp = [...temp, {
                     reporterUser: reporterUser,
-                    dateReported: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
+                    dateReported: `${date[5]}${date[6]}/${date[8]}${date[9]}/${date[0]}${date[1]}${date[2]}${date[3]}`,
                     id: item.id
                 }]
                 setReportList(temp)
