@@ -1071,18 +1071,30 @@ export const ExportModal = ({projectId, close}) => {
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
     const [messageApi, contextHolder] = message.useMessage();
+    const [startShow, setStartShow] = useState('')
+    const [endShow, setEndShow] = useState('')
 
     async function getGeneralReport(e){
         e.preventDefault()
         setLoading(true)
         setError(false)
         setSuccess(false)
+        let end
+        if(e.target[2].value == undefined){
+            end = e.target[3].value
+            setEndShow(e.target[3].value)
+        }else{
+            end = e.target[2].value
+            setEndShow(e.target[2].value)
+        }
         const data = {
             projectKey: projectId,
             start: e.target[0].value,
-            end: e.target[3].value,
+            end: end,
         }
+        setStartShow(e.target[0].value)
         console.log(data)
+        // console.log(e.target[4].value)
         const PDFkey = await axios.post(`${apiAddress}/data/export/project/general/pdf`, data, {headers: {'Authorization': `Session ${accessToken}`}})
         axios.get(`${apiAddress}/data/export/project/general/download/?token=${PDFkey.data.data[0]}`, {headers: {'Authorization': `Session ${accessToken}`}, responseType: 'blob'})
         .then((response=>{
@@ -1099,6 +1111,9 @@ export const ExportModal = ({projectId, close}) => {
             }
             setError(true)
             console.log(error)
+            if(err.response.status == 401){
+                navigate('/Login')
+            }
         })
         setLoading(false)
 
@@ -1118,6 +1133,7 @@ export const ExportModal = ({projectId, close}) => {
             </div>
             {error && <h3 style={{color: 'red'}}>An error has ocurred</h3>}
             {success && <h3 style={{color: 'green'}}>General report has been exported</h3>}
+            {/*<h3>{startShow}  {endShow}</h3>*/}
             <div className='Buttons'>
                 <Button variant='contained' type='submit' disabled={loading}>{loading ? (<CircularProgress/>):(<>export</>)}</Button>
                 <Button variant='contained' color='error' onClick={close} disabled={loading}>close</Button>
