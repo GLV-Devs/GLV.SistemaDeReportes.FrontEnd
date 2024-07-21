@@ -484,7 +484,8 @@ body{
             width: 40%;
 
             @media(orientation: portrait){
-                width: 100%;
+                width: 90%;
+                height: 40vh;
             }
         }
 
@@ -492,7 +493,7 @@ body{
             @include subModal();
 
             @media(orientation: portrait){
-                width: 100%;
+                width: 95%;
             }
         }
     }
@@ -521,6 +522,13 @@ body{
     justify-content: space-around;
     border: 1px solid black;
     border-radius: 10px;
+
+    @media(orientation: portrait){
+        border-radius: 0;
+        border: none;
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
 
     h3{color: black;}
 
