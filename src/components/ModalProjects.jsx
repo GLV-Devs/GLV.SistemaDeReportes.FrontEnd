@@ -21,7 +21,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { AssignLogo } from "./ModalLogos";
 
 export const ModalView = ({projectId, close, updateList}) => {
-    console.log(projectId)
+    // console.log(projectId)
 
     useEffect(() => { getReportList(); getBudgets(); getInvolvedPeople() },[])
 
@@ -76,9 +76,11 @@ export const ModalView = ({projectId, close, updateList}) => {
                         temp = [...temp, {
                             reporterUser: reporterUser,
                             dateReported: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
-                            id: item.id
+                            id: item.id,
+                            time: new Date(item.dateReported)
                         }]
-                        setReportList(temp)
+                        setReportList(temp.sort((a, b) => a.time.getTime() > b.time.getTime()))
+                        // setReportList(temp)
                     }).catch((err) => {
                         console.log(err.response)
                         if(err.response.status == 401){
@@ -108,7 +110,8 @@ export const ModalView = ({projectId, close, updateList}) => {
                 setReportList([...reportList, {
                     reporterUser: reporterUser,
                     dateReported: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
-                    id: response.data.data[0].id
+                    id: response.data.data[0].id,
+                    time: new Date(response.data.data[0].dateReported)
                 }])
                 setAddingReport(false)
             }
@@ -163,9 +166,11 @@ export const ModalView = ({projectId, close, updateList}) => {
                 temp = [...temp, {
                     reporterUser: reporterUser,
                     dateReported: `${date[5]}${date[6]}/${date[8]}${date[9]}/${date[0]}${date[1]}${date[2]}${date[3]}`,
-                    id: item.id
+                    id: item.id,
+                    time: new Date(item.dateReported)
                 }]
-                setReportList(temp)
+                // setReportList(temp)
+                setReportList(temp.sort((a, b) => a.time.getTime() > b.time.getTime()))
             }).catch((err) => {
                 console.log(err.response)
                 if(err.response.status == 401){
